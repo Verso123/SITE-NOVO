@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Sala — Voz e Tela</title><style>
 *{box-sizing:border-box}body{margin:0;font-family:'Segoe UI',sans-serif;background:#090910;color:#eee;min-height:100vh}header{height:70px;padding:0 24px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #24243a;background:#11111d}a{color:#aaa;text-decoration:none}.app{max-width:1240px;margin:auto;padding:28px 20px}.panel{background:#131322;border:1px solid #292942;border-radius:18px;padding:24px}.join{display:grid;grid-template-columns:1fr auto auto;gap:10px}input,button{border-radius:9px;border:1px solid #343450;padding:12px 14px;font-size:14px}input{background:#0d0d18;color:#fff}button{background:#7c6af7;color:#fff;font-weight:700;cursor:pointer}button:disabled{opacity:.55;cursor:not-allowed}button.secondary{background:#202034;color:#bbb}button.danger{background:#3a1418;color:#ff9a9a;border-color:#61252b}.status{color:#999;font-size:13px}.room{display:none}.code{color:#a99cff;font-weight:800}.hint{font-size:12px;color:#666;margin-top:12px;line-height:1.5}
-.call-shell{display:grid;grid-template-columns:250px 1fr;min-height:650px;background:#0c0c14;border:1px solid #292942;border-radius:18px;overflow:hidden}.sidebar{background:#15151f;border-right:1px solid #292942;display:flex;flex-direction:column}.channel{padding:18px;border-bottom:1px solid #292942}.channel-title{font-weight:800;font-size:16px}.channel-sub{font-size:12px;color:#777;margin-top:4px}.members{padding:12px;flex:1}.members-title{font-size:11px;color:#777;text-transform:uppercase;font-weight:800;padding:6px 8px}.member{display:flex;align-items:center;gap:10px;padding:10px 8px;border-radius:8px}.member:hover{background:#20202c}.avatar{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#7c6af7,#4033a8);display:flex;align-items:center;justify-content:center;font-weight:900;position:relative}.dot{position:absolute;width:11px;height:11px;border-radius:50%;background:#35c46a;border:2px solid #15151f;right:-1px;bottom:0}.member-name{font-weight:700;font-size:14px}.member-state{font-size:11px;color:#777;margin-top:2px}.sidebar-room{padding:14px;border-top:1px solid #292942;font-size:12px;color:#888}
+.call-shell{display:grid;grid-template-columns:250px 1fr;min-height:650px;background:#0c0c14;border:1px solid #292942;border-radius:18px;overflow:hidden}.sidebar{background:#15151f;border-right:1px solid #292942;display:flex;flex-direction:column}.channel{padding:18px;border-bottom:1px solid #292942}.channel-title{font-weight:800;font-size:16px}.channel-sub{font-size:12px;color:#777;margin-top:4px}.members{padding:12px;flex:1}.members-title{font-size:11px;color:#777;text-transform:uppercase;font-weight:800;padding:6px 8px}.member{display:flex;align-items:center;gap:10px;padding:10px 8px;border-radius:8px}.member:hover{background:#20202c}.avatar{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#7c6af7,#4033a8);display:flex;align-items:center;justify-content:center;font-weight:900;position:relative}.dot{position:absolute;width:11px;height:11px;border-radius:50%;background:#35c46a;border:2px solid #15151f;right:-1px;bottom:0}.member-name{font-weight:700;font-size:14px}.member-state{font-size:11px;color:#777;margin-top:2px}.streams{padding:0 12px 14px}.streams-title{font-size:11px;color:#777;text-transform:uppercase;font-weight:800;padding:6px 8px}.stream-tile{display:none;border:1px solid #313145;background:#20202c;border-radius:10px;overflow:hidden;cursor:pointer;transition:.15s}.stream-tile:hover{border-color:#7c6af7;background:#262638}.stream-thumb{height:105px;background:#07070c;position:relative;overflow:hidden}.stream-thumb video{width:100%;height:100%;object-fit:cover}.live{position:absolute;left:7px;bottom:7px;background:#e23b4d;color:#fff;border-radius:4px;padding:3px 6px;font-size:9px;font-weight:900}.stream-info{padding:8px 10px}.stream-name{font-size:12px;font-weight:800}.stream-help{font-size:10px;color:#888;margin-top:3px}.sidebar-room{padding:14px;border-top:1px solid #292942;font-size:12px;color:#888}
 .main-call{display:flex;flex-direction:column;min-width:0}.topbar{height:64px;padding:0 18px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #232334;background:#101019}.stage{flex:1;margin:18px;background:#07070c;border:1px solid #23233a;border-radius:16px;min-height:430px;display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative}.stage video{width:100%;height:100%;max-height:620px;object-fit:contain;background:#050507}.empty{text-align:center;color:#777;padding:30px}.empty b{display:block;color:#aaa;font-size:18px;margin-bottom:7px}.empty span{font-size:13px;line-height:1.5}.controls{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;padding:0 18px 20px}.controls button{min-width:150px}
 @media(max-width:760px){.join{grid-template-columns:1fr}.call-shell{grid-template-columns:1fr}.sidebar{display:none}.stage{min-height:330px;margin:10px}.controls button{min-width:auto}}
 </style></head><body><header><strong>🎙️ Sala com Amigos</strong><a href="inicio.html">← Voltar</a></header><main class="app"><section class="panel" id="lobby"><h2>Entrar em uma sala</h2><p style="color:#888">Crie um código ou digite o código que seu amigo enviou.</p><div class="join"><input id="codigo" maxlength="20" placeholder="Código da sala"><button id="btnCriar" onclick="criar()" disabled>Criar sala</button><button id="btnEntrar" class="secondary" onclick="entrar()" disabled>Entrar</button></div><div class="hint">A primeira versão suporta 2 pessoas por sala. O áudio e a tela usam WebRTC; o Firebase é usado apenas para conectar os dois navegadores.</div>
@@ -22,6 +22,19 @@
         <div><div class="member-name">Amigo</div><div class="member-state">Aguardando entrar...</div></div>
       </div>
     </div>
+    <div class="streams">
+      <div class="streams-title">Transmissões</div>
+      <div class="stream-tile" id="streamTile" onclick="abrirTransmissao()">
+        <div class="stream-thumb">
+          <video id="streamPreview" autoplay muted playsinline></video>
+          <div class="live">AO VIVO</div>
+        </div>
+        <div class="stream-info">
+          <div class="stream-name" id="streamName">Transmissão</div>
+          <div class="stream-help">Clique para assistir</div>
+        </div>
+      </div>
+    </div>
     <div class="sidebar-room">Sala <strong class="code" id="sideRoomCode"></strong></div>
   </aside>
 
@@ -36,7 +49,7 @@
         <b>👥 Aguardando seu amigo</b>
         <span>Compartilhe o código da sala.<br>Quando alguém entrar, vocês poderão conversar e compartilhar a tela.</span>
       </div>
-      <video id="remote" autoplay playsinline></video>
+      <video id="remote" autoplay playsinline style="display:none"></video><video id="mainStream" autoplay muted playsinline style="display:none"></video>
     </div>
 
     <div class="controls">
@@ -50,7 +63,7 @@
 </section></main>
 <script type="module">
 import{initializeApp}from'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';import{getAuth,onAuthStateChanged}from'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';import{getFirestore,doc,setDoc,getDoc,updateDoc,collection,addDoc,onSnapshot,getDocs,deleteDoc}from'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
-const cfg={apiKey:'AIzaSyAaIxroCAMOvDxg5aLUr2P8jweygemm1uM',authDomain:'lista-de-jogos-f1874.firebaseapp.com',projectId:'lista-de-jogos-f1874',storageBucket:'lista-de-jogos-f1874.firebasestorage.app',messagingSenderId:'692334284655',appId:'1:692334284655:web:a55db647b5f8b39d00a29a'};const app=initializeApp(cfg),auth=getAuth(app),db=getFirestore(app);let pc,micStream,screenStream,roomId,isHost=false,unsubs=[];const remote=document.getElementById('remote'),status=document.getElementById('status');
+const cfg={apiKey:'AIzaSyAaIxroCAMOvDxg5aLUr2P8jweygemm1uM',authDomain:'lista-de-jogos-f1874.firebaseapp.com',projectId:'lista-de-jogos-f1874',storageBucket:'lista-de-jogos-f1874.firebasestorage.app',messagingSenderId:'692334284655',appId:'1:692334284655:web:a55db647b5f8b39d00a29a'};const app=initializeApp(cfg),auth=getAuth(app),db=getFirestore(app);let pc,micStream,screenStream,roomId,isHost=false,unsubs=[];const remote=document.getElementById('remote'),status=document.getElementById('status'),streamPreview=document.getElementById('streamPreview'),mainStream=document.getElementById('mainStream');let remoteStreamAtual=null;
 onAuthStateChanged(auth,u=>{
       if(!u){ location.href='login.html'; return; }
       document.getElementById('btnCriar').disabled=false;
@@ -67,8 +80,21 @@ function erroLobby(e){
       el.style.display='block';
     }
     function limparErro(){ document.getElementById('lobbyErro').style.display='none'; }
-    async function setup(){pc=new RTCPeerConnection(rtc);micStream=await navigator.mediaDevices.getUserMedia({audio:true,video:false});micStream.getTracks().forEach(t=>pc.addTrack(t,micStream));pc.ontrack=e=>{remote.srcObject=e.streams[0];document.getElementById('empty').style.display='none'};pc.onconnectionstatechange=()=>status.textContent='Conexão: '+pc.connectionState;}
-function show(){document.getElementById('lobby').style.display='none';document.getElementById('room').style.display='block';document.getElementById('roomCode').textContent=roomId}
+    async function setup(){pc=new RTCPeerConnection(rtc);micStream=await navigator.mediaDevices.getUserMedia({audio:true,video:false});micStream.getTracks().forEach(t=>pc.addTrack(t,micStream));pc.ontrack=e=>{
+  remote.srcObject=e.streams[0];
+  remoteStreamAtual=e.streams[0];
+  if(e.track.kind==='video'){
+    streamPreview.srcObject=e.streams[0];
+    document.getElementById('streamName').textContent='Amigo está transmitindo';
+    document.getElementById('streamTile').style.display='block';
+    status.textContent='Transmissão disponível';
+    e.track.onended=()=>{
+      document.getElementById('streamTile').style.display='none';
+      fecharTransmissao();
+    };
+  }
+};pc.onconnectionstatechange=()=>status.textContent='Conexão: '+pc.connectionState;}
+function show(){document.getElementById('lobby').style.display='none';document.getElementById('room').style.display='block';document.getElementById('roomCode').textContent=roomId;document.getElementById('sideRoomCode').textContent=roomId}
 function gen(){return Math.random().toString(36).slice(2,8).toUpperCase()}
 window.criar=async()=>{
   limparErro();
@@ -169,8 +195,42 @@ window.entrar=async()=>{
   }
 };
 window.toggleMic=()=>{const t=micStream?.getAudioTracks()[0];if(!t)return;t.enabled=!t.enabled;document.getElementById('mic').textContent=t.enabled?'🎙️ Microfone ligado':'🔇 Microfone desligado'};
-window.compartilhar=async()=>{try{screenStream=await navigator.mediaDevices.getDisplayMedia({video:true,audio:true});const vt=screenStream.getVideoTracks()[0];const sender=pc.getSenders().find(s=>s.track?.kind==='video');if(sender)await sender.replaceTrack(vt);else pc.addTrack(vt,screenStream);const at=screenStream.getAudioTracks()[0];if(at)pc.addTrack(at,screenStream);vt.onended=()=>window.pararTela();status.textContent='Compartilhando tela'}catch(e){status.textContent='Compartilhamento cancelado.'}};
-window.pararTela=()=>{if(!screenStream)return;screenStream.getTracks().forEach(t=>t.stop());const sender=pc?.getSenders().find(s=>s.track?.kind==='video');if(sender)pc.removeTrack(sender);screenStream=null;status.textContent='Tela não compartilhada'};
+window.compartilhar=async()=>{try{screenStream=await navigator.mediaDevices.getDisplayMedia({video:true,audio:true});const vt=screenStream.getVideoTracks()[0];const sender=pc.getSenders().find(s=>s.track?.kind==='video');if(sender)await sender.replaceTrack(vt);else pc.addTrack(vt,screenStream);const at=screenStream.getAudioTracks()[0];if(at)pc.addTrack(at,screenStream);
+streamPreview.srcObject=screenStream;
+document.getElementById('streamName').textContent='Sua transmissão';
+document.getElementById('streamTile').style.display='block';
+vt.onended=()=>window.pararTela();
+status.textContent='Compartilhando tela'}catch(e){status.textContent='Compartilhamento cancelado.'}};
+window.pararTela=()=>{
+  if(!screenStream)return;
+  screenStream.getTracks().forEach(t=>t.stop());
+  const sender=pc?.getSenders().find(s=>s.track?.kind==='video');
+  if(sender)pc.removeTrack(sender);
+  screenStream=null;
+  fecharTransmissao();
+
+  if(remoteStreamAtual && remoteStreamAtual.getVideoTracks().some(t=>t.readyState==='live')){
+    streamPreview.srcObject=remoteStreamAtual;
+    document.getElementById('streamName').textContent='Amigo está transmitindo';
+    document.getElementById('streamTile').style.display='block';
+  }else{
+    streamPreview.srcObject=null;
+    document.getElementById('streamTile').style.display='none';
+  }
+  status.textContent='Tela não compartilhada';
+};
+window.abrirTransmissao=()=>{
+  const stream=screenStream || (remoteStreamAtual&&remoteStreamAtual.getVideoTracks().some(t=>t.readyState==='live')?remoteStreamAtual:null);
+  if(!stream)return;
+  mainStream.srcObject=stream;
+  mainStream.style.display='block';
+  document.getElementById('empty').style.display='none';
+};
+function fecharTransmissao(){
+  mainStream.srcObject=null;
+  mainStream.style.display='none';
+  document.getElementById('empty').style.display='block';
+}
 window.copiar=async()=>{await navigator.clipboard.writeText(roomId);status.textContent='Código copiado: '+roomId};
 window.sairSala=async()=>{unsubs.forEach(f=>f());micStream?.getTracks().forEach(t=>t.stop());screenStream?.getTracks().forEach(t=>t.stop());pc?.close();if(isHost&&roomId){const r=doc(db,'salasVoz',roomId);for(const n of ['hostCandidates','guestCandidates']){const s=await getDocs(collection(r,n));for(const d of s.docs)await deleteDoc(d.ref)}await deleteDoc(r)}location.href='inicio.html'};
 </script></body></html>
