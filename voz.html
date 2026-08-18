@@ -92,8 +92,8 @@
 </div>
 </section></main>
 <script type="module">
-import{initializeApp}from'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';import{getAuth,onAuthStateChanged}from'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';import{getFirestore,doc,setDoc,getDoc,updateDoc,collection,addDoc,onSnapshot,getDocs,deleteDoc}from'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
-const cfg={apiKey:'AIzaSyAaIxroCAMOvDxg5aLUr2P8jweygemm1uM',authDomain:'lista-de-jogos-f1874.firebaseapp.com',projectId:'lista-de-jogos-f1874',storageBucket:'lista-de-jogos-f1874.firebasestorage.app',messagingSenderId:'692334284655',appId:'1:692334284655:web:a55db647b5f8b39d00a29a'};const app=initializeApp(cfg),auth=getAuth(app),db=getFirestore(app);let pc,micStream,screenStream,roomId,isHost=false,unsubs=[];const remote=document.getElementById('remote'),status=document.getElementById('status'),streamPreview=document.getElementById('streamPreview'),mainStream=document.getElementById('mainStream');let remoteStreamAtual=null;
+import{initializeApp}from'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';import{getAuth,onAuthStateChanged}from'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';import{getFirestore,doc,setDoc,getDoc,updateDoc,collection,addDoc,onSnapshot,getDocs,deleteDoc,runTransaction}from'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+const cfg={apiKey:'AIzaSyAaIxroCAMOvDxg5aLUr2P8jweygemm1uM',authDomain:'lista-de-jogos-f1874.firebaseapp.com',projectId:'lista-de-jogos-f1874',storageBucket:'lista-de-jogos-f1874.firebasestorage.app',messagingSenderId:'692334284655',appId:'1:692334284655:web:a55db647b5f8b39d00a29a'};const app=initializeApp(cfg),auth=getAuth(app),db=getFirestore(app);let pc,micStream,screenStream,roomId,isHost=false,unsubs=[];const remote=document.getElementById('remote'),status=document.getElementById('status'),streamPreview=document.getElementById('streamPreview'),mainStream=document.getElementById('mainStream');let remoteStreamAtual=null;let sessionId=null;let heartbeatTimer=null;
 onAuthStateChanged(auth,u=>{
       if(!u){ location.href='login.html'; return; }
     });const NOMES_SALAS={sala1:'Sala 1',sala2:'Sala 2',sala3:'Sala 3',sala4:'Sala 4',sala5:'Sala 5'};
@@ -224,54 +224,150 @@ function show(){
   const side=document.getElementById('sideRoomCode'); if(side) side.textContent=nome;
 }
 function gen(){return Math.random().toString(36).slice(2,8).toUpperCase()}
+
+function novaSessaoId(){
+  return Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,10);
+}
+
+function candidatoDaSessao(data){
+  return data && data.sessionId===sessionId;
+}
+
+async function iniciarHeartbeat(r){
+  if(heartbeatTimer) clearInterval(heartbeatTimer);
+  if(!isHost) return;
+  const bater=async()=>{
+    try{
+      const snap=await getDoc(r);
+      const d=snap.data();
+      if(!d || d.sessionId!==sessionId || d.hostUid!==auth.currentUser?.uid){
+        clearInterval(heartbeatTimer);heartbeatTimer=null;return;
+      }
+      await updateDoc(r,{hostHeartbeat:Date.now()});
+    }catch(e){ console.warn('heartbeat',e); }
+  };
+  await bater();
+  heartbeatTimer=setInterval(bater,10000);
+}
+
+async function esperarOffer(r){
+  const inicial=await getDoc(r);
+  if(inicial.exists()){
+    const d=inicial.data();
+    if(d.sessionId===sessionId && d.offer) return d.offer;
+  }
+  return await new Promise((resolve,reject)=>{
+    const timeout=setTimeout(()=>{unsub();reject(new Error('A Sala não terminou de iniciar. Tente novamente.'));},12000);
+    const unsub=onSnapshot(r,s=>{
+      const d=s.data();
+      if(d?.sessionId===sessionId && d?.offer){
+        clearTimeout(timeout);unsub();resolve(d.offer);
+      }
+    },e=>{clearTimeout(timeout);unsub();reject(e);});
+  });
+}
+
 window.entrarSalaFixa=async(id)=>{
   limparErro();
   roomId=id;
+  const uid=auth.currentUser?.uid;
+  if(!uid){ erroLobby(new Error('Sua sessão ainda não carregou.')); return; }
+
+  const r=doc(db,'salasVoz',roomId);
 
   try{
-    if(!auth.currentUser) throw new Error('Sua sessão ainda não carregou. Atualize a página e tente novamente.');
+    const papel=await runTransaction(db,async tx=>{
+      const snap=await tx.get(r);
+      const d=snap.exists()?snap.data():null;
+      const agora=Date.now();
+      const hostVivo=d?.ativo===true && d?.hostHeartbeat && (agora-d.hostHeartbeat)<30000;
 
-    const r=doc(db,'salasVoz',roomId);
-    const snap=await getDoc(r);
-    const dados=snap.exists()?snap.data():null;
+      // Sala vazia ou host antigo caiu: cria uma sessão nova.
+      if(!d || !hostVivo){
+        const sid=novaSessaoId();
+        tx.set(r,{
+          ativo:true,
+          sessionId:sid,
+          hostUid:uid,
+          guestUid:null,
+          hostHeartbeat:agora,
+          criadoEm:agora,
+          offer:null,
+          answer:null,
+          hostScreenSharing:false,
+          guestScreenSharing:false
+        });
+        return {role:'host',sid};
+      }
 
-    // Sala vazia: este usuário vira host.
-    if(!dados || !dados.offer || dados.ativo===false){
-      isHost=true;
-      await setup();
+      // Mesmo host recarregando: reinicia a sessão para evitar ICE antigo.
+      if(d.hostUid===uid){
+        const sid=novaSessaoId();
+        tx.update(r,{
+          ativo:true,
+          sessionId:sid,
+          guestUid:null,
+          hostHeartbeat:agora,
+          criadoEm:agora,
+          offer:null,
+          answer:null,
+          hostScreenSharing:false,
+          guestScreenSharing:false
+        });
+        return {role:'host',sid};
+      }
 
-      await setDoc(r,{
-        criadoPor:auth.currentUser.uid,
-        criadoEm:Date.now(),
-        ativo:true,
-        offer:null,
-        answer:null,
-        hostScreenSharing:false,
-        guestScreenSharing:false
-      });
+      // Sala ativa com uma vaga: entra como convidado.
+      if(!d.guestUid || d.guestUid===uid){
+        tx.update(r,{guestUid:uid,answer:null,guestScreenSharing:false});
+        return {role:'guest',sid:d.sessionId};
+      }
 
+      throw new Error('Sala cheia. Escolha outra sala.');
+    });
+
+    sessionId=papel.sid;
+    isHost=papel.role==='host';
+
+    await setup();
+
+    if(isHost){
       pc.onicecandidate=e=>{
         if(e.candidate){
-          addDoc(collection(r,'hostCandidates'),e.candidate.toJSON()).catch(erroLobby);
+          addDoc(collection(r,'hostCandidates'),{
+            ...e.candidate.toJSON(),
+            sessionId
+          }).catch(erroLobby);
         }
       };
 
       const offer=await pc.createOffer();
       await pc.setLocalDescription(offer);
-      await updateDoc(r,{offer:{type:offer.type,sdp:offer.sdp}});
+      await updateDoc(r,{
+        offer:{type:offer.type,sdp:offer.sdp},
+        answer:null,
+        hostHeartbeat:Date.now()
+      });
+
+      await iniciarHeartbeat(r);
 
       unsubs.push(onSnapshot(r,async s=>{
         const d=s.data();
-        if(d?.answer && !pc.currentRemoteDescription){
+        if(!d || d.sessionId!==sessionId) return;
+        if(d.answer && !pc.currentRemoteDescription){
           await pc.setRemoteDescription(d.answer);
         }
-        if(d?.guestScreenSharing===true) mostrarTransmissaoRemota(remoteStreamAtual);
-        if(d?.guestScreenSharing===false) esconderTransmissaoRemota();
+        if(d.guestScreenSharing===true) mostrarTransmissaoRemota(remoteStreamAtual);
+        if(d.guestScreenSharing===false) esconderTransmissaoRemota();
       },erroLobby));
 
       unsubs.push(onSnapshot(collection(r,'guestCandidates'),s=>{
         s.docChanges().forEach(c=>{
-          if(c.type==='added') pc.addIceCandidate(c.doc.data()).catch(console.error);
+          const data=c.doc.data();
+          if(c.type==='added' && candidatoDaSessao(data)){
+            const {sessionId:_,...candidate}=data;
+            pc.addIceCandidate(candidate).catch(console.error);
+          }
         });
       },erroLobby));
 
@@ -280,40 +376,55 @@ window.entrarSalaFixa=async(id)=>{
       return;
     }
 
-    // Sala já criada: entra como convidado.
-    isHost=false;
-    await setup();
-
+    // GUEST
     pc.onicecandidate=e=>{
       if(e.candidate){
-        addDoc(collection(r,'guestCandidates'),e.candidate.toJSON()).catch(erroLobby);
+        addDoc(collection(r,'guestCandidates'),{
+          ...e.candidate.toJSON(),
+          sessionId
+        }).catch(erroLobby);
       }
     };
 
-    await pc.setRemoteDescription(dados.offer);
+    const offer=await esperarOffer(r);
+    await pc.setRemoteDescription(offer);
     const answer=await pc.createAnswer();
     await pc.setLocalDescription(answer);
-    await updateDoc(r,{answer:{type:answer.type,sdp:answer.sdp},guestScreenSharing:false});
+
+    const check=await getDoc(r);
+    if(!check.exists() || check.data().sessionId!==sessionId){
+      throw new Error('A sessão desta sala mudou. Entre novamente.');
+    }
+
+    await updateDoc(r,{
+      answer:{type:answer.type,sdp:answer.sdp},
+      guestScreenSharing:false
+    });
 
     unsubs.push(onSnapshot(collection(r,'hostCandidates'),s=>{
       s.docChanges().forEach(c=>{
-        if(c.type==='added') pc.addIceCandidate(c.doc.data()).catch(console.error);
+        const data=c.doc.data();
+        if(c.type==='added' && candidatoDaSessao(data)){
+          const {sessionId:_,...candidate}=data;
+          pc.addIceCandidate(candidate).catch(console.error);
+        }
       });
     },erroLobby));
 
     unsubs.push(onSnapshot(r,s=>{
       const d=s.data();
-      if(d?.hostScreenSharing===true) mostrarTransmissaoRemota(remoteStreamAtual);
-      if(d?.hostScreenSharing===false) esconderTransmissaoRemota();
+      if(!d || d.sessionId!==sessionId) return;
+      if(d.hostScreenSharing===true) mostrarTransmissaoRemota(remoteStreamAtual);
+      if(d.hostScreenSharing===false) esconderTransmissaoRemota();
     },erroLobby));
 
     show();
     status.textContent='Conectando...';
 
   }catch(e){
-    try{ micStream?.getTracks().forEach(t=>t.stop()); }catch(_){}
-    try{ pc?.close(); }catch(_){}
-    pc=null; micStream=null; isHost=false;
+    try{micStream?.getTracks().forEach(t=>t.stop())}catch(_){}
+    try{pc?.close()}catch(_){}
+    pc=null;micStream=null;isHost=false;sessionId=null;
     erroLobby(e);
   }
 };
@@ -457,7 +568,10 @@ window.compartilhar=async()=>{
 
     if(roomId){
       const r=doc(db,'salasVoz',roomId);
-      await updateDoc(r,isHost?{hostScreenSharing:true}:{guestScreenSharing:true});
+      const snapAtual=await getDoc(r);
+      if(snapAtual.exists() && snapAtual.data().sessionId===sessionId){
+        await updateDoc(r,isHost?{hostScreenSharing:true}:{guestScreenSharing:true});
+      }
     }
 
     vt.onended=()=>window.pararTela();
@@ -486,7 +600,10 @@ window.pararTela=async()=>{
   if(roomId){
     try{
       const r=doc(db,'salasVoz',roomId);
-      await updateDoc(r,isHost?{hostScreenSharing:false}:{guestScreenSharing:false});
+      const snapAtual=await getDoc(r);
+      if(snapAtual.exists() && snapAtual.data().sessionId===sessionId){
+        await updateDoc(r,isHost?{hostScreenSharing:false}:{guestScreenSharing:false});
+      }
     }catch(e){ console.error(e); }
   }
 
@@ -569,31 +686,44 @@ document.addEventListener('click',()=>{
 window.copiar=async()=>{await navigator.clipboard.writeText(roomId);status.textContent='Código copiado: '+roomId};
 window.sairSala=async()=>{
   try{
-    unsubs.forEach(u=>u()); unsubs=[];
+    if(heartbeatTimer){clearInterval(heartbeatTimer);heartbeatTimer=null;}
+    unsubs.forEach(u=>u());unsubs=[];
     screenStream?.getTracks().forEach(t=>t.stop());
     micStream?.getTracks().forEach(t=>t.stop());
+    try{silentAudioTrack?.stop()}catch(_){}
+    try{silentAudioCtx?.close()}catch(_){}
     pc?.close();
 
-    if(roomId){
+    if(roomId && sessionId && auth.currentUser){
       const r=doc(db,'salasVoz',roomId);
-      if(isHost){
-        await updateDoc(r,{
-          ativo:false,
-          offer:null,
-          answer:null,
-          hostScreenSharing:false,
-          guestScreenSharing:false
-        }).catch(()=>{});
-      }else{
-        await updateDoc(r,{
-          answer:null,
-          guestScreenSharing:false
-        }).catch(()=>{});
-      }
+      await runTransaction(db,async tx=>{
+        const snap=await tx.get(r);
+        if(!snap.exists()) return;
+        const d=snap.data();
+        if(d.sessionId!==sessionId) return;
+
+        if(isHost && d.hostUid===auth.currentUser.uid){
+          tx.update(r,{
+            ativo:false,
+            hostUid:null,
+            guestUid:null,
+            offer:null,
+            answer:null,
+            hostScreenSharing:false,
+            guestScreenSharing:false,
+            hostHeartbeat:0
+          });
+        }else if(!isHost && d.guestUid===auth.currentUser.uid){
+          tx.update(r,{
+            guestUid:null,
+            answer:null,
+            guestScreenSharing:false
+          });
+        }
+      });
     }
-  }catch(e){
-    console.error(e);
-  }
+  }catch(e){console.error(e)}
   location.href='voz.html';
 };
+window.addEventListener('beforeunload',()=>{if(heartbeatTimer)clearInterval(heartbeatTimer);});
 </script></body></html>
