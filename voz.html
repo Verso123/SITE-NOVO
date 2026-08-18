@@ -114,6 +114,12 @@ header{
 .setting-row{margin:13px 0}.setting-row label{display:block;font-size:10px;font-weight:900;color:#999;margin-bottom:6px}
 .setting-row select{width:100%;background:#0d0d16;border:1px solid #343449;color:#eee;border-radius:8px;padding:10px}
 .setting-check{display:flex;align-items:center;justify-content:space-between;padding:9px 0;border-top:1px solid #262637;font-size:12px}
+.ptt-key-row{display:grid;grid-template-columns:1fr 110px;gap:10px;align-items:end}
+.ptt-key-row input{width:100%;background:#0d0d16;border:1px solid #343449;color:#eee;border-radius:8px;padding:10px;text-align:center;text-transform:uppercase}
+.ptt-hint{font-size:10px;color:#777;margin-top:5px}
+.ptt-indicator{display:none;align-items:center;gap:7px;font-size:10px;color:#b8abff}
+.ptt-indicator.show{display:flex}
+.ptt-dot{width:8px;height:8px;border-radius:50%;background:#7c6af7;box-shadow:0 0 12px #7c6af7}
 .settings-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:16px}.settings-actions button{border:0;border-radius:8px;padding:9px 12px;background:#242438;color:#ddd}.settings-actions .save{background:var(--purple);color:#fff}
 
 /* FULLSCREEN */
@@ -209,7 +215,10 @@ header{
         <div class="top-title">🔊 <span id="roomCode"></span></div>
         <div class="connection-badge" id="status">Preparando...</div>
       </div>
-      <div style="font-size:10px;color:#666">Ctrl+M mute • Ctrl+Shift+S transmitir</div>
+      <div style="display:flex;align-items:center;gap:12px">
+        <div class="ptt-indicator" id="pttIndicator"><span class="ptt-dot"></span>Push to Talk</div>
+        <div style="font-size:10px;color:#666">Ctrl+M mute • Ctrl+Shift+S transmitir</div>
+      </div>
     </div>
 
     <div class="stage">
@@ -283,6 +292,22 @@ header{
     <div class="setting-row">
       <label>MICROFONE</label>
       <select id="micDevice"><option value="">Microfone padrão</option></select>
+    </div>
+
+    <div class="setting-row">
+      <label>MODO DE ENTRADA</label>
+      <select id="inputMode">
+        <option value="voice">Atividade de voz</option>
+        <option value="ptt">Push to Talk</option>
+      </select>
+    </div>
+
+    <div class="setting-row ptt-key-row">
+      <div>
+        <label>TECLA DO PUSH TO TALK</label>
+        <div class="ptt-hint">Segure a tecla para falar.</div>
+      </div>
+      <input id="pttKey" maxlength="12" value="V" readonly>
     </div>
 
     <div class="setting-check"><span>Cancelamento de eco</span><input type="checkbox" id="echoCancellation" checked></div>
@@ -681,6 +706,7 @@ async function setup(){
   const micTrack=micStream.getAudioTracks()[0];
   micSender=pc.addTrack(micTrack,micStream);
   micTransceiver=pc.getTransceivers().find(t=>t.sender===micSender)||null;
+  setTimeout(aplicarEstadoPtt,0);
   detectorVoz(micStream,document.getElementById('myAvatar'));
 
   // Canais independentes: voz, áudio da transmissão e vídeo.
@@ -1171,17 +1197,16 @@ window.entrar=async()=>{
   }
 };
 window.toggleMic=()=>{
+  if(inputMode==='ptt'){
+    mostrarToast('Push to Talk ativo — segure '+(pttKey===' '?'SPACE':pttKey.toUpperCase())+' para falar');
+    return;
+  }
+
   const t=micStream?.getAudioTracks()[0];
   if(!t)return;
   t.enabled=!t.enabled;
-  document.getElementById('mic').textContent=t.enabled?'🎙️ Microfone ligado':'🔇 Microfone desligado';
-  const row=[...document.querySelectorAll('#roomMembers .member')]
-    .find(el=>el.dataset.uid===auth.currentUser?.uid);
-  const ms=row?.querySelector('.member-state');
-  if(ms)ms.textContent=t.enabled?'🎙️ Microfone ligado':'🔇 Microfone desligado';
+  atualizarUiMic(t.enabled);
   if(!t.enabled)document.getElementById('myAvatar')?.classList.remove('speaking');
-  const dm=document.getElementById('dockMic');
-  if(dm) dm.textContent=t.enabled?'🎙️':'🔇';
   mostrarToast(t.enabled?'Microfone ativado':'Microfone silenciado');
 };
 window.compartilhar=async()=>{
@@ -1466,6 +1491,65 @@ document.addEventListener('click',()=>{
 
 window.copiar=async()=>{await navigator.clipboard.writeText(roomId);status.textContent='Código copiado: '+roomId};
 
+
+let inputMode=localStorage.getItem('voiceInputMode')||'voice';
+let pttKey=localStorage.getItem('voicePttKey')||'v';
+let pttPressed=false;
+let capturandoTeclaPtt=false;
+
+function aplicarEstadoPtt(){
+  const sel=document.getElementById('inputMode');
+  const key=document.getElementById('pttKey');
+  if(sel)sel.value=inputMode;
+  if(key)key.value=pttKey===' '?'SPACE':pttKey.toUpperCase();
+
+  const ind=document.getElementById('pttIndicator');
+  if(ind)ind.classList.toggle('show',inputMode==='ptt');
+
+  const track=micStream?.getAudioTracks?.()[0];
+  if(track && inputMode==='ptt' && !pttPressed){
+    track.enabled=false;
+    atualizarUiMic(false,true);
+  }
+}
+
+function atualizarUiMic(enabled,ptt=false){
+  const btn=document.getElementById('mic');
+  const dock=document.getElementById('dockMic');
+
+  if(btn){
+    if(inputMode==='ptt'){
+      btn.textContent=enabled?'🎙️ Falando':'🎙️ Push to Talk';
+    }else{
+      btn.textContent=enabled?'🎙️ Microfone ligado':'🔇 Microfone desligado';
+    }
+  }
+  if(dock)dock.textContent=enabled?'🎙️':'🔇';
+
+  const row=[...document.querySelectorAll('#roomMembers .member')]
+    .find(el=>el.dataset.uid===auth.currentUser?.uid);
+  const st=row?.querySelector('.member-state');
+  if(st){
+    if(inputMode==='ptt')st.textContent=enabled?'🎙️ Falando':'🎙️ Push to Talk';
+    else st.textContent=enabled?'🎙️ Microfone ligado':'🔇 Microfone desligado';
+  }
+}
+
+function setPttPressed(pressed){
+  if(inputMode!=='ptt')return;
+  if(pttPressed===pressed)return;
+  pttPressed=pressed;
+
+  const track=micStream?.getAudioTracks?.()[0];
+  if(!track)return;
+
+  track.enabled=pressed;
+  atualizarUiMic(pressed,true);
+
+  const av=document.getElementById('myAvatar');
+  if(!pressed)av?.classList.remove('speaking');
+}
+
 function mostrarToast(texto){
   const t=document.getElementById('toast');
   if(!t)return;
@@ -1477,6 +1561,7 @@ function mostrarToast(texto){
 
 window.abrirConfiguracoes=async()=>{
   document.getElementById('settingsBg')?.classList.add('show');
+  aplicarEstadoPtt();
   try{
     const devices=await navigator.mediaDevices.enumerateDevices();
     const sel=document.getElementById('micDevice');
@@ -1494,6 +1579,18 @@ window.abrirConfiguracoes=async()=>{
 
 window.fecharConfiguracoes=()=>document.getElementById('settingsBg')?.classList.remove('show');
 window.fecharConfiguracoesFundo=e=>{if(e.target===document.getElementById('settingsBg'))fecharConfiguracoes()};
+
+
+document.getElementById('pttKey')?.addEventListener('click',e=>{
+  capturandoTeclaPtt=true;
+  e.currentTarget.value='Pressione...';
+  e.currentTarget.blur();
+});
+
+document.getElementById('inputMode')?.addEventListener('change',e=>{
+  inputMode=e.target.value;
+  aplicarEstadoPtt();
+});
 
 window.aplicarConfiguracoesAudio=async()=>{
   try{
@@ -1517,6 +1614,11 @@ window.aplicarConfiguracoesAudio=async()=>{
     const meuAvatar=document.getElementById('myAvatar');
     if(meuAvatar)detectorVoz(micStream,meuAvatar);
 
+    inputMode=document.getElementById('inputMode')?.value||'voice';
+    localStorage.setItem('voiceInputMode',inputMode);
+    localStorage.setItem('voicePttKey',pttKey);
+    aplicarEstadoPtt();
+
     fecharConfiguracoes();
     mostrarToast('Configurações de áudio aplicadas');
   }catch(e){
@@ -1526,17 +1628,60 @@ window.aplicarConfiguracoesAudio=async()=>{
 };
 
 document.addEventListener('keydown',e=>{
+  if(capturandoTeclaPtt){
+    e.preventDefault();
+    if(['Control','Shift','Alt','Meta','Escape'].includes(e.key))return;
+
+    pttKey=e.key===' ' ? ' ' : e.key.toLowerCase();
+    localStorage.setItem('voicePttKey',pttKey);
+    capturandoTeclaPtt=false;
+
+    const key=document.getElementById('pttKey');
+    if(key)key.value=pttKey===' '?'SPACE':pttKey.toUpperCase();
+    mostrarToast('Tecla do Push to Talk: '+(pttKey===' '?'SPACE':pttKey.toUpperCase()));
+    return;
+  }
+
+  const alvo=e.target?.tagName;
+  if(alvo==='INPUT'||alvo==='TEXTAREA'||alvo==='SELECT')return;
+
+  if(inputMode==='ptt'){
+    const tecla=(e.key===' ' ? ' ' : e.key.toLowerCase());
+    if(tecla===pttKey && !e.repeat){
+      e.preventDefault();
+      setPttPressed(true);
+      return;
+    }
+  }
+
   if(e.ctrlKey && !e.shiftKey && e.key.toLowerCase()==='m'){
     e.preventDefault();
-    toggleMic();
+    if(inputMode==='ptt'){
+      mostrarToast('Desative Push to Talk para usar mute manual');
+    }else{
+      toggleMic();
+    }
   }
+
   if(e.ctrlKey && e.shiftKey && e.key.toLowerCase()==='s'){
     e.preventDefault();
     if(screenStream)pararTela(); else compartilhar();
   }
-  if(e.key==='Escape'){
-    fecharConfiguracoes();
+
+  if(e.key==='Escape')fecharConfiguracoes();
+});
+
+document.addEventListener('keyup',e=>{
+  if(inputMode!=='ptt')return;
+  const tecla=(e.key===' ' ? ' ' : e.key.toLowerCase());
+  if(tecla===pttKey){
+    e.preventDefault();
+    setPttPressed(false);
   }
+});
+
+window.addEventListener('blur',()=>{
+  if(inputMode==='ptt')setPttPressed(false);
 });
 
 window.sairSala=async()=>{
