@@ -1,14 +1,26 @@
 <!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Sala — Voz e Tela</title><style>
-*{box-sizing:border-box}body{margin:0;font-family:'Segoe UI',sans-serif;background:#090910;color:#eee;min-height:100vh}header{height:70px;padding:0 24px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #24243a;background:#11111d}a{color:#aaa;text-decoration:none}.app{max-width:1240px;margin:auto;padding:28px 20px}.panel{background:#131322;border:1px solid #292942;border-radius:18px;padding:24px}.join{display:grid;grid-template-columns:1fr auto auto;gap:10px}input,button{border-radius:9px;border:1px solid #343450;padding:12px 14px;font-size:14px}input{background:#0d0d18;color:#fff}button{background:#7c6af7;color:#fff;font-weight:700;cursor:pointer}button:disabled{opacity:.55;cursor:not-allowed}button.secondary{background:#202034;color:#bbb}button.danger{background:#3a1418;color:#ff9a9a;border-color:#61252b}.status{color:#999;font-size:13px}.room{display:none}.code{color:#a99cff;font-weight:800}.hint{font-size:12px;color:#666;margin-top:12px;line-height:1.5}
+*{box-sizing:border-box}body{margin:0;font-family:'Segoe UI',sans-serif;background:#090910;color:#eee;min-height:100vh}header{height:70px;padding:0 24px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #24243a;background:#11111d}a{color:#aaa;text-decoration:none}.app{max-width:1240px;margin:auto;padding:28px 20px}.panel{background:#131322;border:1px solid #292942;border-radius:18px;padding:24px}.join{display:grid;grid-template-columns:1fr auto auto;gap:10px}.fixed-rooms{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}.fixed-rooms button{padding:18px;text-align:left;font-size:16px;background:#171727;border:1px solid #343450}.fixed-rooms button:hover{border-color:#7c6af7;background:#202034}@media(max-width:620px){.fixed-rooms{grid-template-columns:1fr}}input,button{border-radius:9px;border:1px solid #343450;padding:12px 14px;font-size:14px}input{background:#0d0d18;color:#fff}button{background:#7c6af7;color:#fff;font-weight:700;cursor:pointer}button:disabled{opacity:.55;cursor:not-allowed}button.secondary{background:#202034;color:#bbb}button.danger{background:#3a1418;color:#ff9a9a;border-color:#61252b}.status{color:#999;font-size:13px}.room{display:none}.code{color:#a99cff;font-weight:800}.hint{font-size:12px;color:#666;margin-top:12px;line-height:1.5}
 .call-shell{display:grid;grid-template-columns:250px 1fr;min-height:650px;background:#0c0c14;border:1px solid #292942;border-radius:18px;overflow:hidden}.sidebar{background:#15151f;border-right:1px solid #292942;display:flex;flex-direction:column}.channel{padding:18px;border-bottom:1px solid #292942}.channel-title{font-weight:800;font-size:16px}.channel-sub{font-size:12px;color:#777;margin-top:4px}.members{padding:12px;flex:1}.members-title{font-size:11px;color:#777;text-transform:uppercase;font-weight:800;padding:6px 8px}.member{display:flex;align-items:center;gap:10px;padding:10px 8px;border-radius:8px}.member:hover{background:#20202c}.avatar.speaking{box-shadow:0 0 0 3px #9b87ff,0 0 18px rgba(124,106,247,.95);transition:box-shadow .08s}.avatar{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#7c6af7,#4033a8);display:flex;align-items:center;justify-content:center;font-weight:900;position:relative}.dot{position:absolute;width:11px;height:11px;border-radius:50%;background:#35c46a;border:2px solid #15151f;right:-1px;bottom:0}.member-name{font-weight:700;font-size:14px}.member-state{font-size:11px;color:#777;margin-top:2px}.streams{padding:0 12px 14px}.streams-title{font-size:11px;color:#777;text-transform:uppercase;font-weight:800;padding:6px 8px}.stream-tile{display:none;border:1px solid #313145;background:#20202c;border-radius:10px;overflow:hidden;cursor:pointer;transition:.15s}.stream-tile:hover{border-color:#7c6af7;background:#262638}.stream-thumb{height:105px;background:#07070c;position:relative;overflow:hidden}.stream-thumb video{width:100%;height:100%;object-fit:cover}.live{position:absolute;left:7px;bottom:7px;background:#e23b4d;color:#fff;border-radius:4px;padding:3px 6px;font-size:9px;font-weight:900}.stream-info{padding:8px 10px}.stream-name{font-size:12px;font-weight:800}.stream-help{font-size:10px;color:#888;margin-top:3px}.sidebar-room{padding:14px;border-top:1px solid #292942;font-size:12px;color:#888}
-.main-call{display:flex;flex-direction:column;min-width:0}.topbar{height:64px;padding:0 18px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #232334;background:#101019}.stage{flex:1;margin:18px;background:#07070c;border:1px solid #23233a;border-radius:16px;min-height:430px;display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative}.stage video{width:100%;height:100%;max-height:620px;object-fit:contain;background:#050507}.empty{text-align:center;color:#777;padding:30px}.empty b{display:block;color:#aaa;font-size:18px;margin-bottom:7px}.empty span{font-size:13px;line-height:1.5}#mainStream:fullscreen{width:100vw!important;height:100vh!important;max-height:none!important;object-fit:contain!important;background:#000!important}
-#mainStream:-webkit-full-screen{width:100vw!important;height:100vh!important;max-height:none!important;object-fit:contain!important;background:#000!important}
+.main-call{display:flex;flex-direction:column;min-width:0}.topbar{height:64px;padding:0 18px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #232334;background:#101019}.stage{flex:1;margin:18px;background:#07070c;border:1px solid #23233a;border-radius:16px;min-height:430px;display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative}.stage video{width:100%;height:100%;max-height:620px;object-fit:contain;background:#050507}.empty{text-align:center;color:#777;padding:30px}.empty b{display:block;color:#aaa;font-size:18px;margin-bottom:7px}.empty span{font-size:13px;line-height:1.5}#mainStream:fullscreen{width:100vw!important;height:100vh!important;max-height:none!important;object-fit:cover!important;background:#000!important}
+#mainStream:-webkit-full-screen{width:100vw!important;height:100vh!important;max-height:none!important;object-fit:cover!important;background:#000!important}
 .volume-box{display:flex;align-items:center;gap:8px;background:#202034;border:1px solid #343450;border-radius:9px;padding:8px 12px;color:#bbb;font-size:12px}
 .volume-box input{width:120px;padding:0;height:auto;accent-color:#7c6af7}.volume-num{min-width:34px;text-align:right;color:#ddd}
 .controls{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;padding:0 18px 20px}.controls button{min-width:150px}
 @media(max-width:760px){.join{grid-template-columns:1fr}.call-shell{grid-template-columns:1fr}.sidebar{display:none}.stage{min-height:330px;margin:10px}.controls button{min-width:auto}}
-</style></head><body><header><strong>🎙️ Sala com Amigos</strong><a href="inicio.html">← Voltar</a></header><main class="app"><section class="panel" id="lobby"><h2>Entrar em uma sala</h2><p style="color:#888">Crie um código ou digite o código que seu amigo enviou.</p><div class="join"><input id="codigo" maxlength="20" placeholder="Código da sala"><button id="btnCriar" onclick="criar()" disabled>Criar sala</button><button id="btnEntrar" class="secondary" onclick="entrar()" disabled>Entrar</button></div><div class="hint">A sala suporta 2 pessoas. Para enviar o som do jogo/vídeo, ao clicar em Compartilhar tela escolha uma fonte com áudio e marque “Compartilhar áudio”. No Chrome/Edge, compartilhar uma ABA costuma ser a opção mais confiável para áudio.</div>
-    <div id="lobbyErro" style="display:none;margin-top:14px;padding:12px 14px;border-radius:9px;background:#321116;border:1px solid #66252e;color:#ff9a9a;font-size:13px;line-height:1.5"></div></section><section class="room" id="room">
+</style></head><body><header><strong>🎙️ Sala com Amigos</strong><a href="inicio.html">← Voltar</a></header><main class="app"><section class="panel" id="lobby">
+  <h2 style="margin-top:0">Entrar em uma sala</h2>
+  <p class="status" style="margin-bottom:20px">Escolha uma das salas fixas.</p>
+
+  <div class="fixed-rooms">
+    <button onclick="entrarSalaFixa('sala1')">🔊 Sala 1</button>
+    <button onclick="entrarSalaFixa('sala2')">🔊 Sala 2</button>
+    <button onclick="entrarSalaFixa('sala3')">🔊 Sala 3</button>
+    <button onclick="entrarSalaFixa('sala4')">🔊 Sala 4</button>
+    <button onclick="entrarSalaFixa('sala5')">🔊 Sala 5</button>
+  </div>
+
+  <div id="lobbyErro" style="display:none;margin-top:14px;padding:12px 14px;border-radius:9px;background:#321116;border:1px solid #66252e;color:#ff9a9a;font-size:13px;line-height:1.5"></div>
+</section><section class="room" id="room">
 <div class="call-shell">
   <aside class="sidebar">
     <div class="channel">
@@ -45,7 +57,7 @@
   <div class="main-call">
     <div class="topbar">
       <div><strong>🔊 Geral</strong><div class="status" id="status">Preparando...</div></div>
-      <div>Sala: <span class="code" id="roomCode"></span> <button class="secondary" style="padding:6px 9px" onclick="copiar()">Copiar código</button></div>
+      <div>Sala: <span class="code" id="roomCode"></span> </div>
     </div>
 
     <div class="stage">
@@ -61,6 +73,7 @@
       <button onclick="compartilhar()">🖥️ Compartilhar tela</button>
       <button class="secondary" onclick="pararTela()">⏹ Parar tela</button>
       <button class="secondary" onclick="telaCheia()">⛶ Tela cheia</button>
+      <button class="secondary" id="btnAjusteTela" onclick="alternarAjusteTela()">▣ Preencher</button>
       <div class="volume-box" title="Volume do áudio recebido da chamada/transmissão">
         🔊
         <input id="volumeTransmissao" type="range" min="0" max="100" value="100" oninput="mudarVolume(this.value)">
@@ -76,9 +89,8 @@ import{initializeApp}from'https://www.gstatic.com/firebasejs/10.12.0/firebase-ap
 const cfg={apiKey:'AIzaSyAaIxroCAMOvDxg5aLUr2P8jweygemm1uM',authDomain:'lista-de-jogos-f1874.firebaseapp.com',projectId:'lista-de-jogos-f1874',storageBucket:'lista-de-jogos-f1874.firebasestorage.app',messagingSenderId:'692334284655',appId:'1:692334284655:web:a55db647b5f8b39d00a29a'};const app=initializeApp(cfg),auth=getAuth(app),db=getFirestore(app);let pc,micStream,screenStream,roomId,isHost=false,unsubs=[];const remote=document.getElementById('remote'),status=document.getElementById('status'),streamPreview=document.getElementById('streamPreview'),mainStream=document.getElementById('mainStream');let remoteStreamAtual=null;
 onAuthStateChanged(auth,u=>{
       if(!u){ location.href='login.html'; return; }
-      document.getElementById('btnCriar').disabled=false;
-      document.getElementById('btnEntrar').disabled=false;
-    });const rtc={iceServers:[{urls:['stun:stun.l.google.com:19302','stun:stun1.l.google.com:19302']}]};
+    });const NOMES_SALAS={sala1:'Sala 1',sala2:'Sala 2',sala3:'Sala 3',sala4:'Sala 4',sala5:'Sala 5'};
+const rtc={iceServers:[{urls:['stun:stun.l.google.com:19302','stun:stun1.l.google.com:19302']}]};
 function erroLobby(e){
       console.error(e);
       const el=document.getElementById('lobbyErro');
@@ -182,8 +194,108 @@ videoSender=pc.addTrack(dummyVideo.track,dummyVideo.stream);pc.ontrack=e=>{
     remoteStreamAtual=s;
   }
 };pc.onconnectionstatechange=()=>status.textContent='Conexão: '+pc.connectionState;}
-function show(){document.getElementById('lobby').style.display='none';document.getElementById('room').style.display='block';document.getElementById('roomCode').textContent=roomId;document.getElementById('sideRoomCode').textContent=roomId}
+function show(){
+  document.getElementById('lobby').style.display='none';
+  document.getElementById('room').style.display='block';
+  const nome=NOMES_SALAS[roomId]||roomId;
+  document.getElementById('roomCode').textContent=nome;
+  const side=document.getElementById('sideRoomCode'); if(side) side.textContent=nome;
+}
 function gen(){return Math.random().toString(36).slice(2,8).toUpperCase()}
+window.entrarSalaFixa=async(id)=>{
+  limparErro();
+  roomId=id;
+
+  try{
+    if(!auth.currentUser) throw new Error('Sua sessão ainda não carregou. Atualize a página e tente novamente.');
+
+    const r=doc(db,'salasVoz',roomId);
+    const snap=await getDoc(r);
+    const dados=snap.exists()?snap.data():null;
+
+    // Sala vazia: este usuário vira host.
+    if(!dados || !dados.offer || dados.ativo===false){
+      isHost=true;
+      await setup();
+
+      await setDoc(r,{
+        criadoPor:auth.currentUser.uid,
+        criadoEm:Date.now(),
+        ativo:true,
+        offer:null,
+        answer:null,
+        hostScreenSharing:false,
+        guestScreenSharing:false
+      });
+
+      pc.onicecandidate=e=>{
+        if(e.candidate){
+          addDoc(collection(r,'hostCandidates'),e.candidate.toJSON()).catch(erroLobby);
+        }
+      };
+
+      const offer=await pc.createOffer();
+      await pc.setLocalDescription(offer);
+      await updateDoc(r,{offer:{type:offer.type,sdp:offer.sdp}});
+
+      unsubs.push(onSnapshot(r,async s=>{
+        const d=s.data();
+        if(d?.answer && !pc.currentRemoteDescription){
+          await pc.setRemoteDescription(d.answer);
+        }
+        if(d?.guestScreenSharing===true) mostrarTransmissaoRemota(remoteStreamAtual);
+        if(d?.guestScreenSharing===false) esconderTransmissaoRemota();
+      },erroLobby));
+
+      unsubs.push(onSnapshot(collection(r,'guestCandidates'),s=>{
+        s.docChanges().forEach(c=>{
+          if(c.type==='added') pc.addIceCandidate(c.doc.data()).catch(console.error);
+        });
+      },erroLobby));
+
+      show();
+      status.textContent='Aguardando alguém entrar...';
+      return;
+    }
+
+    // Sala já criada: entra como convidado.
+    isHost=false;
+    await setup();
+
+    pc.onicecandidate=e=>{
+      if(e.candidate){
+        addDoc(collection(r,'guestCandidates'),e.candidate.toJSON()).catch(erroLobby);
+      }
+    };
+
+    await pc.setRemoteDescription(dados.offer);
+    const answer=await pc.createAnswer();
+    await pc.setLocalDescription(answer);
+    await updateDoc(r,{answer:{type:answer.type,sdp:answer.sdp},guestScreenSharing:false});
+
+    unsubs.push(onSnapshot(collection(r,'hostCandidates'),s=>{
+      s.docChanges().forEach(c=>{
+        if(c.type==='added') pc.addIceCandidate(c.doc.data()).catch(console.error);
+      });
+    },erroLobby));
+
+    unsubs.push(onSnapshot(r,s=>{
+      const d=s.data();
+      if(d?.hostScreenSharing===true) mostrarTransmissaoRemota(remoteStreamAtual);
+      if(d?.hostScreenSharing===false) esconderTransmissaoRemota();
+    },erroLobby));
+
+    show();
+    status.textContent='Conectando...';
+
+  }catch(e){
+    try{ micStream?.getTracks().forEach(t=>t.stop()); }catch(_){}
+    try{ pc?.close(); }catch(_){}
+    pc=null; micStream=null; isHost=false;
+    erroLobby(e);
+  }
+};
+
 window.criar=async()=>{
   limparErro();
   const btn=document.getElementById('btnCriar');
@@ -425,6 +537,13 @@ function fecharTransmissao(){
   mainStream.style.display='none';
   document.getElementById('empty').style.display='block';
 }
+let preencherTela=true;
+window.alternarAjusteTela=()=>{
+  preencherTela=!preencherTela;
+  mainStream.style.objectFit=preencherTela?'cover':'contain';
+  document.getElementById('btnAjusteTela').textContent=preencherTela?'▣ Preencher':'▭ Ajustar';
+};
+
 window.telaCheia=async()=>{
   try{
     if(mainStream.style.display==='none' || !mainStream.srcObject){
@@ -435,6 +554,7 @@ window.telaCheia=async()=>{
       return;
     }
 
+    mainStream.style.objectFit=preencherTela?'cover':'contain';
     if(!document.fullscreenElement){
       if(mainStream.requestFullscreen) await mainStream.requestFullscreen();
       else if(mainStream.webkitRequestFullscreen) mainStream.webkitRequestFullscreen();
@@ -463,5 +583,33 @@ document.addEventListener('click',()=>{
   }
 },{passive:true});
 
-window.sairSala=async()=>{unsubs.forEach(f=>f());micStream?.getTracks().forEach(t=>t.stop());screenStream?.getTracks().forEach(t=>t.stop());pc?.close();if(isHost&&roomId){const r=doc(db,'salasVoz',roomId);for(const n of ['hostCandidates','guestCandidates']){const s=await getDocs(collection(r,n));for(const d of s.docs)await deleteDoc(d.ref)}await deleteDoc(r)}location.href='inicio.html'};
+window.sairSala=async()=>{
+  try{
+    unsubs.forEach(u=>u()); unsubs=[];
+    screenStream?.getTracks().forEach(t=>t.stop());
+    micStream?.getTracks().forEach(t=>t.stop());
+    pc?.close();
+
+    if(roomId){
+      const r=doc(db,'salasVoz',roomId);
+      if(isHost){
+        await updateDoc(r,{
+          ativo:false,
+          offer:null,
+          answer:null,
+          hostScreenSharing:false,
+          guestScreenSharing:false
+        }).catch(()=>{});
+      }else{
+        await updateDoc(r,{
+          answer:null,
+          guestScreenSharing:false
+        }).catch(()=>{});
+      }
+    }
+  }catch(e){
+    console.error(e);
+  }
+  location.href='voz.html';
+};
 </script></body></html>
