@@ -237,51 +237,68 @@ function iniciais(nome){
   return String(nome||'?').trim().split(/\s+/).slice(0,2).map(x=>x[0]).join('').toUpperCase();
 }
 
-function renderUsuariosSala(id,d){
+function renderUsuariosSala(id,usuarios){
   const el=document.getElementById('users-'+id);
   if(!el)return;
-  const users=[];
+
   const agora=Date.now();
+  const ativos=usuarios
+    .filter(u=>u && u.uid && u.lastSeen && (agora-u.lastSeen)<45000)
+    .slice(0,2);
 
-  if(d?.hostUid && (!d.hostSeen || agora-d.hostSeen<45000))
-    users.push({nome:d.hostName||'Usuário',foto:d.hostFoto||''});
-  if(d?.guestUid && (!d.guestSeen || agora-d.guestSeen<45000))
-    users.push({nome:d.guestName||'Usuário',foto:d.guestFoto||''});
-
-  if(!users.length){
+  if(!ativos.length){
     el.innerHTML='<span class="room-empty">Vazia</span>';
     return;
   }
 
-  el.innerHTML=users.map(u=>
-    `<span class="room-user" title="${u.nome}">${u.foto?`<img src="${u.foto}" alt="">`:iniciais(u.nome)}</span>`
+  el.innerHTML=ativos.map(u=>
+    `<span class="room-user" title="${u.nome||'Usuário'}">${u.foto?`<img src="${u.foto}" alt="">`:iniciais(u.nome||'Usuário')}</span>`
   ).join('');
 }
 
 function observarSalas(){
   ['sala1','sala2','sala3','sala4','sala5'].forEach(id=>{
-    unsubs.push(onSnapshot(doc(db,'salasFixas',id),s=>{
-      renderUsuariosSala(id,s.exists()?s.data():null);
-    }));
+    const ref=collection(db,'salasFixas',id,'usuarios');
+    unsubs.push(onSnapshot(ref,s=>{
+      const usuarios=s.docs.map(d=>d.data());
+      renderUsuariosSala(id,usuarios);
+    },e=>console.warn('presença '+id,e)));
   });
 }
 
-async function iniciarPresenca(regRef,role){
+async function registrarPresencaSala(id,perfil){
+  const user=auth.currentUser;
+  if(!user)return;
+
+  const pRef=doc(db,'salasFixas',id,'usuarios',user.uid);
+  const nome=perfil.nome||user.displayName||user.email?.split('@')[0]||'Usuário';
+  const foto=perfil.fotoURL||'';
+
+  await setDoc(pRef,{
+    uid:user.uid,
+    nome,
+    foto,
+    lastSeen:Date.now()
+  },{merge:true});
+
   if(presenceTimer)clearInterval(presenceTimer);
-  const tick=async()=>{
+  presenceTimer=setInterval(async()=>{
     try{
-      const snap=await getDoc(regRef);
-      if(!snap.exists())return;
-      const d=snap.data();
-      if(d.sessionId!==sessionId)return;
-      if(role==='host' && d.hostUid===auth.currentUser.uid)
-        await updateDoc(regRef,{hostSeen:Date.now()});
-      if(role==='guest' && d.guestUid===auth.currentUser.uid)
-        await updateDoc(regRef,{guestSeen:Date.now()});
-    }catch(e){console.warn(e)}
-  };
-  await tick();
-  presenceTimer=setInterval(tick,12000);
+      await updateDoc(pRef,{lastSeen:Date.now()});
+    }catch(e){
+      console.warn('heartbeat presença',e);
+    }
+  },12000);
+}
+
+async function removerPresencaSala(id){
+  const user=auth.currentUser;
+  if(!user||!id)return;
+  try{
+    await deleteDoc(doc(db,'salasFixas',id,'usuarios',user.uid));
+  }catch(e){
+    console.warn('remover presença',e);
+  }
 }
 
 function criarSessionId(room){
@@ -343,6 +360,9 @@ window.entrarSalaFixa=async(id)=>{
 
     isHost=papel.role==='host';
     sessionId=papel.sid;
+
+    // Presença visual independente da sinalização WebRTC.
+    await registrarPresencaSala(id,perfil);
     roomId=sessionId; // toda sinalização usa o ID aleatório
     const r=doc(db,'salasVoz',sessionId);
 
@@ -384,8 +404,7 @@ window.entrarSalaFixa=async(id)=>{
         });
       },erroLobby));
 
-      await iniciarPresenca(regRef,'host');
-      show();
+            show();
       status.textContent='Aguardando alguém entrar...';
       return;
     }
@@ -416,14 +435,14 @@ window.entrarSalaFixa=async(id)=>{
       if(d?.hostScreenSharing===false) esconderTransmissaoRemota();
     },erroLobby));
 
-    await iniciarPresenca(regRef,'guest');
-    show();
+        show();
     status.textContent='Conectando...';
 
   }catch(e){
     try{micStream?.getTracks().forEach(t=>t.stop())}catch(_){}
     try{pc?.close()}catch(_){}
     pc=null;micStream=null;isHost=false;sessionId=null;roomId=null;
+    try{await removerPresencaSala(fixedRoomKey)}catch(_){}
     erroLobby(e);
   }
 };
@@ -663,6 +682,7 @@ window.copiar=async()=>{await navigator.clipboard.writeText(roomId);status.textC
 window.sairSala=async()=>{
   try{
     if(presenceTimer){clearInterval(presenceTimer);presenceTimer=null}
+    await removerPresencaSala(fixedRoomKey);
     unsubs.forEach(u=>u());unsubs=[];
     screenStream?.getTracks().forEach(t=>t.stop());
     micStream?.getTracks().forEach(t=>t.stop());
