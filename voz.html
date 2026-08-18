@@ -111,7 +111,9 @@ header{
 .settings-bg.show{display:flex}
 .settings-card{width:min(520px,92vw);background:#151522;border:1px solid #34344b;border-radius:15px;padding:20px;box-shadow:0 25px 80px #000c}
 .settings-card h3{margin:0 0 4px}.settings-card p{margin:0 0 18px;color:#777;font-size:11px}
-.setting-row{margin:13px 0}.setting-row label{display:block;font-size:10px;font-weight:900;color:#999;margin-bottom:6px}
+.setting-row{margin:13px 0}
+.quality-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.quality-note{font-size:9px;color:#777;margin-top:6px;line-height:1.4}.setting-row label{display:block;font-size:10px;font-weight:900;color:#999;margin-bottom:6px}
 .setting-row select{width:100%;background:#0d0d16;border:1px solid #343449;color:#eee;border-radius:8px;padding:10px}
 .setting-check{display:flex;align-items:center;justify-content:space-between;padding:9px 0;border-top:1px solid #262637;font-size:12px}
 .ptt-key-row{display:grid;grid-template-columns:1fr 110px;gap:10px;align-items:end}
@@ -190,7 +192,7 @@ header{
         <div class="stream-tile" id="streamTile" onclick="abrirTransmissao()" oncontextmenu="abrirMenuAudio(event)">
           <div class="stream-thumb">
             <video id="streamPreview" autoplay muted playsinline></video>
-            <div class="live">AO VIVO</div>
+            <div class="live">AO VIVO</div><div id="qualityBadge" style="position:absolute;right:6px;bottom:6px;background:#000a;color:#ddd;border-radius:4px;padding:2px 5px;font-size:8px;font-weight:800">720p30</div>
           </div>
           <div class="stream-info">
             <div class="stream-name" id="streamName">Transmissão</div>
@@ -316,6 +318,21 @@ header{
         <div class="ptt-hint">Segure a tecla para falar.</div>
       </div>
       <input id="pttKey" maxlength="12" value="V" readonly>
+    </div>
+
+    <div class="setting-row">
+      <label>QUALIDADE DA TRANSMISSÃO</label>
+      <div class="quality-grid">
+        <select id="streamResolution">
+          <option value="720">720p</option>
+          <option value="1080">1080p</option>
+        </select>
+        <select id="streamFps">
+          <option value="30">30 FPS</option>
+          <option value="60">60 FPS</option>
+        </select>
+      </div>
+      <div class="quality-note">1080p/60 FPS exige mais internet e processamento dos dois PCs.</div>
     </div>
 
     <div class="setting-check"><span>Cancelamento de eco</span><input type="checkbox" id="echoCancellation" checked></div>
@@ -1325,13 +1342,30 @@ window.compartilhar=async()=>{
   try{
     if(!sessionId)throw new Error('Entre em uma sala primeiro.');
 
+    const largura=streamResolution===1080?1920:1280;
+    const altura=streamResolution===1080?1080:720;
+
     screenStream=await navigator.mediaDevices.getDisplayMedia({
-      video:{frameRate:{ideal:30,max:60}},
+      video:{
+        width:{ideal:largura},
+        height:{ideal:altura},
+        frameRate:{ideal:streamFps,max:streamFps}
+      },
       audio:true
     });
 
     const videoTrack=screenStream.getVideoTracks()[0];
     if(!videoTrack)throw new Error('Nenhuma tela foi selecionada.');
+
+    try{
+      await videoTrack.applyConstraints({
+        width:{ideal:largura},
+        height:{ideal:altura},
+        frameRate:{ideal:streamFps,max:streamFps}
+      });
+    }catch(e){
+      console.warn('O navegador não aplicou todos os constraints da transmissão:',e);
+    }
 
     fecharScreenPc();
     screenRev=Date.now();
@@ -1373,6 +1407,8 @@ window.compartilhar=async()=>{
     streamPreview.srcObject=screenStream;
     streamPreview.play().catch(()=>{});
     document.getElementById('streamName').textContent='Sua transmissão';
+    const qb=document.getElementById('qualityBadge');
+    if(qb)qb.textContent=`${streamResolution}p${streamFps}`;
     document.getElementById('streamTile').style.display='block';
 
     // Abre a própria transmissão no centro ao clicar na miniatura.
@@ -1381,8 +1417,11 @@ window.compartilhar=async()=>{
     videoTrack.onended=()=>window.pararTela();
 
     const at=screenStream.getAudioTracks()[0];
-    status.textContent=at?'Compartilhando tela com áudio':'Compartilhando tela sem áudio';
-    mostrarToast(at?'Transmissão iniciada com áudio':'Transmissão iniciada');
+    const qualidade=`${streamResolution}p • ${streamFps} FPS`;
+    status.textContent=at
+      ? `Transmitindo ${qualidade} com áudio`
+      : `Transmitindo ${qualidade} sem áudio`;
+    mostrarToast(`Transmissão iniciada • ${qualidade}`);
   }catch(e){
     console.error(e);
     status.textContent='Não foi possível iniciar a transmissão';
@@ -1664,6 +1703,9 @@ function setPttPressed(pressed){
 
 
 let joinLeaveSounds=localStorage.getItem('voiceJoinLeaveSounds')!=='0';
+let streamResolution=Number(localStorage.getItem('voiceStreamResolution')||720);
+let streamFps=Number(localStorage.getItem('voiceStreamFps')||30);
+
 let membrosAnteriores=new Map();
 let audioCtxEventos=null;
 
@@ -1759,6 +1801,12 @@ window.abrirConfiguracoes=async()=>{
   aplicarEstadoPtt();
   const jl=document.getElementById('joinLeaveSounds');
   if(jl)jl.checked=joinLeaveSounds;
+
+  const sr=document.getElementById('streamResolution');
+  const sf=document.getElementById('streamFps');
+  if(sr)sr.value=String(streamResolution);
+  if(sf)sf.value=String(streamFps);
+
   try{
     const devices=await navigator.mediaDevices.enumerateDevices();
     const sel=document.getElementById('micDevice');
@@ -1816,6 +1864,12 @@ window.aplicarConfiguracoesAudio=async()=>{
     localStorage.setItem('voicePttKey',pttKey);
     joinLeaveSounds=document.getElementById('joinLeaveSounds')?.checked!==false;
     localStorage.setItem('voiceJoinLeaveSounds',joinLeaveSounds?'1':'0');
+
+    streamResolution=Number(document.getElementById('streamResolution')?.value||720);
+    streamFps=Number(document.getElementById('streamFps')?.value||30);
+    localStorage.setItem('voiceStreamResolution',String(streamResolution));
+    localStorage.setItem('voiceStreamFps',String(streamFps));
+
     aplicarEstadoPtt();
 
     fecharConfiguracoes();
