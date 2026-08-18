@@ -98,6 +98,12 @@ let sessionId=null;
 let presenceTimer=null;
 let remoteVideoTrack=null;
 let remoteScreenWanted=false;
+let renegRev=0;
+let lastHostReoffer=0;
+let lastGuestReoffer=0;
+let lastHostReanswer=0;
+let lastGuestReanswer=0;
+let renegociando=false;
 onAuthStateChanged(auth,async u=>{
   if(!u){location.href='login.html';return}
 
@@ -188,6 +194,104 @@ function esconderTransmissaoRemota(){
   document.getElementById('streamTile').style.display='none';
   fecharTransmissao();
 }
+async function esperarEstadoEstavel(){
+  if(!pc) return;
+  if(pc.signalingState==='stable') return;
+  await new Promise(resolve=>{
+    const timer=setTimeout(resolve,2500);
+    const fn=()=>{
+      if(pc.signalingState==='stable'){
+        clearTimeout(timer);
+        pc.removeEventListener('signalingstatechange',fn);
+        resolve();
+      }
+    };
+    pc.addEventListener('signalingstatechange',fn);
+  });
+}
+
+async function criarReoferta(tipo){
+  if(!pc || renegociando) return;
+  renegociando=true;
+  try{
+    await esperarEstadoEstavel();
+    const offer=await pc.createOffer();
+    await pc.setLocalDescription(offer);
+    const rev=Date.now();
+    renegRev=rev;
+    const r=doc(db,'salasVoz',sessionId);
+
+    if(tipo==='host'){
+      await updateDoc(r,{
+        hostReoffer:{type:offer.type,sdp:offer.sdp,rev}
+      });
+    }else{
+      await updateDoc(r,{
+        guestReoffer:{type:offer.type,sdp:offer.sdp,rev}
+      });
+    }
+  }catch(e){
+    console.error('Erro ao renegociar:',e);
+    status.textContent='Erro ao atualizar a transmissão.';
+  }finally{
+    renegociando=false;
+  }
+}
+
+async function processarReofertaRemota(oferta,tipoRemoto){
+  if(!oferta || !pc) return;
+  const rev=oferta.rev||0;
+
+  if(tipoRemoto==='host'){
+    if(rev<=lastHostReoffer) return;
+    lastHostReoffer=rev;
+  }else{
+    if(rev<=lastGuestReoffer) return;
+    lastGuestReoffer=rev;
+  }
+
+  try{
+    await esperarEstadoEstavel();
+    await pc.setRemoteDescription({type:oferta.type,sdp:oferta.sdp});
+    const answer=await pc.createAnswer();
+    await pc.setLocalDescription(answer);
+    const r=doc(db,'salasVoz',sessionId);
+
+    if(tipoRemoto==='host'){
+      await updateDoc(r,{
+        guestReanswer:{type:answer.type,sdp:answer.sdp,rev}
+      });
+    }else{
+      await updateDoc(r,{
+        hostReanswer:{type:answer.type,sdp:answer.sdp,rev}
+      });
+    }
+  }catch(e){
+    console.error('Erro ao responder renegociação:',e);
+  }
+}
+
+async function processarRespostaRenegociacao(resp,tipo){
+  if(!resp || !pc) return;
+  const rev=resp.rev||0;
+
+  if(tipo==='host'){
+    if(rev<=lastHostReanswer || rev!==renegRev) return;
+    lastHostReanswer=rev;
+  }else{
+    if(rev<=lastGuestReanswer || rev!==renegRev) return;
+    lastGuestReanswer=rev;
+  }
+
+  try{
+    if(pc.signalingState==='have-local-offer'){
+      await pc.setRemoteDescription({type:resp.type,sdp:resp.sdp});
+    }
+  }catch(e){
+    console.error('Erro ao aplicar resposta da renegociação:',e);
+  }
+}
+
 async function setup(){
   pc=new RTCPeerConnection(rtc);
   micStream=await navigator.mediaDevices.getUserMedia({audio:true,video:false});
@@ -230,6 +334,7 @@ async function setup(){
     if(e.track.kind==='video'){
       remoteVideoTrack=e.track;
       remoteStreamAtual=new MediaStream([e.track]);
+      streamPreview.srcObject=remoteStreamAtual;
 
       if(remoteScreenWanted){
         mostrarTransmissaoRemota(remoteStreamAtual);
@@ -250,6 +355,9 @@ async function setup(){
   pc.onconnectionstatechange=()=>{
     const estados={new:'Preparando...',connecting:'Conectando...',connected:'Conectado',disconnected:'Reconectando...',failed:'Falha na conexão',closed:'Desconectado'};
     status.textContent=estados[pc.connectionState]||('Conexão: '+pc.connectionState);
+    if(pc.connectionState==='failed'){
+      console.warn('ICE state:',pc.iceConnectionState,'signaling:',pc.signalingState);
+    }
     if(pc.connectionState==='connected'){
       const outro=[...document.querySelectorAll('#roomMembers .member')]
         .find(el=>el.dataset.uid && el.dataset.uid!==auth.currentUser?.uid);
@@ -488,7 +596,9 @@ window.entrarSalaFixa=async(id)=>{
         offer:null,
         answer:null,
         hostScreenSharing:false,
-        guestScreenSharing:false
+        guestScreenSharing:false,
+        hostReoffer:null,guestReoffer:null,
+        hostReanswer:null,guestReanswer:null
       },{merge:false});
 
       pc.onicecandidate=e=>{
@@ -506,6 +616,9 @@ window.entrarSalaFixa=async(id)=>{
 
         if(d?.guestScreenSharing===true) mostrarTransmissaoRemota(remoteStreamAtual);
         if(d?.guestScreenSharing===false) esconderTransmissaoRemota();
+
+        if(d?.guestReoffer) await processarReofertaRemota(d.guestReoffer,'guest');
+        if(d?.guestReanswer) await processarRespostaRenegociacao(d.guestReanswer,'guest');
       },erroLobby));
 
       unsubs.push(onSnapshot(collection(r,'guestCandidates'),s=>{
@@ -538,10 +651,13 @@ window.entrarSalaFixa=async(id)=>{
       });
     },erroLobby));
 
-    unsubs.push(onSnapshot(r,s=>{
+    unsubs.push(onSnapshot(r,async s=>{
       const d=s.data();
       if(d?.hostScreenSharing===true) mostrarTransmissaoRemota(remoteStreamAtual);
       if(d?.hostScreenSharing===false) esconderTransmissaoRemota();
+
+      if(d?.hostReoffer) await processarReofertaRemota(d.hostReoffer,'host');
+      if(d?.hostReanswer) await processarRespostaRenegociacao(d.hostReanswer,'host');
     },erroLobby));
 
     status.textContent='Conectando...';
@@ -687,6 +803,9 @@ window.compartilhar=async()=>{
     const r=doc(db,'salasVoz',sessionId);
     await updateDoc(r,isHost?{hostScreenSharing:true}:{guestScreenSharing:true});
 
+    // Força o outro navegador a receber a nova trilha de vídeo/áudio.
+    await criarReoferta(isHost?'host':'guest');
+
     vt.onended=()=>window.pararTela();
     status.textContent=at?'Compartilhando tela com áudio':'Compartilhando tela sem áudio';
   }catch(e){
@@ -709,6 +828,7 @@ window.pararTela=async()=>{
     try{
       const r=doc(db,'salasVoz',sessionId);
       await updateDoc(r,isHost?{hostScreenSharing:false}:{guestScreenSharing:false});
+      await criarReoferta(isHost?'host':'guest');
     }catch(e){console.error(e)}
   }
 
