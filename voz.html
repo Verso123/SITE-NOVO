@@ -215,16 +215,30 @@ let screenAudioSender=null;
 let micTransceiver=null;
 let screenAudioTransceiver=null;
 
+let transmissionWaitTimer=null;
+
 function mostrarTransmissaoRemota(stream){
   remoteScreenWanted=true;
 
-  if(!stream && remoteVideoTrack){
+  if(transmissionWaitTimer){
+    clearTimeout(transmissionWaitTimer);
+    transmissionWaitTimer=null;
+  }
+
+  if(!stream && remoteVideoTrack && !remoteVideoTrack.muted){
     stream=new MediaStream([remoteVideoTrack]);
     remoteStreamAtual=stream;
   }
 
-  if(!stream){
+  if(!stream || (remoteVideoTrack && remoteVideoTrack.muted)){
     status.textContent='Transmissão iniciando...';
+
+    transmissionWaitTimer=setTimeout(()=>{
+      if(remoteScreenWanted && (!remoteVideoTrack || remoteVideoTrack.muted)){
+        status.textContent='A transmissão não iniciou. Peça para compartilhar novamente.';
+        document.getElementById('streamTile').style.display='none';
+      }
+    },6000);
     return;
   }
 
@@ -236,6 +250,7 @@ function mostrarTransmissaoRemota(stream){
 }
 function esconderTransmissaoRemota(){
   remoteScreenWanted=false;
+  if(transmissionWaitTimer){clearTimeout(transmissionWaitTimer);transmissionWaitTimer=null;}
   if(screenStream) return;
   streamPreview.srcObject=null;
   document.getElementById('streamTile').style.display='none';
@@ -389,21 +404,23 @@ async function setup(){
     if(e.track.kind==='video'){
       remoteVideoTrack=e.track;
       remoteStreamAtual=new MediaStream([e.track]);
-      streamPreview.srcObject=remoteStreamAtual;
-
-      if(remoteScreenWanted){
-        mostrarTransmissaoRemota(remoteStreamAtual);
-      }
 
       e.track.onunmute=()=>{
         remoteStreamAtual=new MediaStream([e.track]);
-        if(remoteScreenWanted) mostrarTransmissaoRemota(remoteStreamAtual);
+        if(remoteScreenWanted){
+          mostrarTransmissaoRemota(remoteStreamAtual);
+        }
       };
 
       e.track.onmute=()=>{
-        // Não esconde imediatamente: replaceTrack(null) e renegociação podem
-        // disparar mute temporário. O Firestore é quem define se a transmissão terminou.
+        if(remoteScreenWanted){
+          status.textContent='Transmissão pausada...';
+        }
       };
+
+      if(!e.track.muted && remoteScreenWanted){
+        mostrarTransmissaoRemota(remoteStreamAtual);
+      }
     }
   };
 
@@ -671,9 +688,6 @@ window.entrarSalaFixa=async(id)=>{
 
         if(d?.guestScreenSharing===true) mostrarTransmissaoRemota(remoteStreamAtual);
         if(d?.guestScreenSharing===false) esconderTransmissaoRemota();
-
-        if(d?.guestReoffer) await processarReofertaRemota(d.guestReoffer,'guest');
-        if(d?.guestReanswer) await processarRespostaRenegociacao(d.guestReanswer,'guest');
       },erroLobby));
 
       unsubs.push(onSnapshot(collection(r,'guestCandidates'),s=>{
@@ -710,9 +724,6 @@ window.entrarSalaFixa=async(id)=>{
       const d=s.data();
       if(d?.hostScreenSharing===true) mostrarTransmissaoRemota(remoteStreamAtual);
       if(d?.hostScreenSharing===false) esconderTransmissaoRemota();
-
-      if(d?.hostReoffer) await processarReofertaRemota(d.hostReoffer,'host');
-      if(d?.hostReanswer) await processarRespostaRenegociacao(d.hostReanswer,'host');
     },erroLobby));
 
     status.textContent='Conectando...';
@@ -848,7 +859,8 @@ window.compartilhar=async()=>{
     const vt=screenStream.getVideoTracks()[0];
     const at=screenStream.getAudioTracks()[0];
 
-    if(videoSender)await videoSender.replaceTrack(vt);
+    if(!videoSender) throw new Error('Canal de vídeo não está pronto.');
+    await videoSender.replaceTrack(vt);
     if(screenAudioSender)await screenAudioSender.replaceTrack(at||null);
 
     streamPreview.srcObject=screenStream;
@@ -857,9 +869,6 @@ window.compartilhar=async()=>{
 
     const r=doc(db,'salasVoz',sessionId);
     await updateDoc(r,isHost?{hostScreenSharing:true}:{guestScreenSharing:true});
-
-    // Força o outro navegador a receber a nova trilha de vídeo/áudio.
-    await criarReoferta(isHost?'host':'guest');
 
     vt.onended=()=>window.pararTela();
     status.textContent=at?'Compartilhando tela com áudio':'Compartilhando tela sem áudio';
@@ -883,7 +892,6 @@ window.pararTela=async()=>{
     try{
       const r=doc(db,'salasVoz',sessionId);
       await updateDoc(r,isHost?{hostScreenSharing:false}:{guestScreenSharing:false});
-      await criarReoferta(isHost?'host':'guest');
     }catch(e){console.error(e)}
   }
 

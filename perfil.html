@@ -1,11 +1,49 @@
-<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Editar Perfil</title><style>
-*{box-sizing:border-box}body{margin:0;font-family:'Segoe UI',sans-serif;background:#090910;color:#fff}header{padding:20px 28px;background:#11111d;border-bottom:1px solid #292942}a{color:#aaa;text-decoration:none}main{max-width:650px;margin:55px auto;padding:0 20px}.box{background:#131322;border:1px solid #292942;border-radius:20px;padding:30px}h1{margin-top:0}.preview{width:130px;height:130px;border-radius:50%;margin:25px auto;background:#6d5ce7;display:flex;align-items:center;justify-content:center;font-size:34px;font-weight:900;overflow:hidden;border:4px solid #302d50}.preview img{width:100%;height:100%;object-fit:cover}label{display:block;color:#aaa;font-size:13px;margin:18px 0 7px}input{width:100%;background:#0d0d18;color:white;border:1px solid #343450;border-radius:9px;padding:12px}button{margin-top:20px;width:100%;border:0;border-radius:9px;padding:13px;background:#7c6af7;color:white;font-weight:800;cursor:pointer}#msg{text-align:center;color:#aaa;margin-top:14px;font-size:13px}</style></head><body>
-<header><a href="inicio.html">← Voltar</a></header><main><div class="box"><h1>Editar perfil</h1><p style="color:#888">Escolha a foto e o nome que aparecerão na sua sala.</p><div class="preview" id="preview">EU</div><label>Foto de perfil</label><input id="foto" type="file" accept="image/*"><label>Nome</label><input id="nome" maxlength="40"><button onclick="salvar()">Salvar perfil</button><div id="msg"></div></div></main>
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Meu Perfil</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#09090f;color:#fff;font-family:Arial,sans-serif}
+header{height:62px;border-bottom:1px solid #28283a;background:#11111b;display:flex;align-items:center;justify-content:space-between;padding:0 28px}
+a{color:#bbb;text-decoration:none}.wrap{max-width:760px;margin:45px auto;padding:0 20px}
+.card{background:#151522;border:1px solid #303047;border-radius:18px;overflow:hidden}
+.banner{height:130px;background:linear-gradient(135deg,#6c55e8,#30266d)}
+.content{padding:0 28px 28px}.avatar-wrap{display:flex;align-items:end;gap:18px;margin-top:-50px}
+.avatar{width:104px;height:104px;border-radius:50%;border:6px solid #151522;background:#5f4bd8;object-fit:cover;display:flex;align-items:center;justify-content:center;font-size:30px;font-weight:800}
+h1{margin:12px 0 3px;font-size:24px}.email{color:#888;font-size:13px}
+.status{display:inline-flex;align-items:center;gap:7px;margin-top:12px;color:#bbb;font-size:13px}.dot{width:9px;height:9px;border-radius:50%;background:#35c66b}
+.form{margin-top:25px;border-top:1px solid #29293b;padding-top:22px}
+label{display:block;color:#aaa;font-size:12px;font-weight:700;margin:15px 0 7px}
+input,select,textarea{width:100%;background:#0e0e17;border:1px solid #34344a;color:#fff;border-radius:9px;padding:12px}
+textarea{resize:vertical;min-height:80px}
+.actions{display:flex;gap:10px;margin-top:20px}
+button,.file-btn{border:0;border-radius:9px;padding:11px 15px;font-weight:800;cursor:pointer;background:#735df3;color:white}
+.secondary{background:#242438;color:#ddd}.file-btn{display:inline-block;margin-top:8px}
+#fotoInput{display:none}.msg{margin-top:12px;font-size:12px;color:#aaa}
+</style>
+</head>
+<body>
+<header><b>👤 Meu Perfil</b><a href="inicio.html">← Voltar</a></header>
+<div class="wrap"><div class="card">
+<div class="banner"></div><div class="content">
+<div class="avatar-wrap"><img id="avatarImg" class="avatar" style="display:none"><div id="avatarTxt" class="avatar">EU</div>
+<div><h1 id="nomeTopo">Seu perfil</h1><div id="emailTopo" class="email"></div><div class="status"><span class="dot"></span><span id="statusTopo">Online</span></div></div></div>
+<div class="form">
+<label>Nome de exibição</label><input id="nome" maxlength="32" placeholder="Seu nome">
+<label>Status</label><select id="status"><option value="Online">Online</option><option value="Ausente">Ausente</option><option value="Ocupado">Ocupado</option></select>
+<label>Sobre mim</label><textarea id="bio" maxlength="120" placeholder="Escreva algo sobre você..."></textarea>
+<label>Foto do perfil</label><input id="fotoInput" type="file" accept="image/*"><label class="file-btn secondary" for="fotoInput">📷 Escolher foto</label>
+<div class="actions"><button id="salvar">Salvar perfil</button><button class="secondary" id="removerFoto">Remover foto</button></div>
+<div class="msg" id="msg"></div>
+</div></div></div></div>
+
 <script type="module">
-import{initializeApp}from'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';import{getAuth,onAuthStateChanged}from'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';import{getFirestore,doc,getDoc,setDoc}from'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
-const app=initializeApp({apiKey:'AIzaSyAaIxroCAMOvDxg5aLUr2P8jweygemm1uM',authDomain:'lista-de-jogos-f1874.firebaseapp.com',projectId:'lista-de-jogos-f1874',storageBucket:'lista-de-jogos-f1874.firebasestorage.app',messagingSenderId:'692334284655',appId:'1:692334284655:web:a55db647b5f8b39d00a29a'}),auth=getAuth(app),db=getFirestore(app);let user,fotoAtual='';const prev=document.getElementById('preview'),nome=document.getElementById('nome'),foto=document.getElementById('foto'),msg=document.getElementById('msg');
-function mostrar(url,n){if(url)prev.innerHTML=`<img src="${url}" alt="">`;else prev.textContent=(n||'EU').split(/\s+/).slice(0,2).map(x=>x[0]).join('').toUpperCase()}
-onAuthStateChanged(auth,async u=>{if(!u)return location.href='login.html';user=u;const s=await getDoc(doc(db,'usuarios',u.uid));const p=s.exists()?s.data():{};nome.value=p.nome||u.displayName||u.email.split('@')[0];fotoAtual=p.fotoURL||'';mostrar(fotoAtual,nome.value)});
-foto.onchange=()=>{const f=foto.files[0];if(f)mostrar(URL.createObjectURL(f),nome.value)};
-window.salvar=async()=>{try{msg.textContent='Salvando...';let url=fotoAtual;if(foto.files[0]){const fd=new FormData();fd.append('file',foto.files[0]);fd.append('upload_preset','jogos_preset');const r=await fetch('https://api.cloudinary.com/v1_1/dbovdinlw/image/upload',{method:'POST',body:fd});const d=await r.json();if(!r.ok)throw new Error(d.error?.message||'Erro ao enviar foto');url=d.secure_url}await setDoc(doc(db,'usuarios',user.uid),{nome:nome.value.trim()||user.displayName||'Usuário',fotoURL:url,atualizadoEm:Date.now()},{merge:true});msg.textContent='Perfil salvo ✓';fotoAtual=url;mostrar(url,nome.value)}catch(e){msg.textContent='Erro: '+e.message}};
-</script></body></html>
+import {initializeApp} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import {getAuth,onAuthStateChanged} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import {getFirestore,doc,getDoc,setDoc,serverTimestamp} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const firebaseConfig={apiKey:"AIzaSyDUMMY",authDomain:"lista-de-jogos-f1874.firebaseapp.com",projectId:"lista-de-jogos-f1874"};
+</script>
+</body></html>
