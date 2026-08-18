@@ -248,7 +248,8 @@ async function setup(){
   };
 
   pc.onconnectionstatechange=()=>{
-    status.textContent='Conexão: '+pc.connectionState;
+    const estados={new:'Preparando...',connecting:'Conectando...',connected:'Conectado',disconnected:'Reconectando...',failed:'Falha na conexão',closed:'Desconectado'};
+    status.textContent=estados[pc.connectionState]||('Conexão: '+pc.connectionState);
     if(pc.connectionState==='connected'){
       const outro=[...document.querySelectorAll('#roomMembers .member')]
         .find(el=>el.dataset.uid && el.dataset.uid!==auth.currentUser?.uid);
@@ -286,7 +287,11 @@ function renderMembrosDaSala(usuarios){
 
   const agora=Date.now();
   const ativos=membrosSalaAtual
-    .filter(u=>u && u.uid && u.lastSeen && (agora-millisPresenca(u.lastSeen))<60000)
+    .filter(u=>{
+      if(!u || !u.uid) return false;
+      const ms=millisPresenca(u.lastSeen);
+      return ms===0 || (agora-ms)<60000;
+    })
     .slice(0,2);
 
   if(!ativos.length){
@@ -327,7 +332,11 @@ function renderUsuariosSala(id,usuarios){
 
   const agora=Date.now();
   const ativos=usuarios
-    .filter(u=>u && u.uid && u.lastSeen && (agora-millisPresenca(u.lastSeen))<60000)
+    .filter(u=>{
+      if(!u || !u.uid) return false;
+      const ms=millisPresenca(u.lastSeen);
+      return ms===0 || (agora-ms)<60000;
+    })
     .slice(0,2);
 
   if(!ativos.length){
@@ -380,7 +389,7 @@ async function registrarPresencaSala(id,perfil){
     }catch(e){
       console.warn('heartbeat presença',e);
     }
-  },10000);
+  },5000);
 }
 
 async function removerPresencaSala(id){
@@ -459,8 +468,13 @@ window.entrarSalaFixa=async(id)=>{
       foto:perfil.fotoURL||meuPerfilAtual.fotoURL,
       lastSeen:Date.now()
     }]);
+
     roomId=sessionId; // toda sinalização usa o ID aleatório
     const r=doc(db,'salasVoz',sessionId);
+
+    // Abre a interface na hora; o WebRTC continua conectando em seguida.
+    show();
+    status.textContent=isHost?'Abrindo sala...':'Entrando na sala...';
 
     await setup();
 
@@ -500,7 +514,6 @@ window.entrarSalaFixa=async(id)=>{
         });
       },erroLobby));
 
-            show();
       status.textContent='Aguardando alguém entrar...';
       return;
     }
@@ -531,7 +544,6 @@ window.entrarSalaFixa=async(id)=>{
       if(d?.hostScreenSharing===false) esconderTransmissaoRemota();
     },erroLobby));
 
-        show();
     status.textContent='Conectando...';
 
   }catch(e){
