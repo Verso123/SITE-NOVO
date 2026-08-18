@@ -1,47 +1,150 @@
 <!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Sala — Voz e Tela</title><style>
-*{box-sizing:border-box}body{margin:0;font-family:'Segoe UI',sans-serif;background:#090910;color:#eee;min-height:100vh}header{height:70px;padding:0 24px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #24243a;background:#11111d}a{color:#aaa;text-decoration:none}.app{max-width:1240px;margin:auto;padding:28px 20px}.panel{background:#131322;border:1px solid #292942;border-radius:18px;padding:24px}.join{display:grid;grid-template-columns:1fr auto auto;gap:10px}.fixed-rooms{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}.fixed-rooms button{padding:18px;text-align:left;font-size:16px;background:#171727;border:1px solid #343450;display:flex;align-items:center;justify-content:space-between;gap:12px}
-.room-users{display:flex;gap:6px;align-items:center;min-height:28px}
-.room-user{width:28px;height:28px;border-radius:50%;background:#6657df;border:2px solid #8174f2;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:900;color:#fff;overflow:hidden}
+*{box-sizing:border-box}
+:root{
+  --bg:#090910;--panel:#11111b;--panel2:#151520;--panel3:#1c1c29;
+  --line:#2b2b3e;--text:#f2f2f7;--muted:#8d8d9d;--purple:#7c6af7;
+  --purple2:#9b8aff;--green:#3fc978;--red:#ed5d68;--yellow:#e9bd5a
+}
+body{margin:0;font-family:'Segoe UI',Arial,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+button,input,select{font:inherit}button{cursor:pointer}
+a{color:#aaa;text-decoration:none}
+header{
+  height:58px;padding:0 18px;background:#0e0e16;border-bottom:1px solid var(--line);
+  display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50
+}
+.header-brand{display:flex;align-items:center;gap:9px;font-weight:900}
+.header-brand span{color:var(--purple2)}
+.header-actions{display:flex;align-items:center;gap:10px}
+.back-link{font-size:13px;color:#aaa}
+.app{max-width:none;margin:0;padding:0}
+.panel{background:transparent;border:0;border-radius:0;padding:0}
+.status{color:var(--muted);font-size:12px}
+.code{color:var(--purple2);font-weight:800}
+
+/* LOBBY */
+#lobby{max-width:900px;margin:0 auto;padding:48px 22px}
+.lobby-title{font-size:31px;margin:0 0 8px}.lobby-sub{color:var(--muted);margin-bottom:26px}
+.fixed-rooms{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px}
+.fixed-rooms button{
+  min-height:86px;padding:16px 18px;text-align:left;font-size:15px;color:var(--text);
+  background:linear-gradient(145deg,#151522,#11111a);border:1px solid #303047;border-radius:14px;
+  display:flex;align-items:center;justify-content:space-between;gap:12px;transition:.15s
+}
+.fixed-rooms button:hover{transform:translateY(-2px);border-color:var(--purple);background:#191928}
+.room-users{display:flex;gap:5px;align-items:center;min-height:30px}
+.room-user{width:30px;height:30px;border-radius:50%;background:#6555db;border:2px solid #8a7cf5;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:900;overflow:hidden}
 .room-user img{width:100%;height:100%;object-fit:cover}
-.room-empty{font-size:11px;color:#666;font-weight:600}.fixed-rooms button:hover{border-color:#7c6af7;background:#202034}@media(max-width:620px){.fixed-rooms{grid-template-columns:1fr}}input,button{border-radius:9px;border:1px solid #343450;padding:12px 14px;font-size:14px}input{background:#0d0d18;color:#fff}button{background:#7c6af7;color:#fff;font-weight:700;cursor:pointer}button:disabled{opacity:.55;cursor:not-allowed}button.secondary{background:#202034;color:#bbb}button.danger{background:#3a1418;color:#ff9a9a;border-color:#61252b}.status{color:#999;font-size:13px}.room{display:none}.code{color:#a99cff;font-weight:800}.hint{font-size:12px;color:#666;margin-top:12px;line-height:1.5}
-.call-shell{display:grid;grid-template-columns:250px 1fr;min-height:650px;background:#0c0c14;border:1px solid #292942;border-radius:18px;overflow:hidden}.sidebar{background:#15151f;border-right:1px solid #292942;display:flex;flex-direction:column}.channel{padding:18px;border-bottom:1px solid #292942}.channel-title{font-weight:800;font-size:16px}.channel-sub{font-size:12px;color:#777;margin-top:4px}.members{padding:12px;flex:1}.members-title{font-size:11px;color:#777;text-transform:uppercase;font-weight:800;padding:6px 8px}.member{display:flex;align-items:center;gap:10px;padding:10px 8px;border-radius:8px}.member.empty-member{color:#666;font-size:12px;padding:8px}.avatar img{width:100%;height:100%;object-fit:cover;border-radius:50%}.member:hover{background:#20202c}.avatar.speaking{box-shadow:0 0 0 3px #9b87ff,0 0 18px rgba(124,106,247,.95);transition:box-shadow .08s}.avatar{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#7c6af7,#4033a8);display:flex;align-items:center;justify-content:center;font-weight:900;position:relative}.dot{position:absolute;width:11px;height:11px;border-radius:50%;background:#35c46a;border:2px solid #15151f;right:-1px;bottom:0}.member-name{font-weight:700;font-size:14px}.member-state{font-size:11px;color:#777;margin-top:2px}.streams{padding:8px 12px 14px;margin-top:8px}
-.stream-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
-.streams-title{margin-bottom:5px}
-.stream-tile{min-width:0}
-.stream-thumb{height:72px!important}
-.stream-info{padding:6px 7px!important}
-.stream-name{font-size:11px!important;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.stream-help{font-size:9px!important}
-.user-volume-menu{position:fixed;display:none;z-index:10001;width:250px;background:#171725;border:1px solid #3b3b55;border-radius:12px;box-shadow:0 16px 45px #000b;padding:12px}
-.user-volume-menu.show{display:block}
-.user-volume-title{font-size:13px;font-weight:800;color:#eee;margin-bottom:4px}
-.user-volume-sub{font-size:10px;color:#777;margin-bottom:12px}
-.user-volume-row{display:grid;grid-template-columns:32px 1fr 42px;gap:8px;align-items:center}
-.user-volume-row button{min-width:32px!important;padding:6px!important}
-.user-volume-row input{width:100%;padding:0;height:auto;accent-color:#7c6af7}
-.user-volume-value{text-align:right;font-size:11px;color:#ddd}
-.member[data-remote="1"]{cursor:pointer}
-.member[data-remote="1"]:hover{background:#242437}
-.audio-menu{position:fixed;display:none;z-index:9999;width:285px;background:#171725;border:1px solid #3b3b55;border-radius:12px;box-shadow:0 16px 45px #000b;padding:12px}
-.audio-menu.show{display:block}
-.audio-menu-title{font-size:12px;font-weight:800;color:#aaa;margin-bottom:10px}
-.audio-row{display:grid;grid-template-columns:30px 1fr 42px;gap:8px;align-items:center;margin:10px 0}
-.audio-row button{min-width:30px!important;padding:6px!important}
-.audio-row input{width:100%;padding:0;height:auto;accent-color:#7c6af7}
-.audio-value{text-align:right;font-size:11px;color:#ddd}
-.audio-label{font-size:11px;color:#999;margin-top:10px}.streams-title{font-size:11px;color:#777;text-transform:uppercase;font-weight:800;padding:6px 8px}.stream-tile{display:none;border:1px solid #313145;background:#20202c;border-radius:10px;overflow:hidden;cursor:pointer;transition:.15s}.stream-tile:hover{border-color:#7c6af7;background:#262638}.stream-thumb{height:105px;background:#07070c;position:relative;overflow:hidden}.stream-thumb video{width:100%;height:100%;object-fit:cover}.live{position:absolute;left:7px;bottom:7px;background:#e23b4d;color:#fff;border-radius:4px;padding:3px 6px;font-size:9px;font-weight:900}.stream-info{padding:8px 10px}.stream-name{font-size:12px;font-weight:800}.stream-help{font-size:10px;color:#888;margin-top:3px}.streams .stream-tile{display:none;border:1px solid #313145;background:#20202c;border-radius:9px;overflow:hidden;cursor:pointer;transition:.15s}
-.streams .stream-tile:hover{border-color:#7c6af7}
-.streams .stream-thumb{height:72px}
-.sidebar-room{padding:14px;border-top:1px solid #292942;font-size:12px;color:#888}
-.main-call{display:flex;flex-direction:column;min-width:0}.topbar{height:64px;padding:0 18px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #232334;background:#101019}.stage{flex:1;margin:18px;background:#07070c;border:1px solid #23233a;border-radius:16px;min-height:430px;display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative}.stage video{width:100%;height:100%;max-height:620px;object-fit:contain;background:#050507}.empty{text-align:center;color:#777;padding:30px}.empty b{display:block;color:#aaa;font-size:18px;margin-bottom:7px}.empty span{font-size:13px;line-height:1.5}#mainStream:fullscreen{width:100vw!important;height:100vh!important;max-height:none!important;object-fit:cover!important;background:#000!important}
-#mainStream:-webkit-full-screen{width:100vw!important;height:100vh!important;max-height:none!important;object-fit:cover!important;background:#000!important}
-.volume-box{display:flex;align-items:center;gap:8px;background:#202034;border:1px solid #343450;border-radius:9px;padding:8px 12px;color:#bbb;font-size:12px}
-.volume-box input{width:120px;padding:0;height:auto;accent-color:#7c6af7}.volume-num{min-width:34px;text-align:right;color:#ddd}
-.controls{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;padding:0 18px 20px}.controls button{min-width:150px}
-@media(max-width:760px){.join{grid-template-columns:1fr}.call-shell{grid-template-columns:1fr}.sidebar{display:none}.stage{min-height:330px;margin:10px}.controls button{min-width:auto}}
-</style></head><body><header><strong>🎙️ Sala com Amigos</strong><a href="inicio.html">← Voltar</a></header><main class="app"><section class="panel" id="lobby">
-  <h2 style="margin-top:0">Entrar em uma sala</h2>
-  <p class="status" style="margin-bottom:20px">Escolha uma das salas fixas.</p>
+.room-empty{font-size:11px;color:#666}
+
+/* CALL LAYOUT */
+.room{display:none;height:calc(100vh - 58px)}
+.call-shell{
+  display:grid;grid-template-columns:220px minmax(0,1fr) 235px;height:100%;
+  background:#0b0b12;border:0;border-radius:0;overflow:hidden
+}
+.sidebar{
+  background:#111119;border-right:1px solid var(--line);display:flex;flex-direction:column;min-height:0
+}
+.channel{padding:16px 14px 12px;border-bottom:1px solid var(--line)}
+.channel-title{font-weight:900;font-size:14px}.channel-sub{font-size:11px;color:#6f6f80;margin-top:3px}
+.rooms-nav{padding:10px 8px}
+.rooms-nav-title,.members-title,.streams-title{font-size:10px;color:#6f6f80;text-transform:uppercase;font-weight:900;letter-spacing:.7px;padding:6px 8px}
+.room-nav-item{display:flex;align-items:center;gap:8px;padding:9px 10px;border-radius:7px;color:#9a9aaa;font-size:13px}
+.room-nav-item.active{background:#272638;color:#fff}
+.room-nav-item .hash{color:#7d6de8}
+.streams{padding:8px;overflow:auto}
+.stream-list{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.stream-tile{display:none;border:1px solid #343449;background:#1c1c27;border-radius:9px;overflow:hidden;cursor:pointer;transition:.15s}
+.stream-tile:hover{border-color:var(--purple)}
+.stream-thumb{height:70px;background:#050509;position:relative;overflow:hidden}
+.stream-thumb video{width:100%;height:100%;object-fit:cover;display:block}
+.live{position:absolute;left:6px;bottom:6px;background:#e74e5b;color:white;border-radius:4px;padding:2px 5px;font-size:8px;font-weight:900}
+.stream-info{padding:6px}.stream-name{font-size:10px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.stream-help{font-size:8px;color:#777;margin-top:2px}
+.sidebar-room{margin-top:auto;padding:10px 12px;border-top:1px solid var(--line);font-size:11px;color:#777}
+
+/* USER DOCK */
+.user-dock{border-top:1px solid var(--line);background:#0e0e16;padding:9px 8px;display:grid;grid-template-columns:1fr auto;gap:6px;align-items:center}
+.user-dock-profile{display:flex;align-items:center;gap:8px;min-width:0}
+.dock-avatar{width:34px;height:34px;border-radius:50%;background:#6657df;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:900;overflow:hidden;border:2px solid #8174f2}
+.dock-avatar img{width:100%;height:100%;object-fit:cover}
+.dock-text{min-width:0}.dock-name{font-size:11px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.dock-status{font-size:9px;color:#62cf87}
+.dock-buttons{display:flex;gap:4px}.dock-btn{width:30px;height:30px;border:0;border-radius:6px;background:#1b1b28;color:#bbb;padding:0}.dock-btn:hover{background:#29283b;color:#fff}
+
+/* MAIN */
+.main-call{display:flex;flex-direction:column;min-width:0;min-height:0;background:#09090f}
+.topbar{height:58px;padding:0 16px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line);background:#0e0e16}
+.top-left{display:flex;align-items:center;gap:10px}.top-title{font-size:14px;font-weight:900}
+.connection-badge{font-size:10px;border-radius:999px;padding:4px 8px;background:#171722;color:#8f8f9f;border:1px solid #29293c}
+.stage{flex:1;margin:12px;background:#050508;border:1px solid #20202e;border-radius:12px;min-height:0;display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative}
+.stage video{width:100%;height:100%;max-height:none;object-fit:contain;background:#000}
+.empty{text-align:center;color:#666;padding:30px}.empty-icon{font-size:40px;margin-bottom:10px}.empty b{display:block;color:#aaa;font-size:18px;margin-bottom:7px}.empty span{font-size:12px;line-height:1.5}
+#mainStream{display:none}
+.controls{padding:0 12px 13px;display:flex;justify-content:center;gap:8px;flex-wrap:wrap}
+.controls button{border:1px solid #343449;background:#1c1c28;color:#ddd;border-radius:9px;padding:10px 13px;font-weight:800;font-size:12px}
+.controls button:hover{background:#29283b}.controls button.primary{background:var(--purple);border-color:var(--purple);color:#fff}.controls button.danger{background:#351419;border-color:#5a222b;color:#ff929d}
+
+/* RIGHT MEMBERS */
+.members-panel{background:#111119;border-left:1px solid var(--line);display:flex;flex-direction:column;min-height:0}
+.members{padding:10px;overflow:auto;flex:1}
+.member{display:flex;align-items:center;gap:9px;padding:8px;border-radius:7px;cursor:default}
+.member[data-remote="1"]{cursor:pointer}.member[data-remote="1"]:hover{background:#20202d}
+.member.empty-member{color:#666;font-size:11px}
+.avatar{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#7c6af7,#4033a8);display:flex;align-items:center;justify-content:center;font-weight:900;font-size:10px;position:relative;overflow:visible}
+.avatar img{width:100%;height:100%;object-fit:cover;border-radius:50%}
+.avatar.speaking{box-shadow:0 0 0 3px #9b87ff,0 0 18px #7c6af7}
+.dot{position:absolute;width:10px;height:10px;border-radius:50%;background:var(--green);border:2px solid #111119;right:-1px;bottom:0}
+.member-name{font-weight:800;font-size:11px}.member-state{font-size:9px;color:#777;margin-top:2px}
+
+/* MENUS */
+.user-volume-menu,.audio-menu{
+  position:fixed;display:none;z-index:10000;background:#171725;border:1px solid #3b3b55;border-radius:11px;box-shadow:0 18px 50px #000c;padding:12px
+}
+.user-volume-menu{width:250px}.audio-menu{width:275px}.user-volume-menu.show,.audio-menu.show{display:block}
+.user-volume-title,.audio-menu-title{font-size:12px;font-weight:900;margin-bottom:4px}.user-volume-sub{font-size:9px;color:#777;margin-bottom:11px}
+.user-volume-row,.audio-row{display:grid;grid-template-columns:32px 1fr 40px;gap:7px;align-items:center}
+.user-volume-row button,.audio-row button{min-width:32px;padding:6px;border:0;border-radius:6px;background:#242438;color:#ddd}
+.user-volume-row input,.audio-row input{width:100%;padding:0;height:auto;accent-color:var(--purple)}
+.user-volume-value,.audio-value{font-size:10px;text-align:right;color:#ddd}.audio-label{font-size:10px;color:#888;margin:9px 0 5px}
+
+/* SETTINGS MODAL */
+.settings-bg{position:fixed;inset:0;background:#0009;display:none;align-items:center;justify-content:center;z-index:12000}
+.settings-bg.show{display:flex}
+.settings-card{width:min(520px,92vw);background:#151522;border:1px solid #34344b;border-radius:15px;padding:20px;box-shadow:0 25px 80px #000c}
+.settings-card h3{margin:0 0 4px}.settings-card p{margin:0 0 18px;color:#777;font-size:11px}
+.setting-row{margin:13px 0}.setting-row label{display:block;font-size:10px;font-weight:900;color:#999;margin-bottom:6px}
+.setting-row select{width:100%;background:#0d0d16;border:1px solid #343449;color:#eee;border-radius:8px;padding:10px}
+.setting-check{display:flex;align-items:center;justify-content:space-between;padding:9px 0;border-top:1px solid #262637;font-size:12px}
+.settings-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:16px}.settings-actions button{border:0;border-radius:8px;padding:9px 12px;background:#242438;color:#ddd}.settings-actions .save{background:var(--purple);color:#fff}
+
+/* FULLSCREEN */
+#mainStream:fullscreen,#mainStream:-webkit-full-screen{width:100vw!important;height:100vh!important;max-height:none!important;object-fit:cover!important;background:#000!important}
+
+/* TOAST */
+.toast{position:fixed;right:16px;bottom:16px;z-index:15000;background:#1a1a28;border:1px solid #37374d;border-radius:10px;padding:10px 13px;font-size:11px;color:#ddd;opacity:0;transform:translateY(10px);pointer-events:none;transition:.18s}
+.toast.show{opacity:1;transform:none}
+
+/* RESPONSIVE */
+@media(max-width:900px){
+  .call-shell{grid-template-columns:190px minmax(0,1fr)}
+  .members-panel{display:none}
+}
+@media(max-width:650px){
+  .fixed-rooms{grid-template-columns:1fr}
+  .call-shell{grid-template-columns:1fr}
+  .sidebar{display:none}
+  .stage{margin:8px}
+  .controls{gap:5px}.controls button{padding:9px 10px}
+}
+</style></head><body>
+<header>
+  <div class="header-brand">🎧 <span>Meu Espaço Voice</span></div>
+  <div class="header-actions">
+    <a class="back-link" href="inicio.html">← Início</a>
+  </div>
+</header>
+<main class="app"><section class="panel" id="lobby">
+  <h1 class="lobby-title">Canais de voz</h1>
+  <div class="lobby-sub">Escolha uma sala para entrar. Os avatares mostram quem já está conectado.</div>
 
   <div class="fixed-rooms">
     <button id="roomBtn-sala1" onclick="entrarSalaFixa('sala1')"><span>🔊 Sala 1</span><span class="room-users" id="users-sala1"></span></button>
@@ -51,20 +154,22 @@
     <button id="roomBtn-sala5" onclick="entrarSalaFixa('sala5')"><span>🔊 Sala 5</span><span class="room-users" id="users-sala5"></span></button>
   </div>
 
-  <div id="lobbyErro" style="display:none;margin-top:14px;padding:12px 14px;border-radius:9px;background:#321116;border:1px solid #66252e;color:#ff9a9a;font-size:13px;line-height:1.5"></div>
+  <div id="lobbyErro" style="display:none;margin-top:14px;padding:12px 14px;border-radius:9px;background:#321116;border:1px solid #66252e;color:#ff9a9a;font-size:12px"></div>
 </section><section class="room" id="room">
 <div class="call-shell">
+
   <aside class="sidebar">
     <div class="channel">
-      <div class="channel-title">🔊 Geral</div>
-      <div class="channel-sub">Canal de voz</div>
+      <div class="channel-title">🎧 Meu Espaço</div>
+      <div class="channel-sub">Canais de voz</div>
     </div>
-    <div class="members">
-      <div class="members-title">Na chamada</div>
-      <div id="roomMembers">
-        <div class="member empty-member">Ninguém conectado ainda.</div>
-      </div>
+
+    <div class="rooms-nav">
+      <div class="rooms-nav-title">Salas</div>
+      <div class="room-nav-item active"><span class="hash">🔊</span><span id="activeRoomName">Sala</span></div>
+      <div class="room-nav-item"><span class="hash">#</span> chat-geral <span style="margin-left:auto;color:#555">em breve</span></div>
     </div>
+
     <div class="streams">
       <div class="streams-title">Transmissões</div>
       <div class="stream-list">
@@ -75,66 +180,123 @@
           </div>
           <div class="stream-info">
             <div class="stream-name" id="streamName">Transmissão</div>
-            <div class="stream-help">Clique • botão direito = áudio</div>
+            <div class="stream-help">Clique para assistir</div>
           </div>
         </div>
       </div>
     </div>
-    <div class="sidebar-room">Sala <strong class="code" id="sideRoomCode"></strong></div>
+
+    <div class="sidebar-room">Canal atual: <strong class="code" id="sideRoomCode"></strong></div>
+
+    <div class="user-dock">
+      <div class="user-dock-profile">
+        <div class="dock-avatar" id="dockAvatar">EU</div>
+        <div class="dock-text">
+          <div class="dock-name" id="dockName">Você</div>
+          <div class="dock-status" id="dockStatus">● Online</div>
+        </div>
+      </div>
+      <div class="dock-buttons">
+        <button class="dock-btn" id="dockMic" onclick="toggleMic()" title="Microfone (Ctrl+M)">🎙️</button>
+        <button class="dock-btn" onclick="abrirConfiguracoes()" title="Configurações">⚙️</button>
+      </div>
+    </div>
   </aside>
 
   <div class="main-call">
     <div class="topbar">
-      <div><strong>🔊 Geral</strong><div class="status" id="status">Preparando...</div></div>
-      <div>Sala: <span class="code" id="roomCode"></span> </div>
+      <div class="top-left">
+        <div class="top-title">🔊 <span id="roomCode"></span></div>
+        <div class="connection-badge" id="status">Preparando...</div>
+      </div>
+      <div style="font-size:10px;color:#666">Ctrl+M mute • Ctrl+Shift+S transmitir</div>
     </div>
 
     <div class="stage">
       <div class="empty" id="empty">
-        <b>👥 Aguardando seu amigo</b>
-        <span>Compartilhe o código da sala.<br>Quando alguém entrar, vocês poderão conversar e compartilhar a tela.</span>
+        <div class="empty-icon">🎧</div>
+        <b>Você está no canal de voz</b>
+        <span>Quando alguém transmitir a tela, a miniatura aparecerá à esquerda.</span>
       </div>
-      <audio id="remoteMicAudio" autoplay playsinline></audio><audio id="remoteScreenAudio" autoplay playsinline></audio><video id="remote" autoplay playsinline style="display:none"></video><video id="mainStream" autoplay muted playsinline style="display:none"></video>
+
+      <audio id="remoteMicAudio" autoplay playsinline></audio>
+      <audio id="remoteScreenAudio" autoplay playsinline></audio>
+      <video id="remote" autoplay playsinline style="display:none"></video>
+      <video id="mainStream" autoplay muted playsinline style="display:none"></video>
     </div>
 
     <div class="controls">
-      <button id="mic" onclick="toggleMic()">🎙️ Microfone ligado</button>
-      <button onclick="compartilhar()">🖥️ Compartilhar tela</button>
-      <button class="secondary" onclick="pararTela()">⏹ Parar tela</button>
-      <button class="secondary" onclick="telaCheia()">⛶ Tela cheia</button>
-      <button class="secondary" id="btnAjusteTela" onclick="alternarAjusteTela()">▣ Preencher</button>
-      <button class="danger" onclick="sairSala()">📞 Sair</button>
+      <button class="primary" id="mic" onclick="toggleMic()">🎙️ Microfone ligado</button>
+      <button onclick="compartilhar()">🖥️ Compartilhar</button>
+      <button onclick="pararTela()">⏹ Parar tela</button>
+      <button onclick="telaCheia()">⛶ Tela cheia</button>
+      <button id="btnAjusteTela" onclick="alternarAjusteTela()">▣ Preencher</button>
+      <button onclick="abrirConfiguracoes()">⚙️ Áudio</button>
+      <button class="danger" onclick="sairSala()">📞 Desconectar</button>
     </div>
   </div>
+
+  <aside class="members-panel">
+    <div class="channel">
+      <div class="channel-title">Participantes</div>
+      <div class="channel-sub">Clique em alguém para ajustar o volume</div>
+    </div>
+    <div class="members">
+      <div class="members-title">Na chamada</div>
+      <div id="roomMembers"><div class="member empty-member">Ninguém conectado ainda.</div></div>
+    </div>
+  </aside>
+
 </div>
 
 <div class="user-volume-menu" id="userVolumeMenu" onclick="event.stopPropagation()">
   <div class="user-volume-title" id="userVolumeTitle">Volume do usuário</div>
-  <div class="user-volume-sub">Esse ajuste vale só para você.</div>
+  <div class="user-volume-sub">Este ajuste só vale para você.</div>
   <div class="user-volume-row">
-    <button class="secondary" id="userVolumeMute">🔊</button>
+    <button id="userVolumeMute">🔊</button>
     <input id="userVolumeRange" type="range" min="0" max="100" value="100">
     <span class="user-volume-value" id="userVolumeValue">100%</span>
   </div>
 </div>
 
 <div class="audio-menu" id="audioMenu" onclick="event.stopPropagation()">
-  <div class="audio-menu-title">Áudio</div>
-
-  <div class="audio-label">🎙️ Voz do amigo</div>
+  <div class="audio-menu-title">🖥️ Áudio da transmissão</div>
+  <div class="audio-label">Volume da transmissão</div>
   <div class="audio-row">
-    <button class="secondary" id="muteAmigo" onclick="mutarAmigo()">🔊</button>
-    <input id="volumeAmigo" type="range" min="0" max="100" value="100" oninput="mudarVolumeAmigo(this.value)">
-    <span class="audio-value" id="volumeAmigoNum">100%</span>
-  </div>
-
-  <div class="audio-label">🖥️ Áudio da transmissão</div>
-  <div class="audio-row">
-    <button class="secondary" id="muteTransmissao" onclick="mutarTransmissao()">🔊</button>
+    <button id="muteTransmissao" onclick="mutarTransmissao()">🔊</button>
     <input id="volumeTransmissao" type="range" min="0" max="100" value="100" oninput="mudarVolumeTransmissao(this.value)">
     <span class="audio-value" id="volumeTransmissaoNum">100%</span>
   </div>
+  <!-- IDs legados mantidos escondidos para compatibilidade -->
+  <div style="display:none">
+    <button id="muteAmigo" onclick="mutarAmigo()">🔊</button>
+    <input id="volumeAmigo" value="100">
+    <span id="volumeAmigoNum">100%</span>
+  </div>
 </div>
+
+<div class="settings-bg" id="settingsBg" onclick="fecharConfiguracoesFundo(event)">
+  <div class="settings-card">
+    <h3>Configurações de voz</h3>
+    <p>As alterações são aplicadas somente no seu navegador.</p>
+
+    <div class="setting-row">
+      <label>MICROFONE</label>
+      <select id="micDevice"><option value="">Microfone padrão</option></select>
+    </div>
+
+    <div class="setting-check"><span>Cancelamento de eco</span><input type="checkbox" id="echoCancellation" checked></div>
+    <div class="setting-check"><span>Supressão de ruído</span><input type="checkbox" id="noiseSuppression" checked></div>
+    <div class="setting-check"><span>Ganho automático</span><input type="checkbox" id="autoGainControl" checked></div>
+
+    <div class="settings-actions">
+      <button onclick="fecharConfiguracoes()">Cancelar</button>
+      <button class="save" onclick="aplicarConfiguracoesAudio()">Aplicar</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
 </section></main>
 <script type="module">
 import{initializeApp}from'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';import{getAuth,onAuthStateChanged}from'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';import{getFirestore,doc,setDoc,getDoc,updateDoc,collection,addDoc,onSnapshot,getDocs,deleteDoc,runTransaction,serverTimestamp}from'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
@@ -167,6 +329,15 @@ onAuthStateChanged(auth,async u=>{
     };
   }
 
+  const dn=document.getElementById('dockName');
+  if(dn) dn.textContent=meuPerfilAtual.nome||'Você';
+  const ds=document.getElementById('dockStatus');
+  if(ds) ds.textContent='● '+(meuPerfilAtual.status||'Online');
+  const da=document.getElementById('dockAvatar');
+  if(da){
+    if(meuPerfilAtual.fotoURL) da.innerHTML=`<img src="${meuPerfilAtual.fotoURL}" alt="">`;
+    else da.textContent=iniciais(meuPerfilAtual.nome||'EU');
+  }
   observarSalas();
 });const NOMES_SALAS={sala1:'Sala 1',sala2:'Sala 2',sala3:'Sala 3',sala4:'Sala 4',sala5:'Sala 5'};
 const rtc={iceServers:[{urls:['stun:stun.l.google.com:19302','stun:stun1.l.google.com:19302']}]};
@@ -444,6 +615,7 @@ function show(){
   const nome=NOMES_SALAS[fixedRoomKey]||fixedRoomKey||'Sala';
   document.getElementById('roomCode').textContent=nome;
   const side=document.getElementById('sideRoomCode'); if(side) side.textContent=nome;
+  const active=document.getElementById('activeRoomName'); if(active) active.textContent=nome;
 }
 function gen(){return Math.random().toString(36).slice(2,8).toUpperCase()}
 function iniciais(nome){
@@ -851,7 +1023,10 @@ window.toggleMic=()=>{
     .find(el=>el.dataset.uid===auth.currentUser?.uid);
   const ms=row?.querySelector('.member-state');
   if(ms)ms.textContent=t.enabled?'🎙️ Microfone ligado':'🔇 Microfone desligado';
-  if(!t.enabled)document.getElementById('myAvatar').classList.remove('speaking');
+  if(!t.enabled)document.getElementById('myAvatar')?.classList.remove('speaking');
+  const dm=document.getElementById('dockMic');
+  if(dm) dm.textContent=t.enabled?'🎙️':'🔇';
+  mostrarToast(t.enabled?'Microfone ativado':'Microfone silenciado');
 };
 window.compartilhar=async()=>{
   try{
@@ -1081,6 +1256,80 @@ document.addEventListener('click',()=>{
 },{passive:true});
 
 window.copiar=async()=>{await navigator.clipboard.writeText(roomId);status.textContent='Código copiado: '+roomId};
+
+function mostrarToast(texto){
+  const t=document.getElementById('toast');
+  if(!t)return;
+  t.textContent=texto;
+  t.classList.add('show');
+  clearTimeout(window.__toastTimer);
+  window.__toastTimer=setTimeout(()=>t.classList.remove('show'),1800);
+}
+
+window.abrirConfiguracoes=async()=>{
+  document.getElementById('settingsBg')?.classList.add('show');
+  try{
+    const devices=await navigator.mediaDevices.enumerateDevices();
+    const sel=document.getElementById('micDevice');
+    const atual=micStream?.getAudioTracks?.()[0]?.getSettings?.().deviceId||'';
+    sel.innerHTML='<option value="">Microfone padrão</option>';
+    devices.filter(d=>d.kind==='audioinput').forEach((d,i)=>{
+      const o=document.createElement('option');
+      o.value=d.deviceId;
+      o.textContent=d.label||('Microfone '+(i+1));
+      if(d.deviceId===atual)o.selected=true;
+      sel.appendChild(o);
+    });
+  }catch(e){console.warn(e)}
+};
+
+window.fecharConfiguracoes=()=>document.getElementById('settingsBg')?.classList.remove('show');
+window.fecharConfiguracoesFundo=e=>{if(e.target===document.getElementById('settingsBg'))fecharConfiguracoes()};
+
+window.aplicarConfiguracoesAudio=async()=>{
+  try{
+    const deviceId=document.getElementById('micDevice').value;
+    const constraints={
+      audio:{
+        echoCancellation:document.getElementById('echoCancellation').checked,
+        noiseSuppression:document.getElementById('noiseSuppression').checked,
+        autoGainControl:document.getElementById('autoGainControl').checked
+      }
+    };
+    if(deviceId)constraints.audio.deviceId={exact:deviceId};
+
+    const novo=await navigator.mediaDevices.getUserMedia(constraints);
+    const track=novo.getAudioTracks()[0];
+
+    if(micSender)await micSender.replaceTrack(track);
+    micStream?.getTracks().forEach(t=>t.stop());
+    micStream=novo;
+
+    const meuAvatar=document.getElementById('myAvatar');
+    if(meuAvatar)detectorVoz(micStream,meuAvatar);
+
+    fecharConfiguracoes();
+    mostrarToast('Configurações de áudio aplicadas');
+  }catch(e){
+    console.error(e);
+    mostrarToast('Não foi possível trocar o microfone');
+  }
+};
+
+document.addEventListener('keydown',e=>{
+  if(e.ctrlKey && !e.shiftKey && e.key.toLowerCase()==='m'){
+    e.preventDefault();
+    toggleMic();
+  }
+  if(e.ctrlKey && e.shiftKey && e.key.toLowerCase()==='s'){
+    e.preventDefault();
+    if(screenStream)pararTela(); else compartilhar();
+  }
+  if(e.key==='Escape'){
+    fecharConfiguracoes();
+  }
+});
+
 window.sairSala=async()=>{
   try{
     if(presenceTimer){clearInterval(presenceTimer);presenceTimer=null}
