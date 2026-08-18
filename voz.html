@@ -12,7 +12,7 @@
 .stream-info{padding:6px 7px!important}
 .stream-name{font-size:11px!important;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .stream-help{font-size:9px!important}
-.user-volume-menu{position:fixed;display:none;z-index:10000;width:260px;background:#171725;border:1px solid #3b3b55;border-radius:12px;box-shadow:0 16px 45px #000b;padding:12px}
+.user-volume-menu{position:fixed;display:none;z-index:10001;width:250px;background:#171725;border:1px solid #3b3b55;border-radius:12px;box-shadow:0 16px 45px #000b;padding:12px}
 .user-volume-menu.show{display:block}
 .user-volume-title{font-size:13px;font-weight:800;color:#eee;margin-bottom:4px}
 .user-volume-sub{font-size:10px;color:#777;margin-bottom:12px}
@@ -110,24 +110,368 @@
 
 <div class="user-volume-menu" id="userVolumeMenu" onclick="event.stopPropagation()">
   <div class="user-volume-title" id="userVolumeTitle">Volume do usuário</div>
-  <div class="user-volume-sub">Este ajuste só vale para você.</div>
+  <div class="user-volume-sub">Esse ajuste vale só para você.</div>
   <div class="user-volume-row">
-    <button class="secondary" id="userVolumeMute" onclick="mutarUsuarioSelecionado()">🔊</button>
-    <input id="userVolumeRange" type="range" min="0" max="100" value="100" oninput="ajustarVolumeUsuario(this.value)">
+    <button class="secondary" id="userVolumeMute">🔊</button>
+    <input id="userVolumeRange" type="range" min="0" max="100" value="100">
     <span class="user-volume-value" id="userVolumeValue">100%</span>
   </div>
 </div>
 
 <div class="audio-menu" id="audioMenu" onclick="event.stopPropagation()">
-  <div class="audio-menu-title">Áudio da transmissão</div>
+  <div class="audio-menu-title">Áudio</div>
 
-  <div class="audio-label">🖥️ Volume da transmissão</div>
+  <div class="audio-label">🎙️ Voz do amigo</div>
+  <div class="audio-row">
+    <button class="secondary" id="muteAmigo" onclick="mutarAmigo()">🔊</button>
+    <input id="volumeAmigo" type="range" min="0" max="100" value="100" oninput="mudarVolumeAmigo(this.value)">
+    <span class="audio-value" id="volumeAmigoNum">100%</span>
+  </div>
+
+  <div class="audio-label">🖥️ Áudio da transmissão</div>
   <div class="audio-row">
     <button class="secondary" id="muteTransmissao" onclick="mutarTransmissao()">🔊</button>
     <input id="volumeTransmissao" type="range" min="0" max="100" value="100" oninput="mudarVolumeTransmissao(this.value)">
     <span class="audio-value" id="volumeTransmissaoNum">100%</span>
   </div>
-</div>`;
+</div>
+</section></main>
+<script type="module">
+import{initializeApp}from'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';import{getAuth,onAuthStateChanged}from'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';import{getFirestore,doc,setDoc,getDoc,updateDoc,collection,addDoc,onSnapshot,getDocs,deleteDoc,runTransaction,serverTimestamp}from'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+const cfg={apiKey:'AIzaSyAaIxroCAMOvDxg5aLUr2P8jweygemm1uM',authDomain:'lista-de-jogos-f1874.firebaseapp.com',projectId:'lista-de-jogos-f1874',storageBucket:'lista-de-jogos-f1874.firebasestorage.app',messagingSenderId:'692334284655',appId:'1:692334284655:web:a55db647b5f8b39d00a29a'};const app=initializeApp(cfg),auth=getAuth(app),db=getFirestore(app);let pc,micStream,screenStream,roomId,isHost=false,unsubs=[];const remote=document.getElementById('remote'),status=document.getElementById('status'),streamPreview=document.getElementById('streamPreview'),mainStream=document.getElementById('mainStream');let remoteStreamAtual=null;
+let fixedRoomKey=null;
+let sessionId=null;
+let presenceTimer=null;
+let remoteVideoTrack=null;
+let remoteScreenWanted=false;
+let renegRev=0;
+let lastHostReoffer=0;
+let lastGuestReoffer=0;
+let lastHostReanswer=0;
+let lastGuestReanswer=0;
+let renegociando=false;
+onAuthStateChanged(auth,async u=>{
+  if(!u){location.href='login.html';return}
+
+  try{
+    const ps=await getDoc(doc(db,'usuarios',u.uid));
+    const p=ps.exists()?ps.data():{};
+    meuPerfilAtual={
+      nome:p.nome||u.displayName||u.email?.split('@')[0]||'Usuário',
+      fotoURL:p.fotoURL||''
+    };
+  }catch(e){
+    meuPerfilAtual={
+      nome:u.displayName||u.email?.split('@')[0]||'Usuário',
+      fotoURL:''
+    };
+  }
+
+  observarSalas();
+});const NOMES_SALAS={sala1:'Sala 1',sala2:'Sala 2',sala3:'Sala 3',sala4:'Sala 4',sala5:'Sala 5'};
+const rtc={iceServers:[{urls:['stun:stun.l.google.com:19302','stun:stun1.l.google.com:19302']}]};
+function erroLobby(e){
+      console.error(e);
+      const el=document.getElementById('lobbyErro');
+      let texto=e?.message||String(e);
+      if(e?.name==='NotAllowedError') texto='O navegador bloqueou o microfone. Clique no cadeado ao lado do endereço, permita Microfone e atualize a página.';
+      if(e?.name==='NotFoundError') texto='Nenhum microfone foi encontrado.';
+      if(e?.code==='permission-denied') texto='O Firebase recusou a operação. Confira se você está logado e se as regras foram publicadas.';
+      el.textContent='Erro: '+texto;
+      el.style.display='block';
+    }
+    function limparErro(){ document.getElementById('lobbyErro').style.display='none'; }
+    function detectorVoz(stream, avatarEl){
+  try{
+    const AudioCtx=window.AudioContext||window.webkitAudioContext;
+    const ctx=new AudioCtx();
+    const src=ctx.createMediaStreamSource(stream);
+    const analyser=ctx.createAnalyser();
+    analyser.fftSize=512;
+    src.connect(analyser);
+    const dados=new Uint8Array(analyser.fftSize);
+    let media=0;
+
+    function medir(){
+      analyser.getByteTimeDomainData(dados);
+      let soma=0;
+      for(const valor of dados){
+        const n=(valor-128)/128;
+        soma+=n*n;
+      }
+      const rms=Math.sqrt(soma/dados.length);
+      media=(media*0.72)+(rms*0.28);
+      if(avatarEl) avatarEl.classList.toggle('speaking',media>0.035);
+      requestAnimationFrame(medir);
+    }
+    medir();
+  }catch(e){
+    console.warn('Detector de voz indisponível:',e);
+  }
+}
+let videoSender=null;
+let micSender=null;
+let screenAudioSender=null;
+let micTransceiver=null;
+let screenAudioTransceiver=null;
+
+function mostrarTransmissaoRemota(stream){
+  remoteScreenWanted=true;
+
+  if(!stream && remoteVideoTrack){
+    stream=new MediaStream([remoteVideoTrack]);
+    remoteStreamAtual=stream;
+  }
+
+  if(!stream){
+    status.textContent='Transmissão iniciando...';
+    return;
+  }
+
+  streamPreview.srcObject=stream;
+  streamPreview.play().catch(()=>{});
+  document.getElementById('streamName').textContent='Amigo está transmitindo';
+  document.getElementById('streamTile').style.display='block';
+  status.textContent='Transmissão disponível';
+}
+function esconderTransmissaoRemota(){
+  remoteScreenWanted=false;
+  if(screenStream) return;
+  streamPreview.srcObject=null;
+  document.getElementById('streamTile').style.display='none';
+  fecharTransmissao();
+}
+async function esperarEstadoEstavel(){
+  if(!pc) return;
+  if(pc.signalingState==='stable') return;
+  await new Promise(resolve=>{
+    const timer=setTimeout(resolve,2500);
+    const fn=()=>{
+      if(pc.signalingState==='stable'){
+        clearTimeout(timer);
+        pc.removeEventListener('signalingstatechange',fn);
+        resolve();
+      }
+    };
+    pc.addEventListener('signalingstatechange',fn);
+  });
+}
+
+async function criarReoferta(tipo){
+  if(!pc || renegociando) return;
+  renegociando=true;
+  try{
+    await esperarEstadoEstavel();
+    const offer=await pc.createOffer();
+    await pc.setLocalDescription(offer);
+    const rev=Date.now();
+    renegRev=rev;
+    const r=doc(db,'salasVoz',sessionId);
+
+    if(tipo==='host'){
+      await updateDoc(r,{
+        hostReoffer:{type:offer.type,sdp:offer.sdp,rev}
+      });
+    }else{
+      await updateDoc(r,{
+        guestReoffer:{type:offer.type,sdp:offer.sdp,rev}
+      });
+    }
+  }catch(e){
+    console.error('Erro ao renegociar:',e);
+    status.textContent='Erro ao atualizar a transmissão.';
+  }finally{
+    renegociando=false;
+  }
+}
+
+async function processarReofertaRemota(oferta,tipoRemoto){
+  if(!oferta || !pc) return;
+  const rev=oferta.rev||0;
+
+  if(tipoRemoto==='host'){
+    if(rev<=lastHostReoffer) return;
+    lastHostReoffer=rev;
+  }else{
+    if(rev<=lastGuestReoffer) return;
+    lastGuestReoffer=rev;
+  }
+
+  try{
+    await esperarEstadoEstavel();
+    await pc.setRemoteDescription({type:oferta.type,sdp:oferta.sdp});
+    const answer=await pc.createAnswer();
+    await pc.setLocalDescription(answer);
+    const r=doc(db,'salasVoz',sessionId);
+
+    if(tipoRemoto==='host'){
+      await updateDoc(r,{
+        guestReanswer:{type:answer.type,sdp:answer.sdp,rev}
+      });
+    }else{
+      await updateDoc(r,{
+        hostReanswer:{type:answer.type,sdp:answer.sdp,rev}
+      });
+    }
+  }catch(e){
+    console.error('Erro ao responder renegociação:',e);
+  }
+}
+
+async function processarRespostaRenegociacao(resp,tipo){
+  if(!resp || !pc) return;
+  const rev=resp.rev||0;
+
+  if(tipo==='host'){
+    if(rev<=lastHostReanswer || rev!==renegRev) return;
+    lastHostReanswer=rev;
+  }else{
+    if(rev<=lastGuestReanswer || rev!==renegRev) return;
+    lastGuestReanswer=rev;
+  }
+
+  try{
+    if(pc.signalingState==='have-local-offer'){
+      await pc.setRemoteDescription({type:resp.type,sdp:resp.sdp});
+    }
+  }catch(e){
+    console.error('Erro ao aplicar resposta da renegociação:',e);
+  }
+}
+
+async function setup(){
+  pc=new RTCPeerConnection(rtc);
+  micStream=await navigator.mediaDevices.getUserMedia({audio:true,video:false});
+
+  const micTrack=micStream.getAudioTracks()[0];
+  micSender=pc.addTrack(micTrack,micStream);
+  micTransceiver=pc.getTransceivers().find(t=>t.sender===micSender)||null;
+  detectorVoz(micStream,document.getElementById('myAvatar'));
+
+  // Canais independentes: voz, áudio da transmissão e vídeo.
+  screenAudioTransceiver=pc.addTransceiver('audio',{direction:'sendrecv'});
+  screenAudioSender=screenAudioTransceiver.sender;
+  videoSender=pc.addTransceiver('video',{direction:'sendrecv'}).sender;
+  remoteVideoTrack=null;
+  remoteStreamAtual=null;
+  remoteScreenWanted=false;
+
+  pc.ontrack=e=>{
+    if(e.track.kind==='audio'){
+      const isMic = micTransceiver && e.transceiver===micTransceiver;
+      const isScreen = screenAudioTransceiver && e.transceiver===screenAudioTransceiver;
+
+      if(isMic || !isScreen){
+        const a=document.getElementById('remoteMicAudio');
+        a.srcObject=new MediaStream([e.track]);
+        a.volume=(Number(document.getElementById('volumeAmigo')?.value||100))/100;
+        a.muted=document.getElementById('muteAmigo')?.dataset.muted==='1';
+        a.play().catch(()=>{});
+        setTimeout(()=>{
+          const remoto=document.querySelector('#roomMembers .member[data-remote="1"]');
+          if(remoto) aplicarVolumeUsuario(remoto.dataset.uid);
+        },0);
+
+        const outro=[...document.querySelectorAll('#roomMembers .member')]
+          .find(el=>el.dataset.uid && el.dataset.uid!==auth.currentUser?.uid);
+        if(outro) detectorVoz(new MediaStream([e.track]),outro.querySelector('.avatar'));
+      }
+
+      if(isScreen){
+        const a=document.getElementById('remoteScreenAudio');
+        a.srcObject=new MediaStream([e.track]);
+        a.volume=(Number(document.getElementById('volumeTransmissao')?.value||100))/100;
+        a.muted=document.getElementById('muteTransmissao')?.dataset.muted==='1';
+        a.play().catch(()=>{});
+      }
+    }
+
+    if(e.track.kind==='video'){
+      remoteVideoTrack=e.track;
+      remoteStreamAtual=new MediaStream([e.track]);
+      streamPreview.srcObject=remoteStreamAtual;
+
+      if(remoteScreenWanted){
+        mostrarTransmissaoRemota(remoteStreamAtual);
+      }
+
+      e.track.onunmute=()=>{
+        remoteStreamAtual=new MediaStream([e.track]);
+        if(remoteScreenWanted) mostrarTransmissaoRemota(remoteStreamAtual);
+      };
+
+      e.track.onmute=()=>{
+        // Não esconde imediatamente: replaceTrack(null) e renegociação podem
+        // disparar mute temporário. O Firestore é quem define se a transmissão terminou.
+      };
+    }
+  };
+
+  pc.onconnectionstatechange=()=>{
+    const estados={new:'Preparando...',connecting:'Conectando...',connected:'Conectado',disconnected:'Reconectando...',failed:'Falha na conexão',closed:'Desconectado'};
+    status.textContent=estados[pc.connectionState]||('Conexão: '+pc.connectionState);
+    if(pc.connectionState==='failed'){
+      console.warn('ICE state:',pc.iceConnectionState,'signaling:',pc.signalingState);
+    }
+    if(pc.connectionState==='connected'){
+      const outro=[...document.querySelectorAll('#roomMembers .member')]
+        .find(el=>el.dataset.uid && el.dataset.uid!==auth.currentUser?.uid);
+      const st=outro?.querySelector('.member-state');
+      if(st) st.textContent='🟢 Conectado';
+    }
+  };
+}
+function show(){
+  document.getElementById('lobby').style.display='none';
+  document.getElementById('room').style.display='block';
+  const nome=NOMES_SALAS[fixedRoomKey]||fixedRoomKey||'Sala';
+  document.getElementById('roomCode').textContent=nome;
+  const side=document.getElementById('sideRoomCode'); if(side) side.textContent=nome;
+}
+function gen(){return Math.random().toString(36).slice(2,8).toUpperCase()}
+function iniciais(nome){
+  return String(nome||'?').trim().split(/\s+/).slice(0,2).map(x=>x[0]).join('').toUpperCase();
+}
+
+let meuPerfilAtual={nome:'Usuário',fotoURL:''};
+let membrosSalaAtual=[];
+
+function avatarHTML(u,extraId=''){
+  const nome=u?.nome||'Usuário';
+  const foto=u?.foto||u?.fotoURL||'';
+  const conteudo=foto?`<img src="${foto}" alt="">`:iniciais(nome);
+  return `<div class="avatar" ${extraId?`id="${extraId}"`:''}>${conteudo}<span class="dot"></span></div>`;
+}
+
+function renderMembrosDaSala(usuarios){
+  membrosSalaAtual=usuarios||[];
+  const box=document.getElementById('roomMembers');
+  if(!box)return;
+
+  const agora=Date.now();
+  const ativos=membrosSalaAtual
+    .filter(u=>{
+      if(!u || !u.uid) return false;
+      const ms=millisPresenca(u.lastSeen);
+      return ms===0 || (agora-ms)<60000;
+    })
+    .slice(0,2);
+
+  if(!ativos.length){
+    box.innerHTML='<div class="member empty-member">Ninguém conectado ainda.</div>';
+    return;
+  }
+
+  box.innerHTML=ativos.map(u=>{
+    const eu=u.uid===auth.currentUser?.uid;
+    const avatarId=eu?'myAvatar':`member-${u.uid}`;
+    return `<div class="member" data-uid="${u.uid}" data-remote="${eu?'0':'1'}">
+      ${avatarHTML(u,avatarId)}
+      <div>
+        <div class="member-name">${u.nome||'Usuário'}${eu?' <span style="color:#7c6af7;font-size:10px">(você)</span>':''}</div>
+        <div class="member-state">${eu?'🎙️ Microfone ligado':'🟢 Conectado'}</div>
+      </div>
+    </div>`;
   }).join('');
 
   // Se já existe microfone local, reconecta o detector ao avatar recriado.
@@ -592,70 +936,81 @@ window.telaCheia=async()=>{
 
 
 
-const volumesUsuarios={};
-let usuarioVolumeSelecionado=null;
+const volumeUsuarios={};
+let uidVolumeSelecionado=null;
 
-function getConfigVolumeUsuario(uid){
-  if(!volumesUsuarios[uid]){
-    volumesUsuarios[uid]={volume:1,muted:false};
-  }
-  return volumesUsuarios[uid];
+function cfgVolume(uid){
+  if(!volumeUsuarios[uid]) volumeUsuarios[uid]={volume:1,muted:false};
+  return volumeUsuarios[uid];
 }
 
-function aplicarVolumeUsuarioRemoto(){
-  const remoto=[...document.querySelectorAll('#roomMembers .member[data-remote="1"]')][0];
+function aplicarVolumeUsuario(uid){
+  const remoto=[...document.querySelectorAll('#roomMembers .member[data-remote="1"]')]
+    .find(el=>el.dataset.uid===uid);
   if(!remoto)return;
-  const uid=remoto.dataset.uid;
-  const cfg=getConfigVolumeUsuario(uid);
-  const a=document.getElementById('remoteMicAudio');
-  if(!a)return;
-  a.volume=cfg.volume;
-  a.muted=cfg.muted;
+
+  // Arquitetura atual suporta 1 amigo remoto por sala.
+  const audio=document.getElementById('remoteMicAudio');
+  if(!audio)return;
+
+  const cfg=cfgVolume(uid);
+  audio.volume=cfg.volume;
+  audio.muted=cfg.muted;
 }
 
-window.abrirVolumeUsuario=(e,uid,nome)=>{
-  e.preventDefault();
-  e.stopPropagation();
-
-  usuarioVolumeSelecionado=uid;
-  const cfg=getConfigVolumeUsuario(uid);
+function abrirVolumeUsuario(e,uid,nome){
+  uidVolumeSelecionado=uid;
+  const cfg=cfgVolume(uid);
+  const menu=document.getElementById('userVolumeMenu');
 
   document.getElementById('userVolumeTitle').textContent='🎙️ '+nome;
   document.getElementById('userVolumeRange').value=Math.round(cfg.volume*100);
   document.getElementById('userVolumeValue').textContent=Math.round(cfg.volume*100)+'%';
   document.getElementById('userVolumeMute').textContent=cfg.muted?'🔇':'🔊';
 
-  const menu=document.getElementById('userVolumeMenu');
-  menu.classList.add('show');
-
-  const w=260,h=125,margem=10;
+  const w=250,h=120,m=10;
   let x=e.clientX+8,y=e.clientY+8;
-  if(x+w>window.innerWidth-margem)x=window.innerWidth-w-margem;
-  if(y+h>window.innerHeight-margem)y=window.innerHeight-h-margem;
-  menu.style.left=Math.max(margem,x)+'px';
-  menu.style.top=Math.max(margem,y)+'px';
-};
+  if(x+w>window.innerWidth-m)x=window.innerWidth-w-m;
+  if(y+h>window.innerHeight-m)y=window.innerHeight-h-m;
 
-window.ajustarVolumeUsuario=(valor)=>{
-  if(!usuarioVolumeSelecionado)return;
-  const cfg=getConfigVolumeUsuario(usuarioVolumeSelecionado);
-  cfg.volume=Math.max(0,Math.min(100,Number(valor)))/100;
-  document.getElementById('userVolumeValue').textContent=Math.round(cfg.volume*100)+'%';
-  aplicarVolumeUsuarioRemoto();
-};
-
-window.mutarUsuarioSelecionado=()=>{
-  if(!usuarioVolumeSelecionado)return;
-  const cfg=getConfigVolumeUsuario(usuarioVolumeSelecionado);
-  cfg.muted=!cfg.muted;
-  document.getElementById('userVolumeMute').textContent=cfg.muted?'🔇':'🔊';
-  aplicarVolumeUsuarioRemoto();
-};
+  menu.style.left=Math.max(m,x)+'px';
+  menu.style.top=Math.max(m,y)+'px';
+  menu.classList.add('show');
+}
 
 function fecharVolumeUsuario(){
   document.getElementById('userVolumeMenu')?.classList.remove('show');
-  usuarioVolumeSelecionado=null;
+  uidVolumeSelecionado=null;
 }
+
+document.addEventListener('click',e=>{
+  const row=e.target.closest('#roomMembers .member[data-remote="1"]');
+  if(row){
+    e.stopPropagation();
+    const uid=row.dataset.uid;
+    const nome=row.querySelector('.member-name')?.childNodes[0]?.textContent?.trim()||'Usuário';
+    abrirVolumeUsuario(e,uid,nome);
+  }else if(!e.target.closest('#userVolumeMenu')){
+    fecharVolumeUsuario();
+  }
+});
+
+document.getElementById('userVolumeRange')?.addEventListener('input',e=>{
+  if(!uidVolumeSelecionado)return;
+  const cfg=cfgVolume(uidVolumeSelecionado);
+  cfg.volume=Number(e.target.value)/100;
+  document.getElementById('userVolumeValue').textContent=e.target.value+'%';
+  aplicarVolumeUsuario(uidVolumeSelecionado);
+});
+
+document.getElementById('userVolumeMute')?.addEventListener('click',e=>{
+  e.stopPropagation();
+  if(!uidVolumeSelecionado)return;
+  const cfg=cfgVolume(uidVolumeSelecionado);
+  cfg.muted=!cfg.muted;
+  e.currentTarget.textContent=cfg.muted?'🔇':'🔊';
+  aplicarVolumeUsuario(uidVolumeSelecionado);
+});
 
 window.abrirMenuAudio=(e)=>{
   e.preventDefault();
@@ -677,26 +1032,32 @@ window.abrirMenuAudio=(e)=>{
 function fecharMenuAudio(){
   document.getElementById('audioMenu')?.classList.remove('show');
 }
-document.addEventListener('click',()=>{
-  fecharMenuAudio();
-  fecharVolumeUsuario();
-});
-window.addEventListener('blur',()=>{
-  fecharMenuAudio();
-  fecharVolumeUsuario();
-});
+document.addEventListener('click',fecharMenuAudio);
+window.addEventListener('blur',fecharMenuAudio);
 document.addEventListener('contextmenu',e=>{
   if(!e.target.closest('#streamTile')) fecharMenuAudio();
 });
 
-window.mudarVolumeAmigo=(valor)=>{};
+window.mudarVolumeAmigo=(valor)=>{
+  const a=document.getElementById('remoteMicAudio');
+  const v=Math.max(0,Math.min(100,Number(valor)))/100;
+  a.volume=v;
+  document.getElementById('volumeAmigoNum').textContent=Math.round(v*100)+'%';
+};
 window.mudarVolumeTransmissao=(valor)=>{
   const a=document.getElementById('remoteScreenAudio');
   const v=Math.max(0,Math.min(100,Number(valor)))/100;
   a.volume=v;
   document.getElementById('volumeTransmissaoNum').textContent=Math.round(v*100)+'%';
 };
-window.mutarAmigo=()=>{};
+window.mutarAmigo=()=>{
+  const a=document.getElementById('remoteMicAudio');
+  const b=document.getElementById('muteAmigo');
+  const novo=b.dataset.muted!=='1';
+  b.dataset.muted=novo?'1':'0';
+  a.muted=novo;
+  b.textContent=novo?'🔇':'🔊';
+};
 window.mutarTransmissao=()=>{
   const a=document.getElementById('remoteScreenAudio');
   const b=document.getElementById('muteTransmissao');
