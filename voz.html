@@ -49,7 +49,7 @@ header{
 .channel-title{font-weight:900;font-size:14px}.channel-sub{font-size:11px;color:#6f6f80;margin-top:3px}
 .rooms-nav{padding:10px 8px}
 .rooms-nav-title,.members-title,.streams-title{font-size:10px;color:#6f6f80;text-transform:uppercase;font-weight:900;letter-spacing:.7px;padding:6px 8px}
-.room-nav-item{display:flex;align-items:center;gap:8px;padding:9px 10px;border-radius:7px;color:#9a9aaa;font-size:13px}
+.room-nav-item{display:flex;align-items:center;gap:8px;padding:9px 10px;border-radius:7px;color:#9a9aaa;font-size:13px;cursor:pointer;user-select:none}.room-nav-item:hover{background:#20202d;color:#fff}
 .room-nav-item.active{background:#272638;color:#fff}
 .room-nav-item .hash{color:#7d6de8}
 .streams{padding:8px;overflow:auto}
@@ -126,6 +126,10 @@ header{
 #mainStream:fullscreen,#mainStream:-webkit-full-screen{width:100vw!important;height:100vh!important;max-height:none!important;object-fit:cover!important;background:#000!important}
 
 /* TOAST */
+.event-feed{position:fixed;right:16px;top:72px;z-index:14500;display:flex;flex-direction:column;gap:7px;width:250px;pointer-events:none}
+.event-item{background:#171725;border:1px solid #34344a;border-radius:9px;padding:9px 11px;font-size:10px;color:#d7d7df;box-shadow:0 12px 30px #0008;animation:eventIn .18s ease}
+.event-item b{color:#fff}
+@keyframes eventIn{from{opacity:0;transform:translateX(12px)}to{opacity:1;transform:none}}
 .toast{position:fixed;right:16px;bottom:16px;z-index:15000;background:#1a1a28;border:1px solid #37374d;border-radius:10px;padding:10px 13px;font-size:11px;color:#ddd;opacity:0;transform:translateY(10px);pointer-events:none;transition:.18s}
 .toast.show{opacity:1;transform:none}
 
@@ -172,7 +176,11 @@ header{
 
     <div class="rooms-nav">
       <div class="rooms-nav-title">Salas</div>
-      <div class="room-nav-item active"><span class="hash">🔊</span><span id="activeRoomName">Sala</span></div>
+      <div class="room-nav-item" id="nav-sala1" onclick="trocarSala('sala1')"><span class="hash">🔊</span><span>Sala 1</span><span class="room-users" id="side-users-sala1" style="margin-left:auto"></span></div>
+      <div class="room-nav-item" id="nav-sala2" onclick="trocarSala('sala2')"><span class="hash">🔊</span><span>Sala 2</span><span class="room-users" id="side-users-sala2" style="margin-left:auto"></span></div>
+      <div class="room-nav-item" id="nav-sala3" onclick="trocarSala('sala3')"><span class="hash">🔊</span><span>Sala 3</span><span class="room-users" id="side-users-sala3" style="margin-left:auto"></span></div>
+      <div class="room-nav-item" id="nav-sala4" onclick="trocarSala('sala4')"><span class="hash">🔊</span><span>Sala 4</span><span class="room-users" id="side-users-sala4" style="margin-left:auto"></span></div>
+      <div class="room-nav-item" id="nav-sala5" onclick="trocarSala('sala5')"><span class="hash">🔊</span><span>Sala 5</span><span class="room-users" id="side-users-sala5" style="margin-left:auto"></span></div>
       <div class="room-nav-item"><span class="hash">#</span> chat-geral <span style="margin-left:auto;color:#555">em breve</span></div>
     </div>
 
@@ -241,7 +249,7 @@ header{
       <button onclick="telaCheia()">⛶ Tela cheia</button>
       <button id="btnAjusteTela" onclick="alternarAjusteTela()">▣ Preencher</button>
       <button onclick="abrirConfiguracoes()">⚙️ Áudio</button>
-      <button class="danger" onclick="sairSala()">📞 Desconectar</button>
+      <button class="danger" onclick="sairSala()">📞 Sair do canal</button>
     </div>
   </div>
 
@@ -313,6 +321,7 @@ header{
     <div class="setting-check"><span>Cancelamento de eco</span><input type="checkbox" id="echoCancellation" checked></div>
     <div class="setting-check"><span>Supressão de ruído</span><input type="checkbox" id="noiseSuppression" checked></div>
     <div class="setting-check"><span>Ganho automático</span><input type="checkbox" id="autoGainControl" checked></div>
+    <div class="setting-check"><span>Sons de entrada/saída</span><input type="checkbox" id="joinLeaveSounds" checked></div>
 
     <div class="settings-actions">
       <button onclick="fecharConfiguracoes()">Cancelar</button>
@@ -321,6 +330,7 @@ header{
   </div>
 </div>
 
+<div class="event-feed" id="eventFeed"></div>
 <div class="toast" id="toast"></div>
 </section></main>
 <script type="module">
@@ -790,7 +800,8 @@ function show(){
   const nome=NOMES_SALAS[fixedRoomKey]||fixedRoomKey||'Sala';
   document.getElementById('roomCode').textContent=nome;
   const side=document.getElementById('sideRoomCode'); if(side) side.textContent=nome;
-  const active=document.getElementById('activeRoomName'); if(active) active.textContent=nome;
+  document.querySelectorAll('.room-nav-item[id^="nav-"]').forEach(el=>el.classList.remove('active'));
+  document.getElementById('nav-'+fixedRoomKey)?.classList.add('active');
 }
 function gen(){return Math.random().toString(36).slice(2,8).toUpperCase()}
 function iniciais(nome){
@@ -808,6 +819,8 @@ function avatarHTML(u,extraId=''){
 }
 
 function renderMembrosDaSala(usuarios){
+  detectarMudancasMembros(usuarios);
+
   membrosSalaAtual=usuarios||[];
   const box=document.getElementById('roomMembers');
   if(!box)return;
@@ -868,12 +881,19 @@ function renderUsuariosSala(id,usuarios){
 
   if(!ativos.length){
     el.innerHTML='<span class="room-empty">Vazia</span>';
+    const side=document.getElementById('side-users-'+id);
+    if(side)side.innerHTML='';
     return;
   }
 
-  el.innerHTML=ativos.map(u=>
+  const markup=ativos.map(u=>
     `<span class="room-user" title="${u.nome||'Usuário'}">${u.foto?`<img src="${u.foto}" alt="">`:iniciais(u.nome||'Usuário')}</span>`
   ).join('');
+
+  el.innerHTML=markup;
+
+  const side=document.getElementById('side-users-'+id);
+  if(side) side.innerHTML=markup;
 }
 
 function observarSalas(){
@@ -933,8 +953,100 @@ function criarSessionId(room){
   return room+'-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,9);
 }
 
+
+async function cleanupSalaAtual({deixarLobby=false}={}){
+  try{
+    if(presenceTimer){clearInterval(presenceTimer);presenceTimer=null;}
+
+    if(screenStream){
+      screenStream.getTracks().forEach(t=>t.stop());
+      screenStream=null;
+    }
+    fecharScreenPc();
+
+    micStream?.getTracks().forEach(t=>t.stop());
+    try{pc?.close()}catch(_){}
+    pc=null;
+    micStream=null;
+
+    unsubs.forEach(u=>{try{u()}catch(_){}});
+    unsubs=[];
+
+    if(fixedRoomKey && auth.currentUser){
+      await removerPresencaSala(fixedRoomKey).catch(()=>{});
+    }
+
+    if(fixedRoomKey && sessionId && auth.currentUser){
+      const regRef=doc(db,'salasFixas',fixedRoomKey);
+      await runTransaction(db,async tx=>{
+        const snap=await tx.get(regRef);
+        if(!snap.exists())return;
+        const d=snap.data();
+        if(d.sessionId!==sessionId)return;
+
+        if(isHost && d.hostUid===auth.currentUser.uid){
+          tx.set(regRef,{
+            sessionId:null,
+            hostUid:null,hostName:null,hostFoto:null,hostSeen:0,
+            guestUid:null,guestName:null,guestFoto:null,guestSeen:0
+          });
+        }else if(!isHost && d.guestUid===auth.currentUser.uid){
+          tx.update(regRef,{
+            guestUid:null,guestName:null,guestFoto:null,guestSeen:0
+          });
+        }
+      }).catch(()=>{});
+    }
+
+    if(sessionId && isHost){
+      await updateDoc(doc(db,'salasVoz',sessionId),{
+        ativo:false,
+        screenActive:false
+      }).catch(()=>{});
+    }
+
+    try{
+      streamPreview.srcObject=null;
+      mainStream.srcObject=null;
+      document.getElementById('streamTile').style.display='none';
+      document.getElementById('mainStream').style.display='none';
+      document.getElementById('empty').style.display='block';
+    }catch(_){}
+
+    fixedRoomKey=null;
+    membrosAnteriores=new Map();
+    sessionId=null;
+    roomId=null;
+    isHost=false;
+    remoteStreamAtual=null;
+    screenOwnerUid=null;
+
+    if(!deixarLobby){
+      observarSalas();
+    }
+  }catch(e){
+    console.error('cleanupSalaAtual',e);
+  }
+}
+
+window.trocarSala=async(id)=>{
+  if(!id || id===fixedRoomKey){
+    mostrarToast('Você já está nesta sala');
+    return;
+  }
+  try{
+    mostrarToast('Trocando de sala...');
+    await cleanupSalaAtual();
+    await entrarSalaFixa(id);
+  }catch(e){
+    console.error(e);
+    mostrarToast('Não foi possível trocar de sala');
+  }
+};
+
 window.entrarSalaFixa=async(id)=>{
   limparErro();
+  membrosAnteriores=new Map();
   fixedRoomKey=id;
 
   try{
@@ -1550,6 +1662,89 @@ function setPttPressed(pressed){
   if(!pressed)av?.classList.remove('speaking');
 }
 
+
+let joinLeaveSounds=localStorage.getItem('voiceJoinLeaveSounds')!=='0';
+let membrosAnteriores=new Map();
+let audioCtxEventos=null;
+
+function getEventAudioCtx(){
+  if(!audioCtxEventos){
+    audioCtxEventos=new (window.AudioContext||window.webkitAudioContext)();
+  }
+  if(audioCtxEventos.state==='suspended'){
+    audioCtxEventos.resume().catch(()=>{});
+  }
+  return audioCtxEventos;
+}
+
+function beep(tipo='join'){
+  if(!joinLeaveSounds)return;
+  try{
+    const ctx=getEventAudioCtx();
+    const osc=ctx.createOscillator();
+    const gain=ctx.createGain();
+    osc.type='sine';
+    osc.frequency.value=tipo==='join'?660:440;
+    gain.gain.setValueAtTime(0.0001,ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.08,ctx.currentTime+0.01);
+    gain.gain.exponentialRampToValueAtTime(0.0001,ctx.currentTime+0.16);
+    osc.connect(gain).connect(ctx.destination);
+    osc.start();
+    osc.stop(ctx.currentTime+0.18);
+  }catch(e){console.warn(e)}
+}
+
+function eventoSala(texto){
+  const feed=document.getElementById('eventFeed');
+  if(!feed)return;
+  const item=document.createElement('div');
+  item.className='event-item';
+  item.innerHTML=texto;
+  feed.appendChild(item);
+  setTimeout(()=>{
+    item.style.opacity='0';
+    item.style.transform='translateX(10px)';
+    item.style.transition='.18s';
+  },2600);
+  setTimeout(()=>item.remove(),2850);
+}
+
+function detectarMudancasMembros(usuarios){
+  if(!fixedRoomKey)return;
+
+  const agora=Date.now();
+  const atuais=new Map();
+
+  (usuarios||[]).forEach(u=>{
+    const ms=millisPresenca(u.lastSeen);
+    if(u?.uid && (ms===0 || agora-ms<60000)){
+      atuais.set(u.uid,u);
+    }
+  });
+
+  // Primeira carga da sala: só guarda, sem tocar som.
+  if(membrosAnteriores.size===0){
+    membrosAnteriores=atuais;
+    return;
+  }
+
+  atuais.forEach((u,uid)=>{
+    if(!membrosAnteriores.has(uid) && uid!==auth.currentUser?.uid){
+      beep('join');
+      eventoSala(`🟢 <b>${u.nome||'Usuário'}</b> entrou na sala`);
+    }
+  });
+
+  membrosAnteriores.forEach((u,uid)=>{
+    if(!atuais.has(uid) && uid!==auth.currentUser?.uid){
+      beep('leave');
+      eventoSala(`⚪ <b>${u.nome||'Usuário'}</b> saiu da sala`);
+    }
+  });
+
+  membrosAnteriores=atuais;
+}
+
 function mostrarToast(texto){
   const t=document.getElementById('toast');
   if(!t)return;
@@ -1562,6 +1757,8 @@ function mostrarToast(texto){
 window.abrirConfiguracoes=async()=>{
   document.getElementById('settingsBg')?.classList.add('show');
   aplicarEstadoPtt();
+  const jl=document.getElementById('joinLeaveSounds');
+  if(jl)jl.checked=joinLeaveSounds;
   try{
     const devices=await navigator.mediaDevices.enumerateDevices();
     const sel=document.getElementById('micDevice');
@@ -1617,6 +1814,8 @@ window.aplicarConfiguracoesAudio=async()=>{
     inputMode=document.getElementById('inputMode')?.value||'voice';
     localStorage.setItem('voiceInputMode',inputMode);
     localStorage.setItem('voicePttKey',pttKey);
+    joinLeaveSounds=document.getElementById('joinLeaveSounds')?.checked!==false;
+    localStorage.setItem('voiceJoinLeaveSounds',joinLeaveSounds?'1':'0');
     aplicarEstadoPtt();
 
     fecharConfiguracoes();
@@ -1685,39 +1884,13 @@ window.addEventListener('blur',()=>{
 });
 
 window.sairSala=async()=>{
-  try{
-    if(presenceTimer){clearInterval(presenceTimer);presenceTimer=null}
-    await removerPresencaSala(fixedRoomKey);
-    unsubs.forEach(u=>u());unsubs=[];
-    screenStream?.getTracks().forEach(t=>t.stop());
-    fecharScreenPc();
-    micStream?.getTracks().forEach(t=>t.stop());
-    pc?.close();
+  await cleanupSalaAtual({deixarLobby:true});
 
-    if(fixedRoomKey && auth.currentUser){
-      const regRef=doc(db,'salasFixas',fixedRoomKey);
-      await runTransaction(db,async tx=>{
-        const s=await tx.get(regRef);
-        if(!s.exists())return;
-        const d=s.data();
-        if(d.sessionId!==sessionId)return;
+  document.getElementById('room').style.display='none';
+  document.getElementById('lobby').style.display='block';
+  document.querySelectorAll('.room-nav-item[id^="nav-"]').forEach(el=>el.classList.remove('active'));
 
-        if(isHost && d.hostUid===auth.currentUser.uid){
-          tx.set(regRef,{
-            sessionId:null,
-            hostUid:null,hostName:null,hostFoto:null,hostSeen:0,
-            guestUid:null,guestName:null,guestFoto:null,guestSeen:0
-          });
-        }else if(!isHost && d.guestUid===auth.currentUser.uid){
-          tx.update(regRef,{guestUid:null,guestName:null,guestFoto:null,guestSeen:0});
-        }
-      });
-    }
-
-    if(sessionId && isHost){
-      await updateDoc(doc(db,'salasVoz',sessionId),{ativo:false}).catch(()=>{});
-    }
-  }catch(e){console.error(e)}
-  location.href='voz.html';
+  observarSalas();
+  mostrarToast('Você saiu do canal de voz');
 };
 </script></body></html>
