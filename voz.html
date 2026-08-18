@@ -7,7 +7,7 @@
 .volume-box input{width:120px;padding:0;height:auto;accent-color:#7c6af7}.volume-num{min-width:34px;text-align:right;color:#ddd}
 .controls{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;padding:0 18px 20px}.controls button{min-width:150px}
 @media(max-width:760px){.join{grid-template-columns:1fr}.call-shell{grid-template-columns:1fr}.sidebar{display:none}.stage{min-height:330px;margin:10px}.controls button{min-width:auto}}
-</style></head><body><header><strong>🎙️ Sala com Amigos</strong><a href="inicio.html">← Voltar</a></header><main class="app"><section class="panel" id="lobby"><h2>Entrar em uma sala</h2><p style="color:#888">Crie um código ou digite o código que seu amigo enviou.</p><div class="join"><input id="codigo" maxlength="20" placeholder="Código da sala"><button id="btnCriar" onclick="criar()" disabled>Criar sala</button><button id="btnEntrar" class="secondary" onclick="entrar()" disabled>Entrar</button></div><div class="hint">A sala suporta 2 pessoas. Para transmitir o áudio do PC, ao compartilhar selecione uma aba/tela com áudio e marque a opção de compartilhar áudio quando o navegador oferecer.</div>
+</style></head><body><header><strong>🎙️ Sala com Amigos</strong><a href="inicio.html">← Voltar</a></header><main class="app"><section class="panel" id="lobby"><h2>Entrar em uma sala</h2><p style="color:#888">Crie um código ou digite o código que seu amigo enviou.</p><div class="join"><input id="codigo" maxlength="20" placeholder="Código da sala"><button id="btnCriar" onclick="criar()" disabled>Criar sala</button><button id="btnEntrar" class="secondary" onclick="entrar()" disabled>Entrar</button></div><div class="hint">A sala suporta 2 pessoas. Para enviar o som do jogo/vídeo, ao clicar em Compartilhar tela escolha uma fonte com áudio e marque “Compartilhar áudio”. No Chrome/Edge, compartilhar uma ABA costuma ser a opção mais confiável para áudio.</div>
     <div id="lobbyErro" style="display:none;margin-top:14px;padding:12px 14px;border-radius:9px;background:#321116;border:1px solid #66252e;color:#ff9a9a;font-size:13px;line-height:1.5"></div></section><section class="room" id="room">
 <div class="call-shell">
   <aside class="sidebar">
@@ -61,7 +61,7 @@
       <button onclick="compartilhar()">🖥️ Compartilhar tela</button>
       <button class="secondary" onclick="pararTela()">⏹ Parar tela</button>
       <button class="secondary" onclick="telaCheia()">⛶ Tela cheia</button>
-      <div class="volume-box" title="Volume do áudio recebido">
+      <div class="volume-box" title="Volume do áudio recebido da chamada/transmissão">
         🔊
         <input id="volumeTransmissao" type="range" min="0" max="100" value="100" oninput="mudarVolume(this.value)">
         <span class="volume-num" id="volumeNum">100%</span>
@@ -118,18 +118,6 @@ function erroLobby(e){
     console.warn('Detector de voz indisponível:',e);
   }
 }
-function criarAudioVazio(){
-  const ctx=new (window.AudioContext||window.webkitAudioContext)();
-  const dest=ctx.createMediaStreamDestination();
-  const osc=ctx.createOscillator();
-  const gain=ctx.createGain();
-  gain.gain.value=0;
-  osc.connect(gain).connect(dest);
-  osc.start();
-  const track=dest.stream.getAudioTracks()[0];
-  return {ctx,osc,track,stream:dest.stream};
-}
-
 function criarVideoVazio(){
   const canvas=document.createElement('canvas');
   canvas.width=16; canvas.height=16;
@@ -143,8 +131,10 @@ function criarVideoVazio(){
 
 let videoSender=null;
 let dummyVideo=null;
-let screenAudioSender=null;
-let dummyAudio=null;
+let micSender=null;
+let mixAudioCtx=null;
+let mixDest=null;
+let mixedTrack=null;
 
 function mostrarTransmissaoRemota(stream){
   if(!stream) return;
@@ -161,13 +151,12 @@ function esconderTransmissaoRemota(){
   document.getElementById('streamTile').style.display='none';
   fecharTransmissao();
 }
-async function setup(){pc=new RTCPeerConnection(rtc);micStream=await navigator.mediaDevices.getUserMedia({audio:true,video:false});micStream.getTracks().forEach(t=>pc.addTrack(t,micStream));
+async function setup(){pc=new RTCPeerConnection(rtc);micStream=await navigator.mediaDevices.getUserMedia({audio:true,video:false});const micTrack=micStream.getAudioTracks()[0];
+micSender=pc.addTrack(micTrack,micStream);
 detectorVoz(micStream,document.getElementById('myAvatar'));
-dummyVideo=criarVideoVazio();
-videoSender=pc.addTrack(dummyVideo.track,dummyVideo.stream);
 
-dummyAudio=criarAudioVazio();
-screenAudioSender=pc.addTrack(dummyAudio.track,dummyAudio.stream);pc.ontrack=e=>{
+dummyVideo=criarVideoVazio();
+videoSender=pc.addTrack(dummyVideo.track,dummyVideo.stream);pc.ontrack=e=>{
   if(!window.__remoteAll) window.__remoteAll=new MediaStream();
   if(!window.__remoteAll.getTracks().some(t=>t.id===e.track.id)){
     window.__remoteAll.addTrack(e.track);
@@ -300,7 +289,67 @@ window.entrar=async()=>{
     btn.disabled=false; btn.textContent='Entrar';
   }
 };
-window.toggleMic=()=>{const t=micStream?.getAudioTracks()[0];if(!t)return;t.enabled=!t.enabled;document.getElementById('mic').textContent=t.enabled?'🎙️ Microfone ligado':'🔇 Microfone desligado';const ms=document.querySelector('#myAvatar + div .member-state');if(ms)ms.textContent=t.enabled?'🎙️ Microfone ligado':'🔇 Microfone desligado';if(!t.enabled)document.getElementById('myAvatar').classList.remove('speaking')};
+window.toggleMic=()=>{const t=micStream?.getAudioTracks()[0];if(!t)return;t.enabled=!t.enabled;if(mixedTrack)mixedTrack.enabled=t.enabled;document.getElementById('mic').textContent=t.enabled?'🎙️ Microfone ligado':'🔇 Microfone desligado';const ms=document.querySelector('#myAvatar + div .member-state');if(ms)ms.textContent=t.enabled?'🎙️ Microfone ligado':'🔇 Microfone desligado';if(!t.enabled)document.getElementById('myAvatar').classList.remove('speaking')};
+async function ativarAudioTransmissao(screenAudioTrack){
+  if(!screenAudioTrack || !micSender) return false;
+
+  try{
+    if(mixAudioCtx){
+      try{ await mixAudioCtx.close(); }catch(_){}
+    }
+
+    const AudioCtx=window.AudioContext||window.webkitAudioContext;
+    mixAudioCtx=new AudioCtx();
+    if(mixAudioCtx.state==='suspended'){
+      try{ await mixAudioCtx.resume(); }catch(_){}
+    }
+
+    mixDest=mixAudioCtx.createMediaStreamDestination();
+
+    const micSource=mixAudioCtx.createMediaStreamSource(
+      new MediaStream([micStream.getAudioTracks()[0]])
+    );
+    const screenSource=mixAudioCtx.createMediaStreamSource(
+      new MediaStream([screenAudioTrack])
+    );
+
+    const micGain=mixAudioCtx.createGain();
+    const screenGain=mixAudioCtx.createGain();
+    micGain.gain.value=1.0;
+    screenGain.gain.value=1.0;
+
+    micSource.connect(micGain).connect(mixDest);
+    screenSource.connect(screenGain).connect(mixDest);
+
+    mixedTrack=mixDest.stream.getAudioTracks()[0];
+    await micSender.replaceTrack(mixedTrack);
+    return true;
+  }catch(e){
+    console.error('Erro ao misturar áudio:',e);
+    return false;
+  }
+}
+
+async function restaurarAudioMicrofone(){
+  try{
+    const micTrack=micStream?.getAudioTracks?.()[0];
+    if(micSender && micTrack){
+      await micSender.replaceTrack(micTrack);
+    }
+    if(mixedTrack){
+      try{ mixedTrack.stop(); }catch(_){}
+      mixedTrack=null;
+    }
+    if(mixAudioCtx){
+      try{ await mixAudioCtx.close(); }catch(_){}
+      mixAudioCtx=null;
+    }
+    mixDest=null;
+  }catch(e){
+    console.error('Erro ao restaurar microfone:',e);
+  }
+}
+
 window.compartilhar=async()=>{
   try{
     screenStream=await navigator.mediaDevices.getDisplayMedia({video:true,audio:true});
@@ -313,11 +362,13 @@ window.compartilhar=async()=>{
     }
 
     const at=screenStream.getAudioTracks()[0];
-    if(at && screenAudioSender){
-      await screenAudioSender.replaceTrack(at);
-      status.textContent='Compartilhando tela com áudio';
-    }else if(!at){
-      status.textContent='Compartilhando tela — sem áudio da transmissão';
+    if(at){
+      const okAudio=await ativarAudioTransmissao(at);
+      status.textContent=okAudio
+        ? 'Compartilhando tela com áudio'
+        : 'Tela compartilhada, mas não foi possível enviar o áudio';
+    }else{
+      status.textContent='Tela compartilhada SEM áudio — marque "Compartilhar áudio" na janela do navegador';
     }
 
     streamPreview.srcObject=screenStream;
@@ -346,9 +397,8 @@ window.pararTela=async()=>{
     try{ await videoSender.replaceTrack(dummyVideo.track); }catch(e){ console.error(e); }
   }
 
-  if(screenAudioSender && dummyAudio?.track){
-    try{ await screenAudioSender.replaceTrack(dummyAudio.track); }catch(e){ console.error(e); }
-  }
+  await restaurarAudioMicrofone();
+
 
   fecharTransmissao();
 
