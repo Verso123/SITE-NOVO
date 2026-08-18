@@ -65,7 +65,7 @@
         <b>👥 Aguardando seu amigo</b>
         <span>Compartilhe o código da sala.<br>Quando alguém entrar, vocês poderão conversar e compartilhar a tela.</span>
       </div>
-      <video id="remote" autoplay playsinline style="display:none"></video><video id="mainStream" autoplay muted playsinline style="display:none"></video>
+      <audio id="remoteMicAudio" autoplay playsinline></audio><audio id="remoteScreenAudio" autoplay playsinline></audio><video id="remote" autoplay playsinline style="display:none"></video><video id="mainStream" autoplay muted playsinline style="display:none"></video>
     </div>
 
     <div class="controls">
@@ -74,10 +74,17 @@
       <button class="secondary" onclick="pararTela()">⏹ Parar tela</button>
       <button class="secondary" onclick="telaCheia()">⛶ Tela cheia</button>
       <button class="secondary" id="btnAjusteTela" onclick="alternarAjusteTela()">▣ Preencher</button>
-      <div class="volume-box" title="Volume do áudio recebido da chamada/transmissão">
-        🔊
-        <input id="volumeTransmissao" type="range" min="0" max="100" value="100" oninput="mudarVolume(this.value)">
-        <span class="volume-num" id="volumeNum">100%</span>
+      <div class="volume-box" title="Volume da voz do amigo">
+        🎙️
+        <button class="secondary" id="muteAmigo" style="padding:5px 7px;min-width:auto" onclick="mutarAmigo()">🔊</button>
+        <input id="volumeAmigo" type="range" min="0" max="100" value="100" oninput="mudarVolumeAmigo(this.value)">
+        <span class="volume-num" id="volumeAmigoNum">100%</span>
+      </div>
+      <div class="volume-box" title="Volume do áudio da transmissão">
+        🖥️
+        <button class="secondary" id="muteTransmissao" style="padding:5px 7px;min-width:auto" onclick="mutarTransmissao()">🔊</button>
+        <input id="volumeTransmissao" type="range" min="0" max="100" value="100" oninput="mudarVolumeTransmissao(this.value)">
+        <span class="volume-num" id="volumeTransmissaoNum">100%</span>
       </div>
       <button class="danger" onclick="sairSala()">📞 Sair</button>
     </div>
@@ -130,6 +137,19 @@ function erroLobby(e){
     console.warn('Detector de voz indisponível:',e);
   }
 }
+function criarAudioSilencioso(){
+  const AudioCtx=window.AudioContext||window.webkitAudioContext;
+  silentAudioCtx=new AudioCtx();
+  const dest=silentAudioCtx.createMediaStreamDestination();
+  const osc=silentAudioCtx.createOscillator();
+  const gain=silentAudioCtx.createGain();
+  gain.gain.value=0;
+  osc.connect(gain).connect(dest);
+  osc.start();
+  silentAudioTrack=dest.stream.getAudioTracks()[0];
+  return {track:silentAudioTrack,stream:dest.stream};
+}
+
 function criarVideoVazio(){
   const canvas=document.createElement('canvas');
   canvas.width=16; canvas.height=16;
@@ -144,9 +164,10 @@ function criarVideoVazio(){
 let videoSender=null;
 let dummyVideo=null;
 let micSender=null;
-let mixAudioCtx=null;
-let mixDest=null;
-let mixedTrack=null;
+let screenAudioSender=null;
+let silentAudioCtx=null;
+let silentAudioTrack=null;
+let audioTrackRecebidos=0;
 
 function mostrarTransmissaoRemota(stream){
   if(!stream) return;
@@ -167,31 +188,32 @@ async function setup(){pc=new RTCPeerConnection(rtc);micStream=await navigator.m
 micSender=pc.addTrack(micTrack,micStream);
 detectorVoz(micStream,document.getElementById('myAvatar'));
 
+const silent=criarAudioSilencioso();
+screenAudioSender=pc.addTrack(silent.track,silent.stream);
+
 dummyVideo=criarVideoVazio();
 videoSender=pc.addTrack(dummyVideo.track,dummyVideo.stream);pc.ontrack=e=>{
-  if(!window.__remoteAll) window.__remoteAll=new MediaStream();
-  if(!window.__remoteAll.getTracks().some(t=>t.id===e.track.id)){
-    window.__remoteAll.addTrack(e.track);
-  }
-  remote.srcObject=window.__remoteAll;
-  remote.muted=false;
-  remote.volume=(Number(document.getElementById('volumeTransmissao')?.value||100))/100;
-  remote.play().catch(err=>{
-    console.warn('Autoplay do áudio bloqueado:',err);
-    status.textContent='Clique em qualquer botão da sala para liberar o áudio.';
-  });
-
   if(e.track.kind==='audio'){
-    // O primeiro áudio normalmente é o microfone; o segundo pode ser o áudio da transmissão.
-    if(!window.__detectorAmigoIniciado){
-      window.__detectorAmigoIniciado=true;
+    audioTrackRecebidos++;
+
+    if(audioTrackRecebidos===1){
+      const micAudio=document.getElementById('remoteMicAudio');
+      micAudio.srcObject=new MediaStream([e.track]);
+      micAudio.volume=(Number(document.getElementById('volumeAmigo')?.value||100))/100;
+      micAudio.muted=false;
+      micAudio.play().catch(()=>{});
       detectorVoz(new MediaStream([e.track]),document.getElementById('friendAvatar'));
+    }else{
+      const screenAudio=document.getElementById('remoteScreenAudio');
+      screenAudio.srcObject=new MediaStream([e.track]);
+      screenAudio.volume=(Number(document.getElementById('volumeTransmissao')?.value||100))/100;
+      screenAudio.muted=false;
+      screenAudio.play().catch(()=>{});
     }
   }
 
   if(e.track.kind==='video'){
-    const s=new MediaStream([e.track]);
-    remoteStreamAtual=s;
+    remoteStreamAtual=new MediaStream([e.track]);
   }
 };pc.onconnectionstatechange=()=>status.textContent='Conexão: '+pc.connectionState;}
 function show(){
@@ -401,67 +423,15 @@ window.entrar=async()=>{
     btn.disabled=false; btn.textContent='Entrar';
   }
 };
-window.toggleMic=()=>{const t=micStream?.getAudioTracks()[0];if(!t)return;t.enabled=!t.enabled;if(mixedTrack)mixedTrack.enabled=t.enabled;document.getElementById('mic').textContent=t.enabled?'🎙️ Microfone ligado':'🔇 Microfone desligado';const ms=document.querySelector('#myAvatar + div .member-state');if(ms)ms.textContent=t.enabled?'🎙️ Microfone ligado':'🔇 Microfone desligado';if(!t.enabled)document.getElementById('myAvatar').classList.remove('speaking')};
-async function ativarAudioTransmissao(screenAudioTrack){
-  if(!screenAudioTrack || !micSender) return false;
-
-  try{
-    if(mixAudioCtx){
-      try{ await mixAudioCtx.close(); }catch(_){}
-    }
-
-    const AudioCtx=window.AudioContext||window.webkitAudioContext;
-    mixAudioCtx=new AudioCtx();
-    if(mixAudioCtx.state==='suspended'){
-      try{ await mixAudioCtx.resume(); }catch(_){}
-    }
-
-    mixDest=mixAudioCtx.createMediaStreamDestination();
-
-    const micSource=mixAudioCtx.createMediaStreamSource(
-      new MediaStream([micStream.getAudioTracks()[0]])
-    );
-    const screenSource=mixAudioCtx.createMediaStreamSource(
-      new MediaStream([screenAudioTrack])
-    );
-
-    const micGain=mixAudioCtx.createGain();
-    const screenGain=mixAudioCtx.createGain();
-    micGain.gain.value=1.0;
-    screenGain.gain.value=1.0;
-
-    micSource.connect(micGain).connect(mixDest);
-    screenSource.connect(screenGain).connect(mixDest);
-
-    mixedTrack=mixDest.stream.getAudioTracks()[0];
-    await micSender.replaceTrack(mixedTrack);
-    return true;
-  }catch(e){
-    console.error('Erro ao misturar áudio:',e);
-    return false;
-  }
-}
-
-async function restaurarAudioMicrofone(){
-  try{
-    const micTrack=micStream?.getAudioTracks?.()[0];
-    if(micSender && micTrack){
-      await micSender.replaceTrack(micTrack);
-    }
-    if(mixedTrack){
-      try{ mixedTrack.stop(); }catch(_){}
-      mixedTrack=null;
-    }
-    if(mixAudioCtx){
-      try{ await mixAudioCtx.close(); }catch(_){}
-      mixAudioCtx=null;
-    }
-    mixDest=null;
-  }catch(e){
-    console.error('Erro ao restaurar microfone:',e);
-  }
-}
-
+window.toggleMic=()=>{
+  const t=micStream?.getAudioTracks()[0];
+  if(!t)return;
+  t.enabled=!t.enabled;
+  document.getElementById('mic').textContent=t.enabled?'🎙️ Microfone ligado':'🔇 Microfone desligado';
+  const ms=document.querySelector('#myAvatar + div .member-state');
+  if(ms)ms.textContent=t.enabled?'🎙️ Microfone ligado':'🔇 Microfone desligado';
+  if(!t.enabled)document.getElementById('myAvatar').classList.remove('speaking');
+};
 window.compartilhar=async()=>{
   try{
     screenStream=await navigator.mediaDevices.getDisplayMedia({video:true,audio:true});
@@ -474,11 +444,9 @@ window.compartilhar=async()=>{
     }
 
     const at=screenStream.getAudioTracks()[0];
-    if(at){
-      const okAudio=await ativarAudioTransmissao(at);
-      status.textContent=okAudio
-        ? 'Compartilhando tela com áudio'
-        : 'Tela compartilhada, mas não foi possível enviar o áudio';
+    if(at && screenAudioSender){
+      await screenAudioSender.replaceTrack(at);
+      status.textContent='Compartilhando tela com áudio';
     }else{
       status.textContent='Tela compartilhada SEM áudio — marque "Compartilhar áudio" na janela do navegador';
     }
@@ -509,8 +477,9 @@ window.pararTela=async()=>{
     try{ await videoSender.replaceTrack(dummyVideo.track); }catch(e){ console.error(e); }
   }
 
-  await restaurarAudioMicrofone();
-
+  if(screenAudioSender && silentAudioTrack){
+    try{ await screenAudioSender.replaceTrack(silentAudioTrack); }catch(e){ console.error(e); }
+  }
 
   fecharTransmissao();
 
@@ -567,22 +536,37 @@ window.telaCheia=async()=>{
   }
 };
 
-window.mudarVolume=(valor)=>{
+
+
+window.mudarVolumeAmigo=(valor)=>{
+  const a=document.getElementById('remoteMicAudio');
   const v=Math.max(0,Math.min(100,Number(valor)))/100;
-  remote.volume=v;
-  remote.muted=false;
-  document.getElementById('volumeNum').textContent=Math.round(v*100)+'%';
-  remote.play().catch(()=>{});
+  a.volume=v;
+  document.getElementById('volumeAmigoNum').textContent=Math.round(v*100)+'%';
+};
+window.mudarVolumeTransmissao=(valor)=>{
+  const a=document.getElementById('remoteScreenAudio');
+  const v=Math.max(0,Math.min(100,Number(valor)))/100;
+  a.volume=v;
+  document.getElementById('volumeTransmissaoNum').textContent=Math.round(v*100)+'%';
+};
+window.mutarAmigo=()=>{
+  const a=document.getElementById('remoteMicAudio');
+  a.muted=!a.muted;
+  document.getElementById('muteAmigo').textContent=a.muted?'🔇':'🔊';
+};
+window.mutarTransmissao=()=>{
+  const a=document.getElementById('remoteScreenAudio');
+  a.muted=!a.muted;
+  document.getElementById('muteTransmissao').textContent=a.muted?'🔇':'🔊';
 };
 
-window.copiar=async()=>{await navigator.clipboard.writeText(roomId);status.textContent='Código copiado: '+roomId};
 document.addEventListener('click',()=>{
-  if(remote && remote.srcObject){
-    remote.muted=false;
-    remote.play().catch(()=>{});
-  }
+  document.getElementById('remoteMicAudio')?.play().catch(()=>{});
+  document.getElementById('remoteScreenAudio')?.play().catch(()=>{});
 },{passive:true});
 
+window.copiar=async()=>{await navigator.clipboard.writeText(roomId);status.textContent='Código copiado: '+roomId};
 window.sairSala=async()=>{
   try{
     unsubs.forEach(u=>u()); unsubs=[];
