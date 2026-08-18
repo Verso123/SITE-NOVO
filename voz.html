@@ -91,7 +91,7 @@
 </div>
 </section></main>
 <script type="module">
-import{initializeApp}from'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';import{getAuth,onAuthStateChanged}from'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';import{getFirestore,doc,setDoc,getDoc,updateDoc,collection,addDoc,onSnapshot,getDocs,deleteDoc,runTransaction}from'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+import{initializeApp}from'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';import{getAuth,onAuthStateChanged}from'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';import{getFirestore,doc,setDoc,getDoc,updateDoc,collection,addDoc,onSnapshot,getDocs,deleteDoc,runTransaction,serverTimestamp}from'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 const cfg={apiKey:'AIzaSyAaIxroCAMOvDxg5aLUr2P8jweygemm1uM',authDomain:'lista-de-jogos-f1874.firebaseapp.com',projectId:'lista-de-jogos-f1874',storageBucket:'lista-de-jogos-f1874.firebasestorage.app',messagingSenderId:'692334284655',appId:'1:692334284655:web:a55db647b5f8b39d00a29a'};const app=initializeApp(cfg),auth=getAuth(app),db=getFirestore(app);let pc,micStream,screenStream,roomId,isHost=false,unsubs=[];const remote=document.getElementById('remote'),status=document.getElementById('status'),streamPreview=document.getElementById('streamPreview'),mainStream=document.getElementById('mainStream');let remoteStreamAtual=null;
 let fixedRoomKey=null;
 let sessionId=null;
@@ -268,7 +268,7 @@ function renderMembrosDaSala(usuarios){
 
   const agora=Date.now();
   const ativos=membrosSalaAtual
-    .filter(u=>u && u.uid && u.lastSeen && (agora-u.lastSeen)<45000)
+    .filter(u=>u && u.uid && u.lastSeen && (agora-millisPresenca(u.lastSeen))<60000)
     .slice(0,2);
 
   if(!ativos.length){
@@ -295,13 +295,21 @@ function renderMembrosDaSala(usuarios){
   }
 }
 
+function millisPresenca(v){
+  if(!v) return 0;
+  if(typeof v==='number') return v;
+  if(typeof v.toMillis==='function') return v.toMillis();
+  if(v.seconds) return v.seconds*1000;
+  return 0;
+}
+
 function renderUsuariosSala(id,usuarios){
   const el=document.getElementById('users-'+id);
   if(!el)return;
 
   const agora=Date.now();
   const ativos=usuarios
-    .filter(u=>u && u.uid && u.lastSeen && (agora-u.lastSeen)<45000)
+    .filter(u=>u && u.uid && u.lastSeen && (agora-millisPresenca(u.lastSeen))<60000)
     .slice(0,2);
 
   if(!ativos.length){
@@ -335,21 +343,26 @@ async function registrarPresencaSala(id,perfil){
   const nome=perfil.nome||user.displayName||user.email?.split('@')[0]||'Usuário';
   const foto=perfil.fotoURL||'';
 
-  await setDoc(pRef,{
-    uid:user.uid,
-    nome,
-    foto,
-    lastSeen:Date.now()
-  },{merge:true});
+  try{
+    await setDoc(pRef,{
+      uid:user.uid,
+      nome,
+      foto,
+      lastSeen:serverTimestamp()
+    },{merge:true});
+  }catch(e){
+    console.error('Falha ao registrar presença:',e);
+    throw new Error('Não foi possível registrar sua presença na sala: '+(e.message||e));
+  }
 
   if(presenceTimer)clearInterval(presenceTimer);
   presenceTimer=setInterval(async()=>{
     try{
-      await updateDoc(pRef,{lastSeen:Date.now()});
+      await updateDoc(pRef,{lastSeen:serverTimestamp()});
     }catch(e){
       console.warn('heartbeat presença',e);
     }
-  },12000);
+  },10000);
 }
 
 async function removerPresencaSala(id){
