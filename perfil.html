@@ -1,49 +1,218 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="utf-8">
+<meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Meu Perfil</title>
+<title>Editar Perfil</title>
 <style>
-*{box-sizing:border-box}body{margin:0;background:#09090f;color:#fff;font-family:Arial,sans-serif}
-header{height:62px;border-bottom:1px solid #28283a;background:#11111b;display:flex;align-items:center;justify-content:space-between;padding:0 28px}
-a{color:#bbb;text-decoration:none}.wrap{max-width:760px;margin:45px auto;padding:0 20px}
-.card{background:#151522;border:1px solid #303047;border-radius:18px;overflow:hidden}
-.banner{height:130px;background:linear-gradient(135deg,#6c55e8,#30266d)}
-.content{padding:0 28px 28px}.avatar-wrap{display:flex;align-items:end;gap:18px;margin-top:-50px}
-.avatar{width:104px;height:104px;border-radius:50%;border:6px solid #151522;background:#5f4bd8;object-fit:cover;display:flex;align-items:center;justify-content:center;font-size:30px;font-weight:800}
-h1{margin:12px 0 3px;font-size:24px}.email{color:#888;font-size:13px}
-.status{display:inline-flex;align-items:center;gap:7px;margin-top:12px;color:#bbb;font-size:13px}.dot{width:9px;height:9px;border-radius:50%;background:#35c66b}
-.form{margin-top:25px;border-top:1px solid #29293b;padding-top:22px}
-label{display:block;color:#aaa;font-size:12px;font-weight:700;margin:15px 0 7px}
-input,select,textarea{width:100%;background:#0e0e17;border:1px solid #34344a;color:#fff;border-radius:9px;padding:12px}
-textarea{resize:vertical;min-height:80px}
-.actions{display:flex;gap:10px;margin-top:20px}
-button,.file-btn{border:0;border-radius:9px;padding:11px 15px;font-weight:800;cursor:pointer;background:#735df3;color:white}
-.secondary{background:#242438;color:#ddd}.file-btn{display:inline-block;margin-top:8px}
-#fotoInput{display:none}.msg{margin-top:12px;font-size:12px;color:#aaa}
+*{box-sizing:border-box}
+body{margin:0;font-family:'Segoe UI',Arial,sans-serif;background:#090910;color:#fff;min-height:100vh}
+header{height:68px;padding:0 26px;background:#11111d;border-bottom:1px solid #28283d;display:flex;align-items:center;justify-content:space-between}
+header a{color:#bbb;text-decoration:none}
+.wrap{max-width:720px;margin:48px auto;padding:0 20px}
+.card{background:#131322;border:1px solid #303047;border-radius:20px;overflow:hidden;box-shadow:0 22px 60px #0006}
+.banner{height:135px;background:linear-gradient(135deg,#7c6af7,#32256f)}
+.content{padding:0 30px 32px}
+.profile-head{display:flex;align-items:end;gap:18px;margin-top:-52px;margin-bottom:25px}
+.avatar{width:110px;height:110px;border-radius:50%;background:#6657df;border:6px solid #131322;display:flex;align-items:center;justify-content:center;font-size:30px;font-weight:900;overflow:hidden}
+.avatar img{width:100%;height:100%;object-fit:cover}
+.profile-head h1{margin:0 0 5px;font-size:25px}
+.email{color:#888;font-size:12px}
+.form{border-top:1px solid #29293d;padding-top:22px}
+label{display:block;font-size:12px;font-weight:800;color:#aaa;margin:16px 0 7px}
+input,select,textarea{width:100%;background:#0d0d17;color:#fff;border:1px solid #36364e;border-radius:9px;padding:12px;font:inherit}
+textarea{min-height:85px;resize:vertical}
+.photo-row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.file-btn,.secondary,button{border:0;border-radius:9px;padding:11px 14px;font-weight:800;cursor:pointer}
+.file-btn{background:#242438;color:#ddd;display:inline-block}
+#foto{display:none}
+.actions{display:flex;gap:10px;margin-top:22px}
+button{background:#7c6af7;color:#fff}
+.secondary{background:#242438;color:#ddd}
+.msg{margin-top:13px;font-size:12px;color:#aaa;min-height:16px}
+.status-preview{display:inline-flex;align-items:center;gap:7px;margin-top:8px;color:#aaa;font-size:12px}
+.dot{width:9px;height:9px;border-radius:50%;background:#43c970}
 </style>
 </head>
 <body>
-<header><b>👤 Meu Perfil</b><a href="inicio.html">← Voltar</a></header>
-<div class="wrap"><div class="card">
-<div class="banner"></div><div class="content">
-<div class="avatar-wrap"><img id="avatarImg" class="avatar" style="display:none"><div id="avatarTxt" class="avatar">EU</div>
-<div><h1 id="nomeTopo">Seu perfil</h1><div id="emailTopo" class="email"></div><div class="status"><span class="dot"></span><span id="statusTopo">Online</span></div></div></div>
-<div class="form">
-<label>Nome de exibição</label><input id="nome" maxlength="32" placeholder="Seu nome">
-<label>Status</label><select id="status"><option value="Online">Online</option><option value="Ausente">Ausente</option><option value="Ocupado">Ocupado</option></select>
-<label>Sobre mim</label><textarea id="bio" maxlength="120" placeholder="Escreva algo sobre você..."></textarea>
-<label>Foto do perfil</label><input id="fotoInput" type="file" accept="image/*"><label class="file-btn secondary" for="fotoInput">📷 Escolher foto</label>
-<div class="actions"><button id="salvar">Salvar perfil</button><button class="secondary" id="removerFoto">Remover foto</button></div>
-<div class="msg" id="msg"></div>
-</div></div></div></div>
+<header>
+  <b>👤 Editar Perfil</b>
+  <a href="inicio.html">← Voltar</a>
+</header>
+
+<div class="wrap">
+  <div class="card">
+    <div class="banner"></div>
+    <div class="content">
+      <div class="profile-head">
+        <div class="avatar" id="avatar">EU</div>
+        <div>
+          <h1 id="nomePreview">Seu perfil</h1>
+          <div class="email" id="emailPreview"></div>
+          <div class="status-preview"><span class="dot" id="dot"></span><span id="statusPreview">Online</span></div>
+        </div>
+      </div>
+
+      <div class="form">
+        <label>Nome de exibição</label>
+        <input id="nome" maxlength="32" placeholder="Seu nome">
+
+        <label>Status</label>
+        <select id="status">
+          <option value="Online">🟢 Online</option>
+          <option value="Ausente">🌙 Ausente</option>
+          <option value="Ocupado">⛔ Ocupado</option>
+        </select>
+
+        <label>Sobre mim</label>
+        <textarea id="bio" maxlength="120" placeholder="Escreva algo sobre você..."></textarea>
+
+        <label>Foto do perfil</label>
+        <div class="photo-row">
+          <label class="file-btn" for="foto">📷 Escolher foto</label>
+          <input id="foto" type="file" accept="image/*">
+          <button type="button" class="secondary" onclick="removerFoto()">Remover foto</button>
+        </div>
+
+        <div class="actions">
+          <button type="button" onclick="salvar()">💾 Salvar perfil</button>
+        </div>
+        <div class="msg" id="msg"></div>
+      </div>
+    </div>
+  </div>
+</div>
 
 <script type="module">
-import {initializeApp} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import {getAuth,onAuthStateChanged} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import {getFirestore,doc,getDoc,setDoc,serverTimestamp} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import {initializeApp} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import {getAuth,onAuthStateChanged,updateProfile} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import {getFirestore,doc,getDoc,setDoc,serverTimestamp} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-const firebaseConfig={apiKey:"AIzaSyDUMMY",authDomain:"lista-de-jogos-f1874.firebaseapp.com",projectId:"lista-de-jogos-f1874"};
+const app=initializeApp({
+  apiKey:'AIzaSyAaIxroCAMOvDxg5aLUr2P8jweygemm1uM',
+  authDomain:'lista-de-jogos-f1874.firebaseapp.com',
+  projectId:'lista-de-jogos-f1874',
+  storageBucket:'lista-de-jogos-f1874.firebasestorage.app',
+  messagingSenderId:'692334284655',
+  appId:'1:692334284655:web:a55db647b5f8b39d00a29a'
+});
+const auth=getAuth(app);
+const db=getFirestore(app);
+
+const CLOUD_NAME='dbovdinlw';
+const UPLOAD_PRESET='jogos_preset';
+
+let user=null;
+let fotoAtual='';
+let removerFotoPendente=false;
+
+const nome=document.getElementById('nome');
+const status=document.getElementById('status');
+const bio=document.getElementById('bio');
+const foto=document.getElementById('foto');
+const avatar=document.getElementById('avatar');
+const msg=document.getElementById('msg');
+
+function iniciais(n){
+  return String(n||'EU').trim().split(/\s+/).slice(0,2).map(x=>x[0]).join('').toUpperCase();
+}
+
+function renderAvatar(url,n){
+  if(url){
+    avatar.innerHTML=`<img src="${url}" alt="Foto de perfil">`;
+  }else{
+    avatar.textContent=iniciais(n);
+  }
+}
+
+function atualizarPreview(){
+  document.getElementById('nomePreview').textContent=nome.value.trim()||'Seu perfil';
+  document.getElementById('statusPreview').textContent=status.value;
+  const dot=document.getElementById('dot');
+  dot.style.background=status.value==='Ocupado'?'#e0525d':status.value==='Ausente'?'#e5b94f':'#43c970';
+}
+
+nome.addEventListener('input',()=>{atualizarPreview();if(!fotoAtual)renderAvatar('',nome.value)});
+status.addEventListener('change',atualizarPreview);
+
+foto.addEventListener('change',()=>{
+  const f=foto.files[0];
+  if(!f)return;
+  removerFotoPendente=false;
+  renderAvatar(URL.createObjectURL(f),nome.value);
+});
+
+onAuthStateChanged(auth,async u=>{
+  if(!u){location.href='login.html';return}
+  user=u;
+  document.getElementById('emailPreview').textContent=u.email||'';
+
+  const snap=await getDoc(doc(db,'usuarios',u.uid));
+  const p=snap.exists()?snap.data():{};
+
+  nome.value=p.nome||u.displayName||u.email?.split('@')[0]||'Usuário';
+  status.value=p.status||'Online';
+  bio.value=p.bio||'';
+  fotoAtual=p.fotoURL||'';
+
+  renderAvatar(fotoAtual,nome.value);
+  atualizarPreview();
+});
+
+window.removerFoto=()=>{
+  removerFotoPendente=true;
+  foto.value='';
+  fotoAtual='';
+  renderAvatar('',nome.value);
+  msg.textContent='Foto será removida ao salvar.';
+};
+
+window.salvar=async()=>{
+  if(!user)return;
+  try{
+    msg.textContent='Salvando...';
+
+    let fotoURL=fotoAtual;
+
+    if(foto.files[0]){
+      msg.textContent='Enviando foto...';
+      const fd=new FormData();
+      fd.append('file',foto.files[0]);
+      fd.append('upload_preset',UPLOAD_PRESET);
+
+      const r=await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`,{
+        method:'POST',
+        body:fd
+      });
+      const d=await r.json();
+      if(!r.ok || !d.secure_url)throw new Error(d.error?.message||'Erro ao enviar foto.');
+      fotoURL=d.secure_url;
+    }
+
+    if(removerFotoPendente)fotoURL='';
+
+    const dados={
+      nome:nome.value.trim()||'Usuário',
+      fotoURL,
+      status:status.value,
+      bio:bio.value.trim(),
+      atualizadoEm:serverTimestamp()
+    };
+
+    await setDoc(doc(db,'usuarios',user.uid),dados,{merge:true});
+    await updateProfile(user,{displayName:dados.nome});
+
+    fotoAtual=fotoURL;
+    removerFotoPendente=false;
+    renderAvatar(fotoAtual,dados.nome);
+    atualizarPreview();
+
+    msg.textContent='✅ Perfil salvo com sucesso.';
+  }catch(e){
+    console.error(e);
+    msg.textContent='Erro: '+(e.message||e);
+  }
+};
 </script>
-</body></html>
+</body>
+</html>
