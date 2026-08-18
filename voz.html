@@ -164,8 +164,19 @@ let audioTrackRecebidos=0;
 
 function mostrarTransmissaoRemota(stream){
   remoteScreenWanted=true;
-  if(!stream || !remoteVideoTrack || remoteVideoTrack.muted) return;
+
+  if(!stream && remoteVideoTrack){
+    stream=new MediaStream([remoteVideoTrack]);
+    remoteStreamAtual=stream;
+  }
+
+  if(!stream){
+    status.textContent='Transmissão iniciando...';
+    return;
+  }
+
   streamPreview.srcObject=stream;
+  streamPreview.play().catch(()=>{});
   document.getElementById('streamName').textContent='Amigo está transmitindo';
   document.getElementById('streamTile').style.display='block';
   status.textContent='Transmissão disponível';
@@ -220,11 +231,18 @@ async function setup(){
       remoteVideoTrack=e.track;
       remoteStreamAtual=new MediaStream([e.track]);
 
+      if(remoteScreenWanted){
+        mostrarTransmissaoRemota(remoteStreamAtual);
+      }
+
       e.track.onunmute=()=>{
+        remoteStreamAtual=new MediaStream([e.track]);
         if(remoteScreenWanted) mostrarTransmissaoRemota(remoteStreamAtual);
       };
+
       e.track.onmute=()=>{
-        if(!screenStream) esconderTransmissaoRemota();
+        // Não esconde imediatamente: replaceTrack(null) e renegociação podem
+        // disparar mute temporário. O Firestore é quem define se a transmissão terminou.
       };
     }
   };
@@ -691,6 +709,7 @@ window.abrirTransmissao=()=>{
   if(!stream)return;
   mainStream.srcObject=stream;
   mainStream.style.display='block';
+  mainStream.play().catch(()=>{});
   document.getElementById('empty').style.display='none';
 };
 function fecharTransmissao(){
