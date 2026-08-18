@@ -299,8 +299,14 @@ header{
 <div class="toast" id="toast"></div>
 </section></main>
 <script type="module">
-import{initializeApp}from'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';import{getAuth,onAuthStateChanged}from'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';import{getFirestore,doc,setDoc,getDoc,updateDoc,collection,addDoc,onSnapshot,getDocs,deleteDoc,runTransaction,serverTimestamp}from'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+import{initializeApp}from'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';import{getAuth,onAuthStateChanged}from'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';import{getFirestore,doc,setDoc,getDoc,updateDoc,collection,addDoc,onSnapshot,getDocs,deleteDoc,runTransaction,serverTimestamp,arrayUnion}from'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 const cfg={apiKey:'AIzaSyAaIxroCAMOvDxg5aLUr2P8jweygemm1uM',authDomain:'lista-de-jogos-f1874.firebaseapp.com',projectId:'lista-de-jogos-f1874',storageBucket:'lista-de-jogos-f1874.firebasestorage.app',messagingSenderId:'692334284655',appId:'1:692334284655:web:a55db647b5f8b39d00a29a'};const app=initializeApp(cfg),auth=getAuth(app),db=getFirestore(app);let pc,micStream,screenStream,roomId,isHost=false,unsubs=[];const remote=document.getElementById('remote'),status=document.getElementById('status'),streamPreview=document.getElementById('streamPreview'),mainStream=document.getElementById('mainStream');let remoteStreamAtual=null;
+let screenPc=null;
+let screenSignalUnsub=null;
+let screenRev=0;
+let screenOwnerUid=null;
+let screenOwnerCandidateCount=0;
+let screenViewerCandidateCount=0;
 let fixedRoomKey=null;
 let sessionId=null;
 let presenceTimer=null;
@@ -523,6 +529,149 @@ async function processarRespostaRenegociacao(resp,tipo){
   }catch(e){
     console.error('Erro ao aplicar resposta da renegociação:',e);
   }
+}
+
+
+function fecharScreenPc(){
+  try{screenPc?.close()}catch(_){}
+  screenPc=null;
+  screenOwnerCandidateCount=0;
+  screenViewerCandidateCount=0;
+}
+
+function streamRemotaTela(){
+  const tracks=[];
+  const v=remoteStreamAtual?.getVideoTracks?.()[0];
+  if(v)tracks.push(v);
+  return tracks.length?new MediaStream(tracks):null;
+}
+
+function exibirTelaRemota(stream){
+  if(!stream)return;
+  remoteStreamAtual=stream;
+  streamPreview.srcObject=stream;
+  streamPreview.play().catch(()=>{});
+  document.getElementById('streamName').textContent='Amigo está transmitindo';
+  document.getElementById('streamTile').style.display='block';
+  status.textContent='Transmissão disponível';
+}
+
+async function criarViewerScreenPc(r,d){
+  if(!d?.screenOffer || d.screenOwnerUid===auth.currentUser?.uid)return;
+  const rev=d.screenRev||0;
+  if(screenPc && screenRev===rev && screenOwnerUid===d.screenOwnerUid)return;
+
+  fecharScreenPc();
+  screenRev=rev;
+  screenOwnerUid=d.screenOwnerUid;
+  remoteStreamAtual=new MediaStream();
+
+  screenPc=new RTCPeerConnection(rtc);
+
+  screenPc.ontrack=e=>{
+    if(e.track.kind==='video'){
+      if(!remoteStreamAtual.getTracks().some(t=>t.id===e.track.id))
+        remoteStreamAtual.addTrack(e.track);
+      exibirTelaRemota(remoteStreamAtual);
+    }
+
+    if(e.track.kind==='audio'){
+      const a=document.getElementById('remoteScreenAudio');
+      a.srcObject=new MediaStream([e.track]);
+      a.volume=(Number(document.getElementById('volumeTransmissao')?.value||100))/100;
+      a.muted=document.getElementById('muteTransmissao')?.dataset.muted==='1';
+      a.play().catch(()=>{});
+    }
+  };
+
+  screenPc.onicecandidate=e=>{
+    if(!e.candidate)return;
+    updateDoc(r,{
+      screenViewerCandidates:arrayUnion({
+        rev,
+        uid:auth.currentUser.uid,
+        c:e.candidate.toJSON()
+      })
+    }).catch(console.error);
+  };
+
+  await screenPc.setRemoteDescription(d.screenOffer);
+  const answer=await screenPc.createAnswer();
+  await screenPc.setLocalDescription(answer);
+  await updateDoc(r,{
+    screenAnswer:{type:answer.type,sdp:answer.sdp},
+    screenAnswerRev:rev,
+    screenViewerUid:auth.currentUser.uid
+  });
+
+  const latest=(await getDoc(r)).data()||{};
+  const ownerCandidates=latest.screenOwnerCandidates||[];
+  for(const item of ownerCandidates){
+    if(item.rev===rev && item.c){
+      try{await screenPc.addIceCandidate(item.c)}catch(e){console.warn(e)}
+    }
+  }
+  screenOwnerCandidateCount=ownerCandidates.length;
+}
+
+async function processarSinalTela(r,d){
+  if(!d)return;
+
+  // Se não existe transmissão ativa, limpa o player remoto.
+  if(!d.screenActive){
+    if(d.screenOwnerUid!==auth.currentUser?.uid){
+      document.getElementById('streamTile').style.display='none';
+      streamPreview.srcObject=null;
+      fecharTransmissao();
+      document.getElementById('remoteScreenAudio').srcObject=null;
+      if(screenOwnerUid && screenOwnerUid!==auth.currentUser?.uid)fecharScreenPc();
+    }
+    return;
+  }
+
+  // Usuário que está assistindo.
+  if(d.screenOwnerUid!==auth.currentUser?.uid){
+    await criarViewerScreenPc(r,d);
+
+    if(screenPc && d.screenRev===screenRev){
+      const ownerCandidates=d.screenOwnerCandidates||[];
+      for(let i=screenOwnerCandidateCount;i<ownerCandidates.length;i++){
+        const item=ownerCandidates[i];
+        if(item?.rev===screenRev && item.c){
+          try{await screenPc.addIceCandidate(item.c)}catch(e){console.warn(e)}
+        }
+      }
+      screenOwnerCandidateCount=ownerCandidates.length;
+    }
+    return;
+  }
+
+  // Usuário que está transmitindo: recebe answer e ICE do espectador.
+  if(screenPc && d.screenAnswer && d.screenAnswerRev===screenRev && !screenPc.currentRemoteDescription){
+    try{await screenPc.setRemoteDescription(d.screenAnswer)}catch(e){console.warn(e)}
+  }
+
+  if(screenPc){
+    const viewerCandidates=d.screenViewerCandidates||[];
+    for(let i=screenViewerCandidateCount;i<viewerCandidates.length;i++){
+      const item=viewerCandidates[i];
+      if(item?.rev===screenRev && item.c){
+        try{await screenPc.addIceCandidate(item.c)}catch(e){console.warn(e)}
+      }
+    }
+    screenViewerCandidateCount=viewerCandidates.length;
+  }
+}
+
+function iniciarSinalizacaoTela(r){
+  if(screenSignalUnsub){try{screenSignalUnsub()}catch(_){}}
+  screenSignalUnsub=onSnapshot(r,s=>{
+    processarSinalTela(r,s.data()).catch(e=>{
+      console.error('Sinalização da tela:',e);
+      status.textContent='Erro na transmissão';
+    });
+  },e=>console.error('Snapshot tela:',e));
+  unsubs.push(()=>{try{screenSignalUnsub?.()}catch(_){} screenSignalUnsub=null;});
 }
 
 async function setup(){
@@ -829,6 +978,7 @@ window.entrarSalaFixa=async(id)=>{
     status.textContent=isHost?'Abrindo sala...':'Entrando na sala...';
 
     await setup();
+    iniciarSinalizacaoTela(r);
 
     if(isHost){
       // Sessão nova ou retomada pelo mesmo host.
@@ -842,7 +992,15 @@ window.entrarSalaFixa=async(id)=>{
         hostScreenSharing:false,
         guestScreenSharing:false,
         hostReoffer:null,guestReoffer:null,
-        hostReanswer:null,guestReanswer:null
+        hostReanswer:null,guestReanswer:null,
+        screenActive:false,
+        screenOwnerUid:null,
+        screenOffer:null,
+        screenAnswer:null,
+        screenRev:0,
+        screenAnswerRev:0,
+        screenOwnerCandidates:[],
+        screenViewerCandidates:[]
       },{merge:false});
 
       pc.onicecandidate=e=>{
@@ -858,8 +1016,7 @@ window.entrarSalaFixa=async(id)=>{
         if(d?.answer && !pc.currentRemoteDescription)
           await pc.setRemoteDescription(d.answer);
 
-        if(d?.guestScreenSharing===true) mostrarTransmissaoRemota(remoteStreamAtual);
-        if(d?.guestScreenSharing===false) esconderTransmissaoRemota();
+
       },erroLobby));
 
       unsubs.push(onSnapshot(collection(r,'guestCandidates'),s=>{
@@ -894,8 +1051,7 @@ window.entrarSalaFixa=async(id)=>{
 
     unsubs.push(onSnapshot(r,async s=>{
       const d=s.data();
-      if(d?.hostScreenSharing===true) mostrarTransmissaoRemota(remoteStreamAtual);
-      if(d?.hostScreenSharing===false) esconderTransmissaoRemota();
+
     },erroLobby));
 
     status.textContent='Conectando...';
@@ -1030,49 +1186,102 @@ window.toggleMic=()=>{
 };
 window.compartilhar=async()=>{
   try{
-    screenStream=await navigator.mediaDevices.getDisplayMedia({video:true,audio:true});
-    const vt=screenStream.getVideoTracks()[0];
-    const at=screenStream.getAudioTracks()[0];
+    if(!sessionId)throw new Error('Entre em uma sala primeiro.');
 
-    if(!videoSender) throw new Error('Canal de vídeo não está pronto.');
-    await videoSender.replaceTrack(vt);
-    if(screenAudioSender)await screenAudioSender.replaceTrack(at||null);
+    screenStream=await navigator.mediaDevices.getDisplayMedia({
+      video:{frameRate:{ideal:30,max:60}},
+      audio:true
+    });
+
+    const videoTrack=screenStream.getVideoTracks()[0];
+    if(!videoTrack)throw new Error('Nenhuma tela foi selecionada.');
+
+    fecharScreenPc();
+    screenRev=Date.now();
+    screenOwnerUid=auth.currentUser.uid;
+    screenPc=new RTCPeerConnection(rtc);
+    screenOwnerCandidateCount=0;
+    screenViewerCandidateCount=0;
+
+    screenStream.getTracks().forEach(track=>screenPc.addTrack(track,screenStream));
+
+    const r=doc(db,'salasVoz',sessionId);
+
+    screenPc.onicecandidate=e=>{
+      if(!e.candidate)return;
+      updateDoc(r,{
+        screenOwnerCandidates:arrayUnion({
+          rev:screenRev,
+          uid:auth.currentUser.uid,
+          c:e.candidate.toJSON()
+        })
+      }).catch(console.error);
+    };
+
+    const offer=await screenPc.createOffer();
+    await screenPc.setLocalDescription(offer);
+
+    await updateDoc(r,{
+      screenActive:true,
+      screenOwnerUid:auth.currentUser.uid,
+      screenOffer:{type:offer.type,sdp:offer.sdp},
+      screenAnswer:null,
+      screenRev,
+      screenAnswerRev:0,
+      screenViewerUid:null,
+      screenOwnerCandidates:[],
+      screenViewerCandidates:[]
+    });
 
     streamPreview.srcObject=screenStream;
+    streamPreview.play().catch(()=>{});
     document.getElementById('streamName').textContent='Sua transmissão';
     document.getElementById('streamTile').style.display='block';
 
-    const r=doc(db,'salasVoz',sessionId);
-    await updateDoc(r,isHost?{hostScreenSharing:true}:{guestScreenSharing:true});
+    // Abre a própria transmissão no centro ao clicar na miniatura.
+    remoteStreamAtual=screenStream;
 
-    vt.onended=()=>window.pararTela();
+    videoTrack.onended=()=>window.pararTela();
+
+    const at=screenStream.getAudioTracks()[0];
     status.textContent=at?'Compartilhando tela com áudio':'Compartilhando tela sem áudio';
+    mostrarToast(at?'Transmissão iniciada com áudio':'Transmissão iniciada');
   }catch(e){
-    status.textContent='Compartilhamento cancelado.';
     console.error(e);
+    status.textContent='Não foi possível iniciar a transmissão';
+    mostrarToast(e?.message||'Compartilhamento cancelado');
   }
 };
+
 window.pararTela=async()=>{
-  if(screenStream){
-    screenStream.getTracks().forEach(t=>t.stop());
+  try{
+    screenStream?.getTracks().forEach(t=>t.stop());
     screenStream=null;
-  }
 
-  try{if(videoSender)await videoSender.replaceTrack(null)}catch(e){console.error(e)}
-  try{if(screenAudioSender)await screenAudioSender.replaceTrack(null)}catch(e){console.error(e)}
+    fecharScreenPc();
 
-  fecharTransmissao();
-
-  if(sessionId){
-    try{
+    if(sessionId){
       const r=doc(db,'salasVoz',sessionId);
-      await updateDoc(r,isHost?{hostScreenSharing:false}:{guestScreenSharing:false});
-    }catch(e){console.error(e)}
-  }
+      await updateDoc(r,{
+        screenActive:false,
+        screenOwnerUid:null,
+        screenOffer:null,
+        screenAnswer:null,
+        screenAnswerRev:0,
+        screenViewerUid:null,
+        screenOwnerCandidates:[],
+        screenViewerCandidates:[]
+      });
+    }
 
-  streamPreview.srcObject=null;
-  document.getElementById('streamTile').style.display='none';
-  status.textContent='Tela não compartilhada';
+    streamPreview.srcObject=null;
+    document.getElementById('streamTile').style.display='none';
+    fecharTransmissao();
+    status.textContent='Tela não compartilhada';
+    mostrarToast('Transmissão encerrada');
+  }catch(e){
+    console.error(e);
+  }
 };
 window.abrirTransmissao=()=>{
   const stream=screenStream || remoteStreamAtual;
@@ -1336,6 +1545,7 @@ window.sairSala=async()=>{
     await removerPresencaSala(fixedRoomKey);
     unsubs.forEach(u=>u());unsubs=[];
     screenStream?.getTracks().forEach(t=>t.stop());
+    fecharScreenPc();
     micStream?.getTracks().forEach(t=>t.stop());
     pc?.close();
 
