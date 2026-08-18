@@ -2080,23 +2080,29 @@ window.ordenarPorNota =
       linhasVisiveis()
         .sort(
 
-          (a, b) =>
+          (a, b) => {
 
-            (
-              parseFloat(
-                b.cells[5]
-                  .textContent
-              ) || 0
-            )
-
-            -
-
-            (
+            const notaA =
               parseFloat(
                 a.cells[5]
-                  .textContent
-              ) || 0
-            )
+                  .querySelector(".nota-num")
+                  ?.textContent
+                  .trim()
+                  .replace(",", ".")
+              ) || 0;
+
+            const notaB =
+              parseFloat(
+                b.cells[5]
+                  .querySelector(".nota-num")
+                  ?.textContent
+                  .trim()
+                  .replace(",", ".")
+              ) || 0;
+
+            return notaB - notaA;
+
+          }
 
         )
 
