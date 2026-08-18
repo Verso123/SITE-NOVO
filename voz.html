@@ -14,10 +14,10 @@ function erroLobby(e){
       console.error(e);
       const el=document.getElementById('lobbyErro');
       let texto=e?.message||String(e);
-      if(e?.name==='NotAllowedError') texto='O navegador bloqueou o microfone. Clique no cadeado ao lado do endereço do site, permita Microfone e atualize a página.';
-      if(e?.name==='NotFoundError') texto='Nenhum microfone foi encontrado no computador.';
-      if(e?.code==='permission-denied') texto='O Firebase recusou a operação. Confira se as regras foram publicadas e se você está logado.';
-      el.textContent='Erro ao criar/entrar na sala: '+texto;
+      if(e?.name==='NotAllowedError') texto='O navegador bloqueou o microfone. Clique no cadeado ao lado do endereço, permita Microfone e atualize a página.';
+      if(e?.name==='NotFoundError') texto='Nenhum microfone foi encontrado.';
+      if(e?.code==='permission-denied') texto='O Firebase recusou a operação. Confira se você está logado e se as regras foram publicadas.';
+      el.textContent='Erro: '+texto;
       el.style.display='block';
     }
     function limparErro(){ document.getElementById('lobbyErro').style.display='none'; }
@@ -29,29 +29,47 @@ window.criar=async()=>{
   const btn=document.getElementById('btnCriar');
   btn.disabled=true; btn.textContent='Criando...';
   try{
-    if(!auth.currentUser) throw new Error('Sua sessão ainda não carregou. Atualize a página e tente novamente.');
+    if(!auth.currentUser) throw new Error('Login ainda não carregou. Atualize a página e tente de novo.');
     roomId=(document.getElementById('codigo').value.trim()||gen()).toUpperCase();
     isHost=true;
     await setup();
+
     const r=doc(db,'salasVoz',roomId);
-    if((await getDoc(r)).exists()) throw new Error('Esse código já existe. Apague o código digitado e tente novamente.');
+    const existente=await getDoc(r);
+    if(existente.exists()) throw new Error('Esse código de sala já existe. Tente criar de novo.');
+
     await setDoc(r,{criadoPor:auth.currentUser.uid,criadoEm:Date.now(),ativo:true});
-    pc.onicecandidate=e=>e.candidate&&addDoc(collection(r,'hostCandidates'),e.candidate.toJSON()).catch(console.error);
+
+    pc.onicecandidate=e=>{
+      if(e.candidate){
+        addDoc(collection(r,'hostCandidates'),e.candidate.toJSON()).catch(erroLobby);
+      }
+    };
+
     const offer=await pc.createOffer();
     await pc.setLocalDescription(offer);
     await updateDoc(r,{offer:{type:offer.type,sdp:offer.sdp}});
+
     unsubs.push(onSnapshot(r,async s=>{
       const d=s.data();
-      if(d?.answer&&!pc.currentRemoteDescription) await pc.setRemoteDescription(d.answer);
+      if(d?.answer && !pc.currentRemoteDescription){
+        await pc.setRemoteDescription(d.answer);
+      }
     },erroLobby));
-    unsubs.push(onSnapshot(collection(r,'guestCandidates'),s=>s.docChanges().forEach(c=>{
-      if(c.type==='added') pc.addIceCandidate(c.doc.data()).catch(console.error);
-    }),erroLobby));
+
+    unsubs.push(onSnapshot(collection(r,'guestCandidates'),s=>{
+      s.docChanges().forEach(c=>{
+        if(c.type==='added'){
+          pc.addIceCandidate(c.doc.data()).catch(console.error);
+        }
+      });
+    },erroLobby));
+
     show();
     status.textContent='Aguardando alguém entrar...';
   }catch(e){
-    micStream?.getTracks().forEach(t=>t.stop());
-    pc?.close();
+    try{ micStream?.getTracks().forEach(t=>t.stop()); }catch(_){}
+    try{ pc?.close(); }catch(_){}
     pc=null; micStream=null; isHost=false;
     erroLobby(e);
   }finally{
@@ -63,25 +81,41 @@ window.entrar=async()=>{
   const btn=document.getElementById('btnEntrar');
   btn.disabled=true; btn.textContent='Entrando...';
   try{
-    if(!auth.currentUser) throw new Error('Sua sessão ainda não carregou. Atualize a página e tente novamente.');
+    if(!auth.currentUser) throw new Error('Login ainda não carregou. Atualize a página e tente de novo.');
     roomId=document.getElementById('codigo').value.trim().toUpperCase();
     if(!roomId) throw new Error('Digite o código da sala.');
-    const r=doc(db,'salasVoz',roomId),snap=await getDoc(r);
-    if(!snap.exists()||!snap.data().offer) throw new Error('Sala não encontrada.');
+
+    const r=doc(db,'salasVoz',roomId);
+    const snap=await getDoc(r);
+    if(!snap.exists()) throw new Error('Sala não encontrada.');
+    if(!snap.data().offer) throw new Error('A sala ainda não terminou de ser criada. Aguarde alguns segundos e tente novamente.');
+
     await setup();
-    pc.onicecandidate=e=>e.candidate&&addDoc(collection(r,'guestCandidates'),e.candidate.toJSON()).catch(console.error);
+
+    pc.onicecandidate=e=>{
+      if(e.candidate){
+        addDoc(collection(r,'guestCandidates'),e.candidate.toJSON()).catch(erroLobby);
+      }
+    };
+
     await pc.setRemoteDescription(snap.data().offer);
     const answer=await pc.createAnswer();
     await pc.setLocalDescription(answer);
     await updateDoc(r,{answer:{type:answer.type,sdp:answer.sdp}});
-    unsubs.push(onSnapshot(collection(r,'hostCandidates'),s=>s.docChanges().forEach(c=>{
-      if(c.type==='added') pc.addIceCandidate(c.doc.data()).catch(console.error);
-    }),erroLobby));
+
+    unsubs.push(onSnapshot(collection(r,'hostCandidates'),s=>{
+      s.docChanges().forEach(c=>{
+        if(c.type==='added'){
+          pc.addIceCandidate(c.doc.data()).catch(console.error);
+        }
+      });
+    },erroLobby));
+
     show();
     status.textContent='Conectando...';
   }catch(e){
-    micStream?.getTracks().forEach(t=>t.stop());
-    pc?.close();
+    try{ micStream?.getTracks().forEach(t=>t.stop()); }catch(_){}
+    try{ pc?.close(); }catch(_){}
     pc=null; micStream=null;
     erroLobby(e);
   }finally{
