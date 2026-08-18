@@ -4,7 +4,25 @@
 .room-user{width:28px;height:28px;border-radius:50%;background:#6657df;border:2px solid #8174f2;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:900;color:#fff;overflow:hidden}
 .room-user img{width:100%;height:100%;object-fit:cover}
 .room-empty{font-size:11px;color:#666;font-weight:600}.fixed-rooms button:hover{border-color:#7c6af7;background:#202034}@media(max-width:620px){.fixed-rooms{grid-template-columns:1fr}}input,button{border-radius:9px;border:1px solid #343450;padding:12px 14px;font-size:14px}input{background:#0d0d18;color:#fff}button{background:#7c6af7;color:#fff;font-weight:700;cursor:pointer}button:disabled{opacity:.55;cursor:not-allowed}button.secondary{background:#202034;color:#bbb}button.danger{background:#3a1418;color:#ff9a9a;border-color:#61252b}.status{color:#999;font-size:13px}.room{display:none}.code{color:#a99cff;font-weight:800}.hint{font-size:12px;color:#666;margin-top:12px;line-height:1.5}
-.call-shell{display:grid;grid-template-columns:250px 1fr;min-height:650px;background:#0c0c14;border:1px solid #292942;border-radius:18px;overflow:hidden}.sidebar{background:#15151f;border-right:1px solid #292942;display:flex;flex-direction:column}.channel{padding:18px;border-bottom:1px solid #292942}.channel-title{font-weight:800;font-size:16px}.channel-sub{font-size:12px;color:#777;margin-top:4px}.members{padding:12px;flex:1}.members-title{font-size:11px;color:#777;text-transform:uppercase;font-weight:800;padding:6px 8px}.member{display:flex;align-items:center;gap:10px;padding:10px 8px;border-radius:8px}.member.empty-member{color:#666;font-size:12px;padding:8px}.avatar img{width:100%;height:100%;object-fit:cover;border-radius:50%}.member:hover{background:#20202c}.avatar.speaking{box-shadow:0 0 0 3px #9b87ff,0 0 18px rgba(124,106,247,.95);transition:box-shadow .08s}.avatar{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#7c6af7,#4033a8);display:flex;align-items:center;justify-content:center;font-weight:900;position:relative}.dot{position:absolute;width:11px;height:11px;border-radius:50%;background:#35c46a;border:2px solid #15151f;right:-1px;bottom:0}.member-name{font-weight:700;font-size:14px}.member-state{font-size:11px;color:#777;margin-top:2px}.streams{padding:0 12px 14px}.streams-title{font-size:11px;color:#777;text-transform:uppercase;font-weight:800;padding:6px 8px}.stream-tile{display:none;border:1px solid #313145;background:#20202c;border-radius:10px;overflow:hidden;cursor:pointer;transition:.15s}.stream-tile:hover{border-color:#7c6af7;background:#262638}.stream-thumb{height:105px;background:#07070c;position:relative;overflow:hidden}.stream-thumb video{width:100%;height:100%;object-fit:cover}.live{position:absolute;left:7px;bottom:7px;background:#e23b4d;color:#fff;border-radius:4px;padding:3px 6px;font-size:9px;font-weight:900}.stream-info{padding:8px 10px}.stream-name{font-size:12px;font-weight:800}.stream-help{font-size:10px;color:#888;margin-top:3px}.sidebar-room{padding:14px;border-top:1px solid #292942;font-size:12px;color:#888}
+.call-shell{display:grid;grid-template-columns:250px 1fr;min-height:650px;background:#0c0c14;border:1px solid #292942;border-radius:18px;overflow:hidden}.sidebar{background:#15151f;border-right:1px solid #292942;display:flex;flex-direction:column}.channel{padding:18px;border-bottom:1px solid #292942}.channel-title{font-weight:800;font-size:16px}.channel-sub{font-size:12px;color:#777;margin-top:4px}.members{padding:12px;flex:1}.members-title{font-size:11px;color:#777;text-transform:uppercase;font-weight:800;padding:6px 8px}.member{display:flex;align-items:center;gap:10px;padding:10px 8px;border-radius:8px}.member.empty-member{color:#666;font-size:12px;padding:8px}.avatar img{width:100%;height:100%;object-fit:cover;border-radius:50%}.member:hover{background:#20202c}.avatar.speaking{box-shadow:0 0 0 3px #9b87ff,0 0 18px rgba(124,106,247,.95);transition:box-shadow .08s}.avatar{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#7c6af7,#4033a8);display:flex;align-items:center;justify-content:center;font-weight:900;position:relative}.dot{position:absolute;width:11px;height:11px;border-radius:50%;background:#35c46a;border:2px solid #15151f;right:-1px;bottom:0}.member-name{font-weight:700;font-size:14px}.member-state{font-size:11px;color:#777;margin-top:2px}.streams{padding:8px 12px 14px;margin-top:8px}
+.stream-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.streams-title{margin-bottom:5px}
+.stream-tile{min-width:0}
+.stream-thumb{height:72px!important}
+.stream-info{padding:6px 7px!important}
+.stream-name{font-size:11px!important;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.stream-help{font-size:9px!important}
+.audio-menu{position:fixed;display:none;z-index:9999;width:285px;background:#171725;border:1px solid #3b3b55;border-radius:12px;box-shadow:0 16px 45px #000b;padding:12px}
+.audio-menu.show{display:block}
+.audio-menu-title{font-size:12px;font-weight:800;color:#aaa;margin-bottom:10px}
+.audio-row{display:grid;grid-template-columns:30px 1fr 42px;gap:8px;align-items:center;margin:10px 0}
+.audio-row button{min-width:30px!important;padding:6px!important}
+.audio-row input{width:100%;padding:0;height:auto;accent-color:#7c6af7}
+.audio-value{text-align:right;font-size:11px;color:#ddd}
+.audio-label{font-size:11px;color:#999;margin-top:10px}.streams-title{font-size:11px;color:#777;text-transform:uppercase;font-weight:800;padding:6px 8px}.stream-tile{display:none;border:1px solid #313145;background:#20202c;border-radius:10px;overflow:hidden;cursor:pointer;transition:.15s}.stream-tile:hover{border-color:#7c6af7;background:#262638}.stream-thumb{height:105px;background:#07070c;position:relative;overflow:hidden}.stream-thumb video{width:100%;height:100%;object-fit:cover}.live{position:absolute;left:7px;bottom:7px;background:#e23b4d;color:#fff;border-radius:4px;padding:3px 6px;font-size:9px;font-weight:900}.stream-info{padding:8px 10px}.stream-name{font-size:12px;font-weight:800}.stream-help{font-size:10px;color:#888;margin-top:3px}.streams .stream-tile{display:none;border:1px solid #313145;background:#20202c;border-radius:9px;overflow:hidden;cursor:pointer;transition:.15s}
+.streams .stream-tile:hover{border-color:#7c6af7}
+.streams .stream-thumb{height:72px}
+.sidebar-room{padding:14px;border-top:1px solid #292942;font-size:12px;color:#888}
 .main-call{display:flex;flex-direction:column;min-width:0}.topbar{height:64px;padding:0 18px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #232334;background:#101019}.stage{flex:1;margin:18px;background:#07070c;border:1px solid #23233a;border-radius:16px;min-height:430px;display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative}.stage video{width:100%;height:100%;max-height:620px;object-fit:contain;background:#050507}.empty{text-align:center;color:#777;padding:30px}.empty b{display:block;color:#aaa;font-size:18px;margin-bottom:7px}.empty span{font-size:13px;line-height:1.5}#mainStream:fullscreen{width:100vw!important;height:100vh!important;max-height:none!important;object-fit:cover!important;background:#000!important}
 #mainStream:-webkit-full-screen{width:100vw!important;height:100vh!important;max-height:none!important;object-fit:cover!important;background:#000!important}
 .volume-box{display:flex;align-items:center;gap:8px;background:#202034;border:1px solid #343450;border-radius:9px;padding:8px 12px;color:#bbb;font-size:12px}
@@ -39,14 +57,16 @@
     </div>
     <div class="streams">
       <div class="streams-title">Transmissões</div>
-      <div class="stream-tile" id="streamTile" onclick="abrirTransmissao()">
-        <div class="stream-thumb">
-          <video id="streamPreview" autoplay muted playsinline></video>
-          <div class="live">AO VIVO</div>
-        </div>
-        <div class="stream-info">
-          <div class="stream-name" id="streamName">Transmissão</div>
-          <div class="stream-help">Clique para assistir</div>
+      <div class="stream-list">
+        <div class="stream-tile" id="streamTile" onclick="abrirTransmissao()" oncontextmenu="abrirMenuAudio(event)">
+          <div class="stream-thumb">
+            <video id="streamPreview" autoplay muted playsinline></video>
+            <div class="live">AO VIVO</div>
+          </div>
+          <div class="stream-info">
+            <div class="stream-name" id="streamName">Transmissão</div>
+            <div class="stream-help">Clique • botão direito = áudio</div>
+          </div>
         </div>
       </div>
     </div>
@@ -73,20 +93,26 @@
       <button class="secondary" onclick="pararTela()">⏹ Parar tela</button>
       <button class="secondary" onclick="telaCheia()">⛶ Tela cheia</button>
       <button class="secondary" id="btnAjusteTela" onclick="alternarAjusteTela()">▣ Preencher</button>
-      <div class="volume-box" title="Volume da voz do amigo">
-        🎙️
-        <button class="secondary" id="muteAmigo" style="padding:5px 7px;min-width:auto" onclick="mutarAmigo()">🔊</button>
-        <input id="volumeAmigo" type="range" min="0" max="100" value="100" oninput="mudarVolumeAmigo(this.value)">
-        <span class="volume-num" id="volumeAmigoNum">100%</span>
-      </div>
-      <div class="volume-box" title="Volume do áudio da transmissão">
-        🖥️
-        <button class="secondary" id="muteTransmissao" style="padding:5px 7px;min-width:auto" onclick="mutarTransmissao()">🔊</button>
-        <input id="volumeTransmissao" type="range" min="0" max="100" value="100" oninput="mudarVolumeTransmissao(this.value)">
-        <span class="volume-num" id="volumeTransmissaoNum">100%</span>
-      </div>
       <button class="danger" onclick="sairSala()">📞 Sair</button>
     </div>
+  </div>
+</div>
+
+<div class="audio-menu" id="audioMenu" onclick="event.stopPropagation()">
+  <div class="audio-menu-title">Áudio</div>
+
+  <div class="audio-label">🎙️ Voz do amigo</div>
+  <div class="audio-row">
+    <button class="secondary" id="muteAmigo" onclick="mutarAmigo()">🔊</button>
+    <input id="volumeAmigo" type="range" min="0" max="100" value="100" oninput="mudarVolumeAmigo(this.value)">
+    <span class="audio-value" id="volumeAmigoNum">100%</span>
+  </div>
+
+  <div class="audio-label">🖥️ Áudio da transmissão</div>
+  <div class="audio-row">
+    <button class="secondary" id="muteTransmissao" onclick="mutarTransmissao()">🔊</button>
+    <input id="volumeTransmissao" type="range" min="0" max="100" value="100" oninput="mudarVolumeTransmissao(this.value)">
+    <span class="audio-value" id="volumeTransmissaoNum">100%</span>
   </div>
 </div>
 </section></main>
@@ -166,7 +192,8 @@ function erroLobby(e){
 let videoSender=null;
 let micSender=null;
 let screenAudioSender=null;
-let audioTrackRecebidos=0;
+let micTransceiver=null;
+let screenAudioTransceiver=null;
 
 function mostrarTransmissaoRemota(stream){
   remoteScreenWanted=true;
@@ -298,35 +325,39 @@ async function setup(){
 
   const micTrack=micStream.getAudioTracks()[0];
   micSender=pc.addTrack(micTrack,micStream);
+  micTransceiver=pc.getTransceivers().find(t=>t.sender===micSender)||null;
   detectorVoz(micStream,document.getElementById('myAvatar'));
 
-  // Dois canais reservados desde o início: áudio da transmissão e vídeo da tela.
-  screenAudioSender=pc.addTransceiver('audio',{direction:'sendrecv'}).sender;
+  // Canais independentes: voz, áudio da transmissão e vídeo.
+  screenAudioTransceiver=pc.addTransceiver('audio',{direction:'sendrecv'});
+  screenAudioSender=screenAudioTransceiver.sender;
   videoSender=pc.addTransceiver('video',{direction:'sendrecv'}).sender;
-
-  audioTrackRecebidos=0;
   remoteVideoTrack=null;
   remoteStreamAtual=null;
   remoteScreenWanted=false;
 
   pc.ontrack=e=>{
     if(e.track.kind==='audio'){
-      audioTrackRecebidos++;
+      const isMic = micTransceiver && e.transceiver===micTransceiver;
+      const isScreen = screenAudioTransceiver && e.transceiver===screenAudioTransceiver;
 
-      if(audioTrackRecebidos===1){
+      if(isMic || !isScreen){
         const a=document.getElementById('remoteMicAudio');
         a.srcObject=new MediaStream([e.track]);
         a.volume=(Number(document.getElementById('volumeAmigo')?.value||100))/100;
-        a.muted=false;
+        a.muted=document.getElementById('muteAmigo')?.dataset.muted==='1';
         a.play().catch(()=>{});
+
         const outro=[...document.querySelectorAll('#roomMembers .member')]
-        .find(el=>el.dataset.uid && el.dataset.uid!==auth.currentUser?.uid);
-      if(outro) detectorVoz(new MediaStream([e.track]),outro.querySelector('.avatar'));
-      }else{
+          .find(el=>el.dataset.uid && el.dataset.uid!==auth.currentUser?.uid);
+        if(outro) detectorVoz(new MediaStream([e.track]),outro.querySelector('.avatar'));
+      }
+
+      if(isScreen){
         const a=document.getElementById('remoteScreenAudio');
         a.srcObject=new MediaStream([e.track]);
         a.volume=(Number(document.getElementById('volumeTransmissao')?.value||100))/100;
-        a.muted=false;
+        a.muted=document.getElementById('muteTransmissao')?.dataset.muted==='1';
         a.play().catch(()=>{});
       }
     }
@@ -881,6 +912,32 @@ window.telaCheia=async()=>{
 
 
 
+window.abrirMenuAudio=(e)=>{
+  e.preventDefault();
+  e.stopPropagation();
+  const menu=document.getElementById('audioMenu');
+  menu.classList.add('show');
+
+  const margem=10;
+  const w=285;
+  const h=190;
+  let x=e.clientX, y=e.clientY;
+  if(x+w>window.innerWidth-margem) x=window.innerWidth-w-margem;
+  if(y+h>window.innerHeight-margem) y=window.innerHeight-h-margem;
+
+  menu.style.left=Math.max(margem,x)+'px';
+  menu.style.top=Math.max(margem,y)+'px';
+};
+
+function fecharMenuAudio(){
+  document.getElementById('audioMenu')?.classList.remove('show');
+}
+document.addEventListener('click',fecharMenuAudio);
+window.addEventListener('blur',fecharMenuAudio);
+document.addEventListener('contextmenu',e=>{
+  if(!e.target.closest('#streamTile')) fecharMenuAudio();
+});
+
 window.mudarVolumeAmigo=(valor)=>{
   const a=document.getElementById('remoteMicAudio');
   const v=Math.max(0,Math.min(100,Number(valor)))/100;
@@ -895,13 +952,19 @@ window.mudarVolumeTransmissao=(valor)=>{
 };
 window.mutarAmigo=()=>{
   const a=document.getElementById('remoteMicAudio');
-  a.muted=!a.muted;
-  document.getElementById('muteAmigo').textContent=a.muted?'🔇':'🔊';
+  const b=document.getElementById('muteAmigo');
+  const novo=b.dataset.muted!=='1';
+  b.dataset.muted=novo?'1':'0';
+  a.muted=novo;
+  b.textContent=novo?'🔇':'🔊';
 };
 window.mutarTransmissao=()=>{
   const a=document.getElementById('remoteScreenAudio');
-  a.muted=!a.muted;
-  document.getElementById('muteTransmissao').textContent=a.muted?'🔇':'🔊';
+  const b=document.getElementById('muteTransmissao');
+  const novo=b.dataset.muted!=='1';
+  b.dataset.muted=novo?'1':'0';
+  a.muted=novo;
+  b.textContent=novo?'🔇':'🔊';
 };
 
 document.addEventListener('click',()=>{
