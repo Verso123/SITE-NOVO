@@ -85,6 +85,23 @@ header{
 
 /* RIGHT MEMBERS */
 .members-panel{background:#111119;border-left:1px solid var(--line);display:flex;flex-direction:column;min-height:0}
+.right-tabs{display:grid;grid-template-columns:1fr 1fr;border-bottom:1px solid var(--line)}
+.right-tab{border:0;background:#111119;color:#777;padding:11px 8px;font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.5px}
+.right-tab.active{background:#181824;color:#fff;box-shadow:inset 0 -2px 0 var(--purple)}
+.right-view{display:none;min-height:0;flex:1}.right-view.active{display:flex;flex-direction:column}
+.chat-messages{flex:1;overflow:auto;padding:10px;display:flex;flex-direction:column;gap:8px}
+.chat-msg{display:grid;grid-template-columns:30px 1fr;gap:8px;padding:5px;border-radius:7px}
+.chat-msg:hover{background:#181824}
+.chat-avatar{width:30px;height:30px;border-radius:50%;background:#6657df;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:900;overflow:hidden}
+.chat-avatar img{width:100%;height:100%;object-fit:cover}
+.chat-head{display:flex;align-items:baseline;gap:6px}.chat-name{font-size:10px;font-weight:900}.chat-time{font-size:8px;color:#666}
+.chat-text{font-size:10px;line-height:1.45;color:#c9c9d2;word-break:break-word;margin-top:2px}
+.chat-compose{border-top:1px solid var(--line);padding:9px;background:#0e0e16}
+.chat-compose-row{display:flex;gap:6px}
+.chat-compose input{flex:1;background:#171724;border:1px solid #303044;color:#eee;border-radius:7px;padding:8px 9px;font-size:10px}
+.chat-send{border:0;background:var(--purple);color:#fff;border-radius:7px;padding:8px 10px;font-weight:900}
+.chat-empty{font-size:10px;color:#666;text-align:center;padding:20px 8px}
+.chat-titlebar{padding:9px 10px;border-bottom:1px solid var(--line);font-size:10px;color:#777}
 .members{padding:10px;overflow:auto;flex:1}
 .member{display:flex;align-items:center;gap:9px;padding:8px;border-radius:7px;cursor:default}
 .member[data-remote="1"]{cursor:pointer}.member[data-remote="1"]:hover{background:#20202d}
@@ -183,7 +200,7 @@ header{
       <div class="room-nav-item" id="nav-sala3" onclick="trocarSala('sala3')"><span class="hash">🔊</span><span>Sala 3</span><span class="room-users" id="side-users-sala3" style="margin-left:auto"></span></div>
       <div class="room-nav-item" id="nav-sala4" onclick="trocarSala('sala4')"><span class="hash">🔊</span><span>Sala 4</span><span class="room-users" id="side-users-sala4" style="margin-left:auto"></span></div>
       <div class="room-nav-item" id="nav-sala5" onclick="trocarSala('sala5')"><span class="hash">🔊</span><span>Sala 5</span><span class="room-users" id="side-users-sala5" style="margin-left:auto"></span></div>
-      <div class="room-nav-item"><span class="hash">#</span> chat-geral <span style="margin-left:auto;color:#555">em breve</span></div>
+      <div class="room-nav-item" onclick="abrirChat()"><span class="hash">#</span> chat-geral <span style="margin-left:auto;color:#7c6af7">abrir</span></div>
     </div>
 
     <div class="streams">
@@ -256,13 +273,33 @@ header{
   </div>
 
   <aside class="members-panel">
-    <div class="channel">
-      <div class="channel-title">Participantes</div>
-      <div class="channel-sub">Clique em alguém para ajustar o volume</div>
+    <div class="right-tabs">
+      <button class="right-tab active" id="tabMembers" onclick="mostrarPainelDireito('members')">Participantes</button>
+      <button class="right-tab" id="tabChat" onclick="mostrarPainelDireito('chat')">Chat</button>
     </div>
-    <div class="members">
-      <div class="members-title">Na chamada</div>
-      <div id="roomMembers"><div class="member empty-member">Ninguém conectado ainda.</div></div>
+
+    <div class="right-view active" id="viewMembers">
+      <div class="channel">
+        <div class="channel-title">Participantes</div>
+        <div class="channel-sub">Clique em alguém para ajustar o volume</div>
+      </div>
+      <div class="members">
+        <div class="members-title">Na chamada</div>
+        <div id="roomMembers"><div class="member empty-member">Ninguém conectado ainda.</div></div>
+      </div>
+    </div>
+
+    <div class="right-view" id="viewChat">
+      <div class="chat-titlebar"># chat-geral</div>
+      <div class="chat-messages" id="chatMessages">
+        <div class="chat-empty">Nenhuma mensagem ainda.</div>
+      </div>
+      <div class="chat-compose">
+        <div class="chat-compose-row">
+          <input id="chatInput" maxlength="500" placeholder="Mensagem em #chat-geral" autocomplete="off">
+          <button class="chat-send" onclick="enviarMensagemChat()">➤</button>
+        </div>
+      </div>
     </div>
   </aside>
 
@@ -351,7 +388,7 @@ header{
 <div class="toast" id="toast"></div>
 </section></main>
 <script type="module">
-import{initializeApp}from'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';import{getAuth,onAuthStateChanged}from'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';import{getFirestore,doc,setDoc,getDoc,updateDoc,collection,addDoc,onSnapshot,getDocs,deleteDoc,runTransaction,serverTimestamp,arrayUnion}from'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+import{initializeApp}from'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';import{getAuth,onAuthStateChanged}from'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';import{getFirestore,doc,setDoc,getDoc,updateDoc,collection,addDoc,onSnapshot,getDocs,deleteDoc,runTransaction,serverTimestamp,arrayUnion,query,orderBy,limit}from'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 const cfg={apiKey:'AIzaSyAaIxroCAMOvDxg5aLUr2P8jweygemm1uM',authDomain:'lista-de-jogos-f1874.firebaseapp.com',projectId:'lista-de-jogos-f1874',storageBucket:'lista-de-jogos-f1874.firebasestorage.app',messagingSenderId:'692334284655',appId:'1:692334284655:web:a55db647b5f8b39d00a29a'};const app=initializeApp(cfg),auth=getAuth(app),db=getFirestore(app);let pc,micStream,screenStream,roomId,isHost=false,unsubs=[];const remote=document.getElementById('remote'),status=document.getElementById('status'),streamPreview=document.getElementById('streamPreview'),mainStream=document.getElementById('mainStream');let remoteStreamAtual=null;
 let screenPc=null;
 let screenSignalUnsub=null;
@@ -1786,6 +1823,122 @@ function detectarMudancasMembros(usuarios){
 
   membrosAnteriores=atuais;
 }
+
+
+let chatUnsub=null;
+let chatCarregado=false;
+
+function escaparHtml(s){
+  return String(s??'').replace(/[&<>"']/g,c=>({
+    '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'
+  }[c]));
+}
+
+function horarioChat(v){
+  if(!v)return '';
+  try{
+    const d=typeof v.toDate==='function'?v.toDate():new Date(v);
+    return d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+  }catch(_){return ''}
+}
+
+function avatarChatHTML(msg){
+  const foto=msg.fotoURL||'';
+  if(foto)return `<img src="${escaparHtml(foto)}" alt="">`;
+  return iniciais(msg.nome||'Usuário');
+}
+
+function renderChat(docs){
+  const box=document.getElementById('chatMessages');
+  if(!box)return;
+
+  if(!docs.length){
+    box.innerHTML='<div class="chat-empty">Nenhuma mensagem ainda.</div>';
+    return;
+  }
+
+  box.innerHTML=docs.map(d=>{
+    const m=d.data();
+    return `<div class="chat-msg">
+      <div class="chat-avatar">${avatarChatHTML(m)}</div>
+      <div>
+        <div class="chat-head">
+          <span class="chat-name">${escaparHtml(m.nome||'Usuário')}</span>
+          <span class="chat-time">${horarioChat(m.criadoEm)}</span>
+        </div>
+        <div class="chat-text">${escaparHtml(m.texto||'')}</div>
+      </div>
+    </div>`;
+  }).join('');
+
+  box.scrollTop=box.scrollHeight;
+}
+
+function iniciarChat(){
+  if(chatCarregado)return;
+  chatCarregado=true;
+
+  const ref=collection(db,'chats','geral','mensagens');
+  const q=query(ref,orderBy('criadoEm','asc'),limit(80));
+
+  chatUnsub=onSnapshot(q,s=>{
+    renderChat(s.docs);
+  },e=>{
+    console.error('Chat:',e);
+    const box=document.getElementById('chatMessages');
+    if(box)box.innerHTML='<div class="chat-empty">Não foi possível carregar o chat.</div>';
+  });
+}
+
+window.mostrarPainelDireito=(qual)=>{
+  const members=qual==='members';
+  document.getElementById('tabMembers')?.classList.toggle('active',members);
+  document.getElementById('tabChat')?.classList.toggle('active',!members);
+  document.getElementById('viewMembers')?.classList.toggle('active',members);
+  document.getElementById('viewChat')?.classList.toggle('active',!members);
+
+  if(!members){
+    iniciarChat();
+    setTimeout(()=>document.getElementById('chatInput')?.focus(),50);
+  }
+};
+
+window.abrirChat=()=>{
+  mostrarPainelDireito('chat');
+};
+
+window.enviarMensagemChat=async()=>{
+  const input=document.getElementById('chatInput');
+  const texto=input?.value?.trim();
+  if(!texto || !auth.currentUser)return;
+
+  try{
+    input.disabled=true;
+
+    await addDoc(collection(db,'chats','geral','mensagens'),{
+      uid:auth.currentUser.uid,
+      nome:meuPerfilAtual.nome||auth.currentUser.displayName||'Usuário',
+      fotoURL:meuPerfilAtual.fotoURL||'',
+      texto:texto.slice(0,500),
+      criadoEm:serverTimestamp()
+    });
+
+    input.value='';
+  }catch(e){
+    console.error(e);
+    mostrarToast('Não foi possível enviar a mensagem');
+  }finally{
+    input.disabled=false;
+    input.focus();
+  }
+};
+
+document.addEventListener('keydown',e=>{
+  if(e.target?.id==='chatInput' && e.key==='Enter' && !e.shiftKey){
+    e.preventDefault();
+    enviarMensagemChat();
+  }
+});
 
 function mostrarToast(texto){
   const t=document.getElementById('toast');
