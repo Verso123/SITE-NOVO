@@ -1,5 +1,9 @@
 <!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Sala — Voz e Tela</title><style>
-*{box-sizing:border-box}body{margin:0;font-family:'Segoe UI',sans-serif;background:#090910;color:#eee;min-height:100vh}header{height:70px;padding:0 24px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #24243a;background:#11111d}a{color:#aaa;text-decoration:none}.app{max-width:1240px;margin:auto;padding:28px 20px}.panel{background:#131322;border:1px solid #292942;border-radius:18px;padding:24px}.join{display:grid;grid-template-columns:1fr auto auto;gap:10px}.fixed-rooms{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}.fixed-rooms button{padding:18px;text-align:left;font-size:16px;background:#171727;border:1px solid #343450}.fixed-rooms button:hover{border-color:#7c6af7;background:#202034}@media(max-width:620px){.fixed-rooms{grid-template-columns:1fr}}input,button{border-radius:9px;border:1px solid #343450;padding:12px 14px;font-size:14px}input{background:#0d0d18;color:#fff}button{background:#7c6af7;color:#fff;font-weight:700;cursor:pointer}button:disabled{opacity:.55;cursor:not-allowed}button.secondary{background:#202034;color:#bbb}button.danger{background:#3a1418;color:#ff9a9a;border-color:#61252b}.status{color:#999;font-size:13px}.room{display:none}.code{color:#a99cff;font-weight:800}.hint{font-size:12px;color:#666;margin-top:12px;line-height:1.5}
+*{box-sizing:border-box}body{margin:0;font-family:'Segoe UI',sans-serif;background:#090910;color:#eee;min-height:100vh}header{height:70px;padding:0 24px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #24243a;background:#11111d}a{color:#aaa;text-decoration:none}.app{max-width:1240px;margin:auto;padding:28px 20px}.panel{background:#131322;border:1px solid #292942;border-radius:18px;padding:24px}.join{display:grid;grid-template-columns:1fr auto auto;gap:10px}.fixed-rooms{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}.fixed-rooms button{padding:18px;text-align:left;font-size:16px;background:#171727;border:1px solid #343450;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.room-users{display:flex;gap:6px;align-items:center;min-height:28px}
+.room-user{width:28px;height:28px;border-radius:50%;background:#6657df;border:2px solid #8174f2;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:900;color:#fff;overflow:hidden}
+.room-user img{width:100%;height:100%;object-fit:cover}
+.room-empty{font-size:11px;color:#666;font-weight:600}.fixed-rooms button:hover{border-color:#7c6af7;background:#202034}@media(max-width:620px){.fixed-rooms{grid-template-columns:1fr}}input,button{border-radius:9px;border:1px solid #343450;padding:12px 14px;font-size:14px}input{background:#0d0d18;color:#fff}button{background:#7c6af7;color:#fff;font-weight:700;cursor:pointer}button:disabled{opacity:.55;cursor:not-allowed}button.secondary{background:#202034;color:#bbb}button.danger{background:#3a1418;color:#ff9a9a;border-color:#61252b}.status{color:#999;font-size:13px}.room{display:none}.code{color:#a99cff;font-weight:800}.hint{font-size:12px;color:#666;margin-top:12px;line-height:1.5}
 .call-shell{display:grid;grid-template-columns:250px 1fr;min-height:650px;background:#0c0c14;border:1px solid #292942;border-radius:18px;overflow:hidden}.sidebar{background:#15151f;border-right:1px solid #292942;display:flex;flex-direction:column}.channel{padding:18px;border-bottom:1px solid #292942}.channel-title{font-weight:800;font-size:16px}.channel-sub{font-size:12px;color:#777;margin-top:4px}.members{padding:12px;flex:1}.members-title{font-size:11px;color:#777;text-transform:uppercase;font-weight:800;padding:6px 8px}.member{display:flex;align-items:center;gap:10px;padding:10px 8px;border-radius:8px}.member:hover{background:#20202c}.avatar.speaking{box-shadow:0 0 0 3px #9b87ff,0 0 18px rgba(124,106,247,.95);transition:box-shadow .08s}.avatar{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#7c6af7,#4033a8);display:flex;align-items:center;justify-content:center;font-weight:900;position:relative}.dot{position:absolute;width:11px;height:11px;border-radius:50%;background:#35c46a;border:2px solid #15151f;right:-1px;bottom:0}.member-name{font-weight:700;font-size:14px}.member-state{font-size:11px;color:#777;margin-top:2px}.streams{padding:0 12px 14px}.streams-title{font-size:11px;color:#777;text-transform:uppercase;font-weight:800;padding:6px 8px}.stream-tile{display:none;border:1px solid #313145;background:#20202c;border-radius:10px;overflow:hidden;cursor:pointer;transition:.15s}.stream-tile:hover{border-color:#7c6af7;background:#262638}.stream-thumb{height:105px;background:#07070c;position:relative;overflow:hidden}.stream-thumb video{width:100%;height:100%;object-fit:cover}.live{position:absolute;left:7px;bottom:7px;background:#e23b4d;color:#fff;border-radius:4px;padding:3px 6px;font-size:9px;font-weight:900}.stream-info{padding:8px 10px}.stream-name{font-size:12px;font-weight:800}.stream-help{font-size:10px;color:#888;margin-top:3px}.sidebar-room{padding:14px;border-top:1px solid #292942;font-size:12px;color:#888}
 .main-call{display:flex;flex-direction:column;min-width:0}.topbar{height:64px;padding:0 18px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #232334;background:#101019}.stage{flex:1;margin:18px;background:#07070c;border:1px solid #23233a;border-radius:16px;min-height:430px;display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative}.stage video{width:100%;height:100%;max-height:620px;object-fit:contain;background:#050507}.empty{text-align:center;color:#777;padding:30px}.empty b{display:block;color:#aaa;font-size:18px;margin-bottom:7px}.empty span{font-size:13px;line-height:1.5}#mainStream:fullscreen{width:100vw!important;height:100vh!important;max-height:none!important;object-fit:cover!important;background:#000!important}
 #mainStream:-webkit-full-screen{width:100vw!important;height:100vh!important;max-height:none!important;object-fit:cover!important;background:#000!important}
@@ -12,11 +16,11 @@
   <p class="status" style="margin-bottom:20px">Escolha uma das salas fixas.</p>
 
   <div class="fixed-rooms">
-    <button onclick="entrarSalaFixa('sala1')">🔊 Sala 1</button>
-    <button onclick="entrarSalaFixa('sala2')">🔊 Sala 2</button>
-    <button onclick="entrarSalaFixa('sala3')">🔊 Sala 3</button>
-    <button onclick="entrarSalaFixa('sala4')">🔊 Sala 4</button>
-    <button onclick="entrarSalaFixa('sala5')">🔊 Sala 5</button>
+    <button id="roomBtn-sala1" onclick="entrarSalaFixa('sala1')"><span>🔊 Sala 1</span><span class="room-users" id="users-sala1"></span></button>
+    <button id="roomBtn-sala2" onclick="entrarSalaFixa('sala2')"><span>🔊 Sala 2</span><span class="room-users" id="users-sala2"></span></button>
+    <button id="roomBtn-sala3" onclick="entrarSalaFixa('sala3')"><span>🔊 Sala 3</span><span class="room-users" id="users-sala3"></span></button>
+    <button id="roomBtn-sala4" onclick="entrarSalaFixa('sala4')"><span>🔊 Sala 4</span><span class="room-users" id="users-sala4"></span></button>
+    <button id="roomBtn-sala5" onclick="entrarSalaFixa('sala5')"><span>🔊 Sala 5</span><span class="room-users" id="users-sala5"></span></button>
   </div>
 
   <div id="lobbyErro" style="display:none;margin-top:14px;padding:12px 14px;border-radius:9px;background:#321116;border:1px solid #66252e;color:#ff9a9a;font-size:13px;line-height:1.5"></div>
@@ -93,9 +97,15 @@
 </section></main>
 <script type="module">
 import{initializeApp}from'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';import{getAuth,onAuthStateChanged}from'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';import{getFirestore,doc,setDoc,getDoc,updateDoc,collection,addDoc,onSnapshot,getDocs,deleteDoc,runTransaction}from'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
-const cfg={apiKey:'AIzaSyAaIxroCAMOvDxg5aLUr2P8jweygemm1uM',authDomain:'lista-de-jogos-f1874.firebaseapp.com',projectId:'lista-de-jogos-f1874',storageBucket:'lista-de-jogos-f1874.firebasestorage.app',messagingSenderId:'692334284655',appId:'1:692334284655:web:a55db647b5f8b39d00a29a'};const app=initializeApp(cfg),auth=getAuth(app),db=getFirestore(app);let pc,micStream,screenStream,roomId,isHost=false,unsubs=[];const remote=document.getElementById('remote'),status=document.getElementById('status'),streamPreview=document.getElementById('streamPreview'),mainStream=document.getElementById('mainStream');let remoteStreamAtual=null;let sessionId=null;let heartbeatTimer=null;
+const cfg={apiKey:'AIzaSyAaIxroCAMOvDxg5aLUr2P8jweygemm1uM',authDomain:'lista-de-jogos-f1874.firebaseapp.com',projectId:'lista-de-jogos-f1874',storageBucket:'lista-de-jogos-f1874.firebasestorage.app',messagingSenderId:'692334284655',appId:'1:692334284655:web:a55db647b5f8b39d00a29a'};const app=initializeApp(cfg),auth=getAuth(app),db=getFirestore(app);let pc,micStream,screenStream,roomId,isHost=false,unsubs=[];const remote=document.getElementById('remote'),status=document.getElementById('status'),streamPreview=document.getElementById('streamPreview'),mainStream=document.getElementById('mainStream');let remoteStreamAtual=null;
+let fixedRoomKey=null;
+let sessionId=null;
+let presenceTimer=null;
+let remoteVideoTrack=null;
+let remoteScreenWanted=false;
 onAuthStateChanged(auth,u=>{
-      if(!u){ location.href='login.html'; return; }
+      if(!u){location.href='login.html';return}
+      observarSalas();
     });const NOMES_SALAS={sala1:'Sala 1',sala2:'Sala 2',sala3:'Sala 3',sala4:'Sala 4',sala5:'Sala 5'};
 const rtc={iceServers:[{urls:['stun:stun.l.google.com:19302','stun:stun1.l.google.com:19302']}]};
 function erroLobby(e){
@@ -137,294 +147,283 @@ function erroLobby(e){
     console.warn('Detector de voz indisponível:',e);
   }
 }
-function criarAudioSilencioso(){
-  const AudioCtx=window.AudioContext||window.webkitAudioContext;
-  silentAudioCtx=new AudioCtx();
-  const dest=silentAudioCtx.createMediaStreamDestination();
-  const osc=silentAudioCtx.createOscillator();
-  const gain=silentAudioCtx.createGain();
-  gain.gain.value=0;
-  osc.connect(gain).connect(dest);
-  osc.start();
-  silentAudioTrack=dest.stream.getAudioTracks()[0];
-  return {track:silentAudioTrack,stream:dest.stream};
-}
-
-function criarVideoVazio(){
-  const canvas=document.createElement('canvas');
-  canvas.width=16; canvas.height=16;
-  const ctx=canvas.getContext('2d');
-  ctx.fillStyle='#000'; ctx.fillRect(0,0,16,16);
-  const stream=canvas.captureStream(1);
-  const track=stream.getVideoTracks()[0];
-  track.enabled=true;
-  return {stream,track};
-}
-
 let videoSender=null;
-let dummyVideo=null;
 let micSender=null;
 let screenAudioSender=null;
-let silentAudioCtx=null;
-let silentAudioTrack=null;
 let audioTrackRecebidos=0;
 
 function mostrarTransmissaoRemota(stream){
-  if(!stream) return;
-  remoteStreamAtual=stream;
+  remoteScreenWanted=true;
+  if(!stream || !remoteVideoTrack || remoteVideoTrack.muted) return;
   streamPreview.srcObject=stream;
   document.getElementById('streamName').textContent='Amigo está transmitindo';
   document.getElementById('streamTile').style.display='block';
   status.textContent='Transmissão disponível';
 }
-
 function esconderTransmissaoRemota(){
+  remoteScreenWanted=false;
   if(screenStream) return;
   streamPreview.srcObject=null;
   document.getElementById('streamTile').style.display='none';
   fecharTransmissao();
 }
-async function setup(){pc=new RTCPeerConnection(rtc);micStream=await navigator.mediaDevices.getUserMedia({audio:true,video:false});const micTrack=micStream.getAudioTracks()[0];
-micSender=pc.addTrack(micTrack,micStream);
-detectorVoz(micStream,document.getElementById('myAvatar'));
+async function setup(){
+  pc=new RTCPeerConnection(rtc);
+  micStream=await navigator.mediaDevices.getUserMedia({audio:true,video:false});
 
-const silent=criarAudioSilencioso();
-screenAudioSender=pc.addTrack(silent.track,silent.stream);
+  const micTrack=micStream.getAudioTracks()[0];
+  micSender=pc.addTrack(micTrack,micStream);
+  detectorVoz(micStream,document.getElementById('myAvatar'));
 
-dummyVideo=criarVideoVazio();
-videoSender=pc.addTrack(dummyVideo.track,dummyVideo.stream);pc.ontrack=e=>{
-  if(e.track.kind==='audio'){
-    audioTrackRecebidos++;
+  // Dois canais reservados desde o início: áudio da transmissão e vídeo da tela.
+  screenAudioSender=pc.addTransceiver('audio',{direction:'sendrecv'}).sender;
+  videoSender=pc.addTransceiver('video',{direction:'sendrecv'}).sender;
 
-    if(audioTrackRecebidos===1){
-      const micAudio=document.getElementById('remoteMicAudio');
-      micAudio.srcObject=new MediaStream([e.track]);
-      micAudio.volume=(Number(document.getElementById('volumeAmigo')?.value||100))/100;
-      micAudio.muted=false;
-      micAudio.play().catch(()=>{});
-      detectorVoz(new MediaStream([e.track]),document.getElementById('friendAvatar'));
-    }else{
-      const screenAudio=document.getElementById('remoteScreenAudio');
-      screenAudio.srcObject=new MediaStream([e.track]);
-      screenAudio.volume=(Number(document.getElementById('volumeTransmissao')?.value||100))/100;
-      screenAudio.muted=false;
-      screenAudio.play().catch(()=>{});
+  audioTrackRecebidos=0;
+  remoteVideoTrack=null;
+  remoteStreamAtual=null;
+  remoteScreenWanted=false;
+
+  pc.ontrack=e=>{
+    if(e.track.kind==='audio'){
+      audioTrackRecebidos++;
+
+      if(audioTrackRecebidos===1){
+        const a=document.getElementById('remoteMicAudio');
+        a.srcObject=new MediaStream([e.track]);
+        a.volume=(Number(document.getElementById('volumeAmigo')?.value||100))/100;
+        a.muted=false;
+        a.play().catch(()=>{});
+        detectorVoz(new MediaStream([e.track]),document.getElementById('friendAvatar'));
+      }else{
+        const a=document.getElementById('remoteScreenAudio');
+        a.srcObject=new MediaStream([e.track]);
+        a.volume=(Number(document.getElementById('volumeTransmissao')?.value||100))/100;
+        a.muted=false;
+        a.play().catch(()=>{});
+      }
     }
-  }
 
-  if(e.track.kind==='video'){
-    remoteStreamAtual=new MediaStream([e.track]);
-  }
-};pc.onconnectionstatechange=()=>status.textContent='Conexão: '+pc.connectionState;}
+    if(e.track.kind==='video'){
+      remoteVideoTrack=e.track;
+      remoteStreamAtual=new MediaStream([e.track]);
+
+      e.track.onunmute=()=>{
+        if(remoteScreenWanted) mostrarTransmissaoRemota(remoteStreamAtual);
+      };
+      e.track.onmute=()=>{
+        if(!screenStream) esconderTransmissaoRemota();
+      };
+    }
+  };
+
+  pc.onconnectionstatechange=()=>{
+    status.textContent='Conexão: '+pc.connectionState;
+    if(pc.connectionState==='connected'){
+      const fs=document.querySelector('#friendAvatar + div .member-state');
+      if(fs)fs.textContent='🎙️ Conectado';
+    }
+  };
+}
 function show(){
   document.getElementById('lobby').style.display='none';
   document.getElementById('room').style.display='block';
-  const nome=NOMES_SALAS[roomId]||roomId;
+  const nome=NOMES_SALAS[fixedRoomKey]||fixedRoomKey||'Sala';
   document.getElementById('roomCode').textContent=nome;
   const side=document.getElementById('sideRoomCode'); if(side) side.textContent=nome;
 }
 function gen(){return Math.random().toString(36).slice(2,8).toUpperCase()}
-
-function novaSessaoId(){
-  return Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,10);
+function iniciais(nome){
+  return String(nome||'?').trim().split(/\s+/).slice(0,2).map(x=>x[0]).join('').toUpperCase();
 }
 
-function candidatoDaSessao(data){
-  return data && data.sessionId===sessionId;
-}
+function renderUsuariosSala(id,d){
+  const el=document.getElementById('users-'+id);
+  if(!el)return;
+  const users=[];
+  const agora=Date.now();
 
-async function iniciarHeartbeat(r){
-  if(heartbeatTimer) clearInterval(heartbeatTimer);
-  if(!isHost) return;
-  const bater=async()=>{
-    try{
-      const snap=await getDoc(r);
-      const d=snap.data();
-      if(!d || d.sessionId!==sessionId || d.hostUid!==auth.currentUser?.uid){
-        clearInterval(heartbeatTimer);heartbeatTimer=null;return;
-      }
-      await updateDoc(r,{hostHeartbeat:Date.now()});
-    }catch(e){ console.warn('heartbeat',e); }
-  };
-  await bater();
-  heartbeatTimer=setInterval(bater,10000);
-}
+  if(d?.hostUid && (!d.hostSeen || agora-d.hostSeen<45000))
+    users.push({nome:d.hostName||'Usuário',foto:d.hostFoto||''});
+  if(d?.guestUid && (!d.guestSeen || agora-d.guestSeen<45000))
+    users.push({nome:d.guestName||'Usuário',foto:d.guestFoto||''});
 
-async function esperarOffer(r){
-  const inicial=await getDoc(r);
-  if(inicial.exists()){
-    const d=inicial.data();
-    if(d.sessionId===sessionId && d.offer) return d.offer;
+  if(!users.length){
+    el.innerHTML='<span class="room-empty">Vazia</span>';
+    return;
   }
-  return await new Promise((resolve,reject)=>{
-    const timeout=setTimeout(()=>{unsub();reject(new Error('A Sala não terminou de iniciar. Tente novamente.'));},12000);
-    const unsub=onSnapshot(r,s=>{
-      const d=s.data();
-      if(d?.sessionId===sessionId && d?.offer){
-        clearTimeout(timeout);unsub();resolve(d.offer);
-      }
-    },e=>{clearTimeout(timeout);unsub();reject(e);});
+
+  el.innerHTML=users.map(u=>
+    `<span class="room-user" title="${u.nome}">${u.foto?`<img src="${u.foto}" alt="">`:iniciais(u.nome)}</span>`
+  ).join('');
+}
+
+function observarSalas(){
+  ['sala1','sala2','sala3','sala4','sala5'].forEach(id=>{
+    unsubs.push(onSnapshot(doc(db,'salasFixas',id),s=>{
+      renderUsuariosSala(id,s.exists()?s.data():null);
+    }));
   });
+}
+
+async function iniciarPresenca(regRef,role){
+  if(presenceTimer)clearInterval(presenceTimer);
+  const tick=async()=>{
+    try{
+      const snap=await getDoc(regRef);
+      if(!snap.exists())return;
+      const d=snap.data();
+      if(d.sessionId!==sessionId)return;
+      if(role==='host' && d.hostUid===auth.currentUser.uid)
+        await updateDoc(regRef,{hostSeen:Date.now()});
+      if(role==='guest' && d.guestUid===auth.currentUser.uid)
+        await updateDoc(regRef,{guestSeen:Date.now()});
+    }catch(e){console.warn(e)}
+  };
+  await tick();
+  presenceTimer=setInterval(tick,12000);
+}
+
+function criarSessionId(room){
+  return room+'-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,9);
 }
 
 window.entrarSalaFixa=async(id)=>{
   limparErro();
-  roomId=id;
-  const uid=auth.currentUser?.uid;
-  if(!uid){ erroLobby(new Error('Sua sessão ainda não carregou.')); return; }
-
-  const r=doc(db,'salasVoz',roomId);
+  fixedRoomKey=id;
 
   try{
+    const user=auth.currentUser;
+    if(!user)throw new Error('Sua sessão ainda não carregou.');
+
+    let perfil={};
+    try{
+      const ps=await getDoc(doc(db,'usuarios',user.uid));
+      if(ps.exists())perfil=ps.data();
+    }catch(_){}
+
+    const nome=perfil.nome||user.displayName||user.email?.split('@')[0]||'Usuário';
+    const foto=perfil.fotoURL||'';
+    const regRef=doc(db,'salasFixas',id);
+
     const papel=await runTransaction(db,async tx=>{
-      const snap=await tx.get(r);
+      const snap=await tx.get(regRef);
       const d=snap.exists()?snap.data():null;
       const agora=Date.now();
-      const hostVivo=d?.ativo===true && d?.hostHeartbeat && (agora-d.hostHeartbeat)<30000;
 
-      // Sala vazia ou host antigo caiu: cria uma sessão nova.
-      if(!d || !hostVivo){
-        const sid=novaSessaoId();
-        tx.set(r,{
-          ativo:true,
+      const hostVivo=d?.hostUid && d?.hostSeen && (agora-d.hostSeen<45000);
+      const guestVivo=d?.guestUid && d?.guestSeen && (agora-d.guestSeen<45000);
+
+      // Sala sem host vivo: cria sessão WebRTC nova.
+      if(!hostVivo){
+        const sid=criarSessionId(id);
+        tx.set(regRef,{
           sessionId:sid,
-          hostUid:uid,
-          guestUid:null,
-          hostHeartbeat:agora,
-          criadoEm:agora,
-          offer:null,
-          answer:null,
-          hostScreenSharing:false,
-          guestScreenSharing:false
+          hostUid:user.uid,hostName:nome,hostFoto:foto,hostSeen:agora,
+          guestUid:null,guestName:null,guestFoto:null,guestSeen:0
         });
         return {role:'host',sid};
       }
 
-      // Mesmo host recarregando: reinicia a sessão para evitar ICE antigo.
-      if(d.hostUid===uid){
-        const sid=novaSessaoId();
-        tx.update(r,{
-          ativo:true,
-          sessionId:sid,
-          guestUid:null,
-          hostHeartbeat:agora,
-          criadoEm:agora,
-          offer:null,
-          answer:null,
-          hostScreenSharing:false,
-          guestScreenSharing:false
-        });
-        return {role:'host',sid};
+      // Mesmo usuário voltou à sua própria sala.
+      if(d.hostUid===user.uid){
+        return {role:'host',sid:d.sessionId};
       }
 
-      // Sala ativa com uma vaga: entra como convidado.
-      if(!d.guestUid || d.guestUid===uid){
-        tx.update(r,{guestUid:uid,answer:null,guestScreenSharing:false});
+      // Vaga de convidado.
+      if(!guestVivo || d.guestUid===user.uid){
+        tx.update(regRef,{
+          guestUid:user.uid,guestName:nome,guestFoto:foto,guestSeen:agora
+        });
         return {role:'guest',sid:d.sessionId};
       }
 
-      throw new Error('Sala cheia. Escolha outra sala.');
+      throw new Error('Sala cheia. Escolha outra.');
     });
 
-    sessionId=papel.sid;
     isHost=papel.role==='host';
+    sessionId=papel.sid;
+    roomId=sessionId; // toda sinalização usa o ID aleatório
+    const r=doc(db,'salasVoz',sessionId);
 
     await setup();
 
     if(isHost){
+      // Sessão nova ou retomada pelo mesmo host.
+      await setDoc(r,{
+        ativo:true,
+        fixedRoom:id,
+        criadoPor:user.uid,
+        criadoEm:Date.now(),
+        offer:null,
+        answer:null,
+        hostScreenSharing:false,
+        guestScreenSharing:false
+      },{merge:false});
+
       pc.onicecandidate=e=>{
-        if(e.candidate){
-          addDoc(collection(r,'hostCandidates'),{
-            ...e.candidate.toJSON(),
-            sessionId
-          }).catch(erroLobby);
-        }
+        if(e.candidate)addDoc(collection(r,'hostCandidates'),e.candidate.toJSON()).catch(erroLobby);
       };
 
       const offer=await pc.createOffer();
       await pc.setLocalDescription(offer);
-      await updateDoc(r,{
-        offer:{type:offer.type,sdp:offer.sdp},
-        answer:null,
-        hostHeartbeat:Date.now()
-      });
-
-      await iniciarHeartbeat(r);
+      await updateDoc(r,{offer:{type:offer.type,sdp:offer.sdp}});
 
       unsubs.push(onSnapshot(r,async s=>{
         const d=s.data();
-        if(!d || d.sessionId!==sessionId) return;
-        if(d.answer && !pc.currentRemoteDescription){
+        if(d?.answer && !pc.currentRemoteDescription)
           await pc.setRemoteDescription(d.answer);
-        }
-        if(d.guestScreenSharing===true) mostrarTransmissaoRemota(remoteStreamAtual);
-        if(d.guestScreenSharing===false) esconderTransmissaoRemota();
+
+        if(d?.guestScreenSharing===true) mostrarTransmissaoRemota(remoteStreamAtual);
+        if(d?.guestScreenSharing===false) esconderTransmissaoRemota();
       },erroLobby));
 
       unsubs.push(onSnapshot(collection(r,'guestCandidates'),s=>{
         s.docChanges().forEach(c=>{
-          const data=c.doc.data();
-          if(c.type==='added' && candidatoDaSessao(data)){
-            const {sessionId:_,...candidate}=data;
-            pc.addIceCandidate(candidate).catch(console.error);
-          }
+          if(c.type==='added')pc.addIceCandidate(c.doc.data()).catch(console.error);
         });
       },erroLobby));
 
+      await iniciarPresenca(regRef,'host');
       show();
       status.textContent='Aguardando alguém entrar...';
       return;
     }
 
-    // GUEST
+    // Convidado: espera a offer real da sessão.
+    const snapSessao=await getDoc(r);
+    if(!snapSessao.exists() || !snapSessao.data().offer)
+      throw new Error('A Sala está iniciando. Aguarde 2 segundos e entre novamente.');
+
     pc.onicecandidate=e=>{
-      if(e.candidate){
-        addDoc(collection(r,'guestCandidates'),{
-          ...e.candidate.toJSON(),
-          sessionId
-        }).catch(erroLobby);
-      }
+      if(e.candidate)addDoc(collection(r,'guestCandidates'),e.candidate.toJSON()).catch(erroLobby);
     };
 
-    const offer=await esperarOffer(r);
-    await pc.setRemoteDescription(offer);
+    await pc.setRemoteDescription(snapSessao.data().offer);
     const answer=await pc.createAnswer();
     await pc.setLocalDescription(answer);
-
-    const check=await getDoc(r);
-    if(!check.exists() || check.data().sessionId!==sessionId){
-      throw new Error('A sessão desta sala mudou. Entre novamente.');
-    }
-
-    await updateDoc(r,{
-      answer:{type:answer.type,sdp:answer.sdp},
-      guestScreenSharing:false
-    });
+    await updateDoc(r,{answer:{type:answer.type,sdp:answer.sdp},guestScreenSharing:false});
 
     unsubs.push(onSnapshot(collection(r,'hostCandidates'),s=>{
       s.docChanges().forEach(c=>{
-        const data=c.doc.data();
-        if(c.type==='added' && candidatoDaSessao(data)){
-          const {sessionId:_,...candidate}=data;
-          pc.addIceCandidate(candidate).catch(console.error);
-        }
+        if(c.type==='added')pc.addIceCandidate(c.doc.data()).catch(console.error);
       });
     },erroLobby));
 
     unsubs.push(onSnapshot(r,s=>{
       const d=s.data();
-      if(!d || d.sessionId!==sessionId) return;
-      if(d.hostScreenSharing===true) mostrarTransmissaoRemota(remoteStreamAtual);
-      if(d.hostScreenSharing===false) esconderTransmissaoRemota();
+      if(d?.hostScreenSharing===true) mostrarTransmissaoRemota(remoteStreamAtual);
+      if(d?.hostScreenSharing===false) esconderTransmissaoRemota();
     },erroLobby));
 
+    await iniciarPresenca(regRef,'guest');
     show();
     status.textContent='Conectando...';
 
   }catch(e){
     try{micStream?.getTracks().forEach(t=>t.stop())}catch(_){}
     try{pc?.close()}catch(_){}
-    pc=null;micStream=null;isHost=false;sessionId=null;
+    pc=null;micStream=null;isHost=false;sessionId=null;roomId=null;
     erroLobby(e);
   }
 };
@@ -547,35 +546,20 @@ window.compartilhar=async()=>{
   try{
     screenStream=await navigator.mediaDevices.getDisplayMedia({video:true,audio:true});
     const vt=screenStream.getVideoTracks()[0];
-
-    if(videoSender){
-      await videoSender.replaceTrack(vt);
-    }else{
-      videoSender=pc.addTrack(vt,screenStream);
-    }
-
     const at=screenStream.getAudioTracks()[0];
-    if(at && screenAudioSender){
-      await screenAudioSender.replaceTrack(at);
-      status.textContent='Compartilhando tela com áudio';
-    }else{
-      status.textContent='Tela compartilhada SEM áudio — marque "Compartilhar áudio" na janela do navegador';
-    }
+
+    if(videoSender)await videoSender.replaceTrack(vt);
+    if(screenAudioSender)await screenAudioSender.replaceTrack(at||null);
 
     streamPreview.srcObject=screenStream;
     document.getElementById('streamName').textContent='Sua transmissão';
     document.getElementById('streamTile').style.display='block';
 
-    if(roomId){
-      const r=doc(db,'salasVoz',roomId);
-      const snapAtual=await getDoc(r);
-      if(snapAtual.exists() && snapAtual.data().sessionId===sessionId){
-        await updateDoc(r,isHost?{hostScreenSharing:true}:{guestScreenSharing:true});
-      }
-    }
+    const r=doc(db,'salasVoz',sessionId);
+    await updateDoc(r,isHost?{hostScreenSharing:true}:{guestScreenSharing:true});
 
     vt.onended=()=>window.pararTela();
-    status.textContent='Compartilhando tela';
+    status.textContent=at?'Compartilhando tela com áudio':'Compartilhando tela sem áudio';
   }catch(e){
     status.textContent='Compartilhamento cancelado.';
     console.error(e);
@@ -587,24 +571,16 @@ window.pararTela=async()=>{
     screenStream=null;
   }
 
-  if(videoSender && dummyVideo?.track){
-    try{ await videoSender.replaceTrack(dummyVideo.track); }catch(e){ console.error(e); }
-  }
-
-  if(screenAudioSender && silentAudioTrack){
-    try{ await screenAudioSender.replaceTrack(silentAudioTrack); }catch(e){ console.error(e); }
-  }
+  try{if(videoSender)await videoSender.replaceTrack(null)}catch(e){console.error(e)}
+  try{if(screenAudioSender)await screenAudioSender.replaceTrack(null)}catch(e){console.error(e)}
 
   fecharTransmissao();
 
-  if(roomId){
+  if(sessionId){
     try{
-      const r=doc(db,'salasVoz',roomId);
-      const snapAtual=await getDoc(r);
-      if(snapAtual.exists() && snapAtual.data().sessionId===sessionId){
-        await updateDoc(r,isHost?{hostScreenSharing:false}:{guestScreenSharing:false});
-      }
-    }catch(e){ console.error(e); }
+      const r=doc(db,'salasVoz',sessionId);
+      await updateDoc(r,isHost?{hostScreenSharing:false}:{guestScreenSharing:false});
+    }catch(e){console.error(e)}
   }
 
   streamPreview.srcObject=null;
@@ -686,44 +662,36 @@ document.addEventListener('click',()=>{
 window.copiar=async()=>{await navigator.clipboard.writeText(roomId);status.textContent='Código copiado: '+roomId};
 window.sairSala=async()=>{
   try{
-    if(heartbeatTimer){clearInterval(heartbeatTimer);heartbeatTimer=null;}
+    if(presenceTimer){clearInterval(presenceTimer);presenceTimer=null}
     unsubs.forEach(u=>u());unsubs=[];
     screenStream?.getTracks().forEach(t=>t.stop());
     micStream?.getTracks().forEach(t=>t.stop());
-    try{silentAudioTrack?.stop()}catch(_){}
-    try{silentAudioCtx?.close()}catch(_){}
     pc?.close();
 
-    if(roomId && sessionId && auth.currentUser){
-      const r=doc(db,'salasVoz',roomId);
+    if(fixedRoomKey && auth.currentUser){
+      const regRef=doc(db,'salasFixas',fixedRoomKey);
       await runTransaction(db,async tx=>{
-        const snap=await tx.get(r);
-        if(!snap.exists()) return;
-        const d=snap.data();
-        if(d.sessionId!==sessionId) return;
+        const s=await tx.get(regRef);
+        if(!s.exists())return;
+        const d=s.data();
+        if(d.sessionId!==sessionId)return;
 
         if(isHost && d.hostUid===auth.currentUser.uid){
-          tx.update(r,{
-            ativo:false,
-            hostUid:null,
-            guestUid:null,
-            offer:null,
-            answer:null,
-            hostScreenSharing:false,
-            guestScreenSharing:false,
-            hostHeartbeat:0
+          tx.set(regRef,{
+            sessionId:null,
+            hostUid:null,hostName:null,hostFoto:null,hostSeen:0,
+            guestUid:null,guestName:null,guestFoto:null,guestSeen:0
           });
         }else if(!isHost && d.guestUid===auth.currentUser.uid){
-          tx.update(r,{
-            guestUid:null,
-            answer:null,
-            guestScreenSharing:false
-          });
+          tx.update(regRef,{guestUid:null,guestName:null,guestFoto:null,guestSeen:0});
         }
       });
+    }
+
+    if(sessionId && isHost){
+      await updateDoc(doc(db,'salasVoz',sessionId),{ativo:false}).catch(()=>{});
     }
   }catch(e){console.error(e)}
   location.href='voz.html';
 };
-window.addEventListener('beforeunload',()=>{if(heartbeatTimer)clearInterval(heartbeatTimer);});
 </script></body></html>
