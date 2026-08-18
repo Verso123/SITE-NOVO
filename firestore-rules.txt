@@ -1,0 +1,8 @@
+// Adicione este bloco DENTRO de: match /databases/{database}/documents {
+// Mantém as salas acessíveis somente para usuários autenticados.
+match /salasVoz/{salaId} {
+  allow read, create, update, delete: if request.auth != null;
+  match /{subcolecao}/{docId} {
+    allow read, create, update, delete: if request.auth != null;
+  }
+}

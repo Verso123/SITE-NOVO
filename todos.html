@@ -1,0 +1,2430 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Meus Jogos Zerados</title>
+
+<style>
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Segoe UI', Arial, sans-serif;
+  background: #0f0f0f;
+  color: white;
+  min-height: 100vh;
+}
+
+header {
+  background: linear-gradient(135deg, #121212 0%, #1a1230 100%);
+  padding: 18px 25px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid #222;
+}
+
+header h1 {
+  font-size: 22px;
+  font-weight: 800;
+}
+
+header h1 span {
+  color: #7c6af7;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.user-info {
+  font-size: 13px;
+  color: #888;
+}
+
+.user-info strong {
+  color: #bbb;
+}
+
+.btn-header {
+  background: #1e1e3a;
+  color: #aaa;
+  text-decoration: none;
+  padding: 7px 14px;
+  border-radius: 6px;
+  border: 1px solid #333;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.btn-header:hover {
+  background: #2a2a4a;
+}
+
+.btn-sair {
+  color: #f87171;
+  border-color: #4a1a1a;
+  background: #2b0d0d;
+}
+
+.btn-sair:hover {
+  background: #3a1010;
+}
+
+.stats-wrap {
+  display: flex;
+  gap: 12px;
+  margin: 20px 20px 0;
+  flex-wrap: wrap;
+}
+
+.stat {
+  background: #151520;
+  border: 1px solid #2a2a3a;
+  border-radius: 10px;
+  padding: 12px 18px;
+  flex: 1;
+  min-width: 100px;
+  text-align: center;
+}
+
+.stat .num {
+  font-size: 22px;
+  font-weight: 700;
+  color: #7c6af7;
+}
+
+.stat .lbl {
+  font-size: 11px;
+  color: #777;
+  margin-top: 3px;
+}
+
+.acoes {
+  margin: 16px 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.acoes button,
+.acoes select,
+.acoes input[type="text"] {
+  background: #1b1b1b;
+  color: white;
+  border: 1px solid #444;
+  padding: 0 14px;
+  height: 36px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+  display: inline-flex;
+  align-items: center;
+  transition: background 0.2s;
+}
+
+.acoes button:hover,
+.acoes select:hover {
+  background: #2a2a2a;
+}
+
+.acoes select {
+  appearance: auto;
+}
+
+.acoes input[type="text"] {
+  cursor: text;
+  min-width: 160px;
+}
+
+.acoes input[type="text"]:focus {
+  outline: none;
+  border-color: #7c6af7;
+}
+
+.btn-add {
+  background: #7c6af7 !important;
+  color: white !important;
+  border-color: #7c6af7 !important;
+  font-weight: 700 !important;
+}
+
+.btn-add:hover {
+  opacity: 0.88;
+}
+
+.table-wrap {
+  overflow-x: auto;
+  margin: 0 10px 30px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 700px;
+}
+
+th {
+  background: #111;
+  padding: 12px 10px;
+  border-bottom: 1px solid #333;
+  font-size: 13px;
+  color: #aaa;
+  white-space: nowrap;
+}
+
+td {
+  padding: 11px 10px;
+  border-bottom: 1px solid #1e1e1e;
+  text-align: center;
+  font-size: 14px;
+}
+
+tr.jogo-row {
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+tr.jogo-row:hover {
+  background: #1a1a1a;
+}
+
+tr.jogo-row.nota10 {
+  border-left: 3px solid #f59e0b;
+}
+
+td img {
+  width: 54px;
+  height: 54px;
+  object-fit: cover;
+  border-radius: 6px;
+  display: block;
+  margin: 0 auto;
+}
+
+.badge {
+  display: inline-block;
+  padding: 3px 9px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.badge-PC {
+  background: #1a3a5c;
+  color: #60b4ff;
+  border: 1px solid #2a5a8c;
+}
+
+.badge-PS {
+  background: #2a1a5c;
+  color: #a78bfa;
+  border: 1px solid #4a3a8c;
+}
+
+.badge-Xbox {
+  background: #1a3a1a;
+  color: #4ade80;
+  border: 1px solid #2a5a2a;
+}
+
+.nota-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+}
+
+.estrelas {
+  color: #f59e0b;
+  font-size: 11px;
+}
+
+.nota-num {
+  font-weight: 700;
+  font-size: 14px;
+}
+
+tr.comentario td {
+  background: #111;
+  text-align: left;
+  padding: 18px 24px;
+  font-style: italic;
+  color: #ccc;
+  line-height: 1.6;
+  font-size: 14px;
+}
+
+/* MODAL */
+
+.modal-bg {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+}
+
+.modal {
+  background: #13132a;
+  border: 1px solid #2a2a4a;
+  border-radius: 16px;
+  padding: 28px;
+  width: 100%;
+  max-width: 520px;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.modal h2 {
+  font-size: 16px;
+  color: #7c6af7;
+  margin-bottom: 20px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.modal label {
+  display: block;
+  font-size: 12px;
+  color: #888;
+  margin-bottom: 5px;
+  margin-top: 14px;
+}
+
+.modal input,
+.modal select,
+.modal textarea {
+  width: 100%;
+  background: #0e0e22;
+  border: 1px solid #2a2a4a;
+  color: #e0e0e0;
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-size: 14px;
+}
+
+.modal input:focus,
+.modal select:focus,
+.modal textarea:focus {
+  outline: none;
+  border-color: #7c6af7;
+}
+
+.modal textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+.modal-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.modal-grid .full {
+  grid-column: 1 / -1;
+}
+
+.modal-btns {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.modal-btns button {
+  flex: 1;
+  padding: 11px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.btn-ok {
+  background: #7c6af7;
+  color: white;
+}
+
+.btn-ok:hover {
+  opacity: 0.88;
+}
+
+.btn-cancel {
+  background: #1e1e3a;
+  color: #aaa;
+  border: 1px solid #333 !important;
+}
+
+.upload-area {
+  border: 2px dashed #2a2a4a;
+  border-radius: 10px;
+  padding: 16px;
+  text-align: center;
+  cursor: pointer;
+  transition: border-color 0.2s;
+  position: relative;
+}
+
+.upload-area:hover {
+  border-color: #7c6af7;
+}
+
+.upload-area input[type="file"] {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.upload-area p {
+  font-size: 12px;
+  color: #777;
+}
+
+#preview-img {
+  max-height: 80px;
+  max-width: 100%;
+  border-radius: 6px;
+  margin-top: 8px;
+}
+
+.url-toggle {
+  font-size: 12px;
+  color: #7c6af7;
+  cursor: pointer;
+  margin-top: 6px;
+  display: inline-block;
+}
+
+#modal-status {
+  margin-top: 12px;
+  padding: 10px;
+  border-radius: 8px;
+  font-size: 13px;
+  display: none;
+  text-align: center;
+}
+
+#modal-status.ok {
+  background: #0d2b1d;
+  color: #4ade80;
+}
+
+#modal-status.err {
+  background: #2b0d0d;
+  color: #f87171;
+}
+
+.estado {
+  text-align: center;
+  padding: 60px 20px;
+  color: #555;
+}
+
+.spinner {
+  width: 36px;
+  height: 36px;
+  border: 3px solid #2a2a2a;
+  border-top-color: #7c6af7;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  margin: 0 auto 14px;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* AÇÕES NA LINHA */
+
+.row-btns {
+  display: flex;
+  gap: 6px;
+  justify-content: center;
+}
+
+.btn-edit-row,
+.btn-del-row {
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  padding: 4px 8px;
+  font-size: 12px;
+}
+
+.btn-edit-row {
+  background: #1e1e3a;
+  color: #aaa;
+}
+
+.btn-del-row {
+  background: #2b0d0d;
+  color: #f87171;
+}
+
+/* RESPONSIVO */
+
+@media (max-width: 700px) {
+  header {
+    padding: 15px;
+  }
+
+  header h1 {
+    font-size: 18px;
+  }
+
+  .user-info {
+    display: none;
+  }
+
+  .stats-wrap {
+    margin: 15px;
+  }
+
+  .stat {
+    min-width: calc(50% - 6px);
+  }
+
+  .acoes {
+    margin: 15px;
+  }
+
+  .modal-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .modal-grid .full {
+    grid-column: auto;
+  }
+
+  .modal {
+    padding: 20px;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<!-- MODAL ADICIONAR/EDITAR -->
+
+<div class="modal-bg" id="modal" style="display:none" onclick="fecharModalBg(event)">
+  <div class="modal">
+
+    <h2 id="modal-titulo">➕ Adicionar Jogo</h2>
+
+    <input type="hidden" id="doc-id">
+
+    <div class="modal-grid">
+
+      <div class="full">
+        <label>Nome do Jogo *</label>
+        <input type="text" id="f-nome" placeholder="ex: Elden Ring">
+      </div>
+
+      <div>
+        <label>Gênero</label>
+        <select id="f-genero">
+          <option value="">— Selecione —</option>
+          <option>AÇÃO</option>
+          <option>AÇÃO/ADVENTURE</option>
+          <option>ADVENTURE</option>
+          <option>AVENTURA</option>
+          <option>METROIDVANIA</option>
+          <option>MUNDO ABERTO</option>
+          <option>QUEBRA-CABEÇA</option>
+          <option>RPG</option>
+          <option>RPG/TURNO</option>
+          <option>SOULS LIKE</option>
+          <option>SURVIVAL</option>
+          <option>SURVIVAL HORROR</option>
+          <option>PESCA</option>
+          <option>PLATAFORMA</option>
+          <option>OUTRO</option>
+        </select>
+      </div>
+
+      <div>
+        <label>Plataforma</label>
+        <select id="f-plataforma">
+          <option value="">— Selecione —</option>
+          <option>PC</option>
+          <option>PS3</option>
+          <option>PS4</option>
+          <option>PS5</option>
+          <option>Xbox</option>
+        </select>
+      </div>
+
+      <div>
+        <label>Horas de Jogo</label>
+        <input type="text" id="f-horas" placeholder="ex: 35H">
+      </div>
+
+      <div>
+        <label>Nota (0–10)</label>
+        <input type="number" id="f-nota" min="0" max="10" step="0.5" placeholder="8.5">
+      </div>
+
+      <div>
+        <label>Data de Conclusão</label>
+        <input type="date" id="f-data">
+      </div>
+
+      <div>
+        <label>Platina?</label>
+        <select id="f-platina">
+          <option value="">Não</option>
+          <option value="🏆">Sim 🏆</option>
+        </select>
+      </div>
+
+      <div class="full">
+
+        <label>Capa do Jogo</label>
+
+        <div class="upload-area">
+
+          <input type="file" id="f-imagem" accept="image/*">
+
+          <div>🖼️</div>
+
+          <p>Clique ou arraste uma imagem</p>
+
+          <img id="preview-img" style="display:none">
+
+        </div>
+
+        <span class="url-toggle" onclick="toggleUrl()">
+          ↗ Usar URL
+        </span>
+
+        <div id="url-wrap" style="display:none;margin-top:6px">
+          <input
+            type="text"
+            id="f-img-url"
+            placeholder="https://..."
+          >
+        </div>
+
+      </div>
+
+      <div class="full">
+
+        <label>Comentário</label>
+
+        <textarea
+          id="f-review"
+          placeholder="Sua opinião sobre o jogo..."
+        ></textarea>
+
+      </div>
+
+    </div>
+
+    <div id="modal-status"></div>
+
+    <div class="modal-btns">
+
+      <button class="btn-ok" onclick="salvarJogo()">
+        💾 Salvar
+      </button>
+
+      <button class="btn-cancel" onclick="fecharModal()">
+        Cancelar
+      </button>
+
+    </div>
+
+  </div>
+</div>
+
+<header>
+
+  <h1>
+    🎮 Meus <span>Jogos</span>
+  </h1>
+
+  <div class="header-right">
+
+    <div class="user-info">
+      Olá, <strong id="nome-usuario">...</strong>
+    </div>
+
+    <button class="btn-header btn-sair" onclick="sair()">
+      Sair
+    </button>
+
+  </div>
+
+</header>
+
+<div class="stats-wrap">
+
+  <div class="stat">
+    <div class="num" id="st-total">—</div>
+    <div class="lbl">Zerados</div>
+  </div>
+
+  <div class="stat">
+    <div class="num" id="st-nota">—</div>
+    <div class="lbl">Nota Média</div>
+  </div>
+
+  <div class="stat">
+    <div class="num" id="st-horas">—</div>
+    <div class="lbl">Horas Totais</div>
+  </div>
+
+  <div class="stat">
+    <div class="num" id="st-platinas">—</div>
+    <div class="lbl">Platinas</div>
+  </div>
+
+  <div class="stat">
+    <div class="num" id="st-nota10">—</div>
+    <div class="lbl">Nota 10</div>
+  </div>
+
+</div>
+
+<div class="acoes">
+
+  <button class="btn-add" onclick="abrirModal()">
+    ➕ Adicionar Jogo
+  </button>
+
+  <button onclick="ordenarAlfabetico()">
+    🔤 A–Z
+  </button>
+
+  <button onclick="ordenarPorNota()">
+    ⭐ Nota
+  </button>
+
+  <button onclick="ordenarPlatinas()">
+    🏆 Platina
+  </button>
+
+  <select onchange="ordenarHoras(this.value);this.value=''">
+    <option value="">⏱ Horas</option>
+    <option value="maior">↓ Maior</option>
+    <option value="menor">↑ Menor</option>
+  </select>
+
+  <select onchange="ordenarData(this.value);this.value=''">
+    <option value="">📅 Data</option>
+    <option value="recente">↓ Recente</option>
+    <option value="antigo">↑ Antigo</option>
+  </select>
+
+  <select id="sel-plataforma" onchange="filtrarPlataforma(this.value)">
+    <option value="todas">🎮 Todas</option>
+    <option value="PC">PC</option>
+    <option value="PS3">PS3</option>
+    <option value="PS4">PS4</option>
+    <option value="PS5">PS5</option>
+    <option value="Xbox">Xbox</option>
+  </select>
+
+  <input
+    type="text"
+    id="busca"
+    placeholder="🔍 Buscar jogo..."
+    oninput="filtrarBusca()"
+  >
+
+</div>
+
+<div class="table-wrap">
+
+  <table id="tabelaJogos">
+
+    <thead>
+
+      <tr>
+        <th>Capa</th>
+        <th>Jogo</th>
+        <th>Gênero</th>
+        <th>Plataforma</th>
+        <th>Horas</th>
+        <th>Nota</th>
+        <th>Data</th>
+        <th>Platina</th>
+        <th>Ações</th>
+      </tr>
+
+    </thead>
+
+    <tbody id="tbody">
+
+      <tr>
+        <td colspan="9">
+
+          <div class="estado">
+            <div class="spinner"></div>
+            Verificando login...
+          </div>
+
+        </td>
+      </tr>
+
+    </tbody>
+
+  </table>
+
+</div>
+
+<script type="module">
+
+import {
+  initializeApp
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+
+import {
+  getAuth,
+  onAuthStateChanged,
+  signOut
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+
+import {
+  getFirestore,
+  collection,
+  addDoc,
+  getDocs,
+  updateDoc,
+  deleteDoc,
+  doc,
+  query,
+  where
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+
+/* ============================================================
+   FIREBASE
+============================================================ */
+
+const firebaseConfig = {
+
+  apiKey: "AIzaSyAaIxroCAMOvDxg5aLUr2P8jweygemm1uM",
+
+  authDomain:
+    "lista-de-jogos-f1874.firebaseapp.com",
+
+  projectId:
+    "lista-de-jogos-f1874",
+
+  storageBucket:
+    "lista-de-jogos-f1874.firebasestorage.app",
+
+  messagingSenderId:
+    "692334284655",
+
+  appId:
+    "1:692334284655:web:a55db647b5f8b39d00a29a"
+
+};
+
+
+const CLOUD_NAME = "dbovdinlw";
+const UPLOAD_PRESET = "jogos_preset";
+
+
+const app = initializeApp(firebaseConfig);
+
+const auth = getAuth(app);
+
+const db = getFirestore(app);
+
+
+let usuarioAtual = null;
+
+let todosJogos = [];
+
+let plataformaAtiva = "todas";
+
+
+/* ============================================================
+   AUTH
+============================================================ */
+
+onAuthStateChanged(auth, user => {
+
+  if (!user) {
+
+    window.location.href = "login.html";
+
+    return;
+
+  }
+
+  usuarioAtual = user;
+
+  document.getElementById("nome-usuario").textContent =
+    user.displayName || user.email;
+
+  carregarJogos();
+
+});
+
+
+window.sair = async function() {
+
+  try {
+
+    await signOut(auth);
+
+    window.location.href = "login.html";
+
+  } catch (e) {
+
+    console.error(e);
+
+  }
+
+};
+
+
+/* ============================================================
+   CARREGAR JOGOS
+============================================================ */
+
+async function carregarJogos() {
+
+  try {
+
+    const q = query(
+
+      collection(db, "jogos"),
+
+      where("uid", "==", usuarioAtual.uid)
+
+    );
+
+
+    const snap = await getDocs(q);
+
+
+    todosJogos = snap.docs.map(d => ({
+
+      id: d.id,
+
+      ...d.data()
+
+    }));
+
+
+    todosJogos.sort(
+
+      (a, b) =>
+
+        (b.atualizadoEm || 0) -
+
+        (a.atualizadoEm || 0)
+
+    );
+
+
+    renderizar(todosJogos);
+
+    atualizarStats(todosJogos);
+
+
+  } catch (e) {
+
+    console.error(e);
+
+    document.getElementById("tbody").innerHTML =
+
+      `<tr>
+        <td colspan="9">
+          <div class="estado" style="color:#f87171">
+            Erro: ${e.message}
+          </div>
+        </td>
+      </tr>`;
+
+  }
+
+}
+
+
+/* ============================================================
+   RENDERIZAR
+============================================================ */
+
+function renderizar(jogos) {
+
+  const tbody = document.getElementById("tbody");
+
+
+  if (!jogos.length) {
+
+    tbody.innerHTML = `
+
+      <tr>
+
+        <td colspan="9">
+
+          <div class="estado">
+
+            Nenhum jogo ainda.
+
+            <br><br>
+
+            <button
+              onclick="abrirModal()"
+              style="
+                background:#7c6af7;
+                color:white;
+                border:none;
+                padding:10px 20px;
+                border-radius:8px;
+                cursor:pointer;
+                font-size:14px;
+              "
+            >
+              ➕ Adicionar primeiro jogo
+            </button>
+
+          </div>
+
+        </td>
+
+      </tr>
+
+    `;
+
+    return;
+
+  }
+
+
+  tbody.innerHTML = jogos.map(j => {
+
+    const notaRaw =
+      j.nota !== null &&
+      j.nota !== undefined
+        ? j.nota
+        : null;
+
+
+    const nota =
+      notaRaw !== null
+        ? (
+            parseFloat(
+              String(notaRaw).replace(",", ".")
+            ) || 0
+          )
+        : null;
+
+
+    const classe =
+      nota >= 10
+        ? "jogo-row nota10"
+        : "jogo-row";
+
+
+    const badge =
+      badgePlataforma(j.plataforma || "");
+
+
+    const imgSrc =
+      j.imagem ||
+      "https://via.placeholder.com/54x54/1a1a2e/7c6af7?text=%3F";
+
+
+    const estrelas =
+      nota !== null
+        ? renderEstrelas(nota)
+        : "";
+
+
+    const nomeSeguro =
+      String(j.nome || "")
+        .replace(/\\/g, "\\\\")
+        .replace(/'/g, "\\'")
+        .replace(/"/g, "&quot;");
+
+
+    return `
+
+      <tr
+        class="${classe}"
+        onclick="toggleComentario(event, this, '${j.id}')"
+      >
+
+        <td>
+
+          <img
+            src="${imgSrc}"
+            onerror="this.src='https://via.placeholder.com/54x54/1a1a2e/7c6af7?text=%3F'"
+            loading="lazy"
+          >
+
+        </td>
+
+
+        <td style="text-align:left;font-weight:600">
+
+          ${j.nome || ""}
+
+        </td>
+
+
+        <td>
+          ${j.genero || ""}
+        </td>
+
+
+        <td>
+          ${badge}
+        </td>
+
+
+        <td>
+          ${j.horas || "—"}
+        </td>
+
+
+        <td>
+
+          <div class="nota-wrap">
+
+            <span class="estrelas">
+              ${estrelas}
+            </span>
+
+            <span class="nota-num">
+              ${nota !== null ? nota : "—"}
+            </span>
+
+          </div>
+
+        </td>
+
+
+        <td>
+          ${j.data || "—"}
+        </td>
+
+
+        <td>
+          ${j.platina || ""}
+        </td>
+
+
+        <td>
+
+          <div class="row-btns">
+
+            <button
+              class="btn-edit-row"
+              onclick="editarJogo(event,'${j.id}')"
+            >
+              ✏️
+            </button>
+
+
+            <button
+              class="btn-del-row"
+              onclick="deletarJogo(event,'${j.id}','${nomeSeguro}')"
+            >
+              🗑️
+            </button>
+
+          </div>
+
+        </td>
+
+      </tr>
+
+    `;
+
+  }).join("");
+
+
+  window._reviews = {};
+
+
+  jogos.forEach(j => {
+
+    window._reviews[j.id] =
+      j.review || "Sem comentário cadastrado.";
+
+  });
+
+}
+
+
+/* ============================================================
+   ESTRELAS
+============================================================ */
+
+function renderEstrelas(nota) {
+
+  const n =
+    Math.min(
+      10,
+      Math.max(
+        0,
+        parseFloat(
+          String(nota).replace(",", ".")
+        ) || 0
+      )
+    );
+
+
+  const c = Math.floor(n / 2);
+
+  const m = (n % 2) >= 1 ? 1 : 0;
+
+  const v = 5 - c - m;
+
+
+  return (
+
+    "★".repeat(c) +
+
+    (m ? "½" : "") +
+
+    "☆".repeat(Math.max(0, v))
+
+  );
+
+}
+
+
+/* ============================================================
+   BADGE PLATAFORMA
+============================================================ */
+
+function badgePlataforma(p) {
+
+  if (p.includes("PC")) {
+
+    return `
+      <span class="badge badge-PC">
+        ${p}
+      </span>
+    `;
+
+  }
+
+
+  if (p.includes("PS")) {
+
+    return `
+      <span class="badge badge-PS">
+        ${p}
+      </span>
+    `;
+
+  }
+
+
+  if (p.includes("Xbox")) {
+
+    return `
+      <span class="badge badge-Xbox">
+        ${p}
+      </span>
+    `;
+
+  }
+
+
+  return `
+    <span
+      class="badge"
+      style="background:#2a2a2a;color:#aaa"
+    >
+      ${p}
+    </span>
+  `;
+
+}
+
+
+/* ============================================================
+   ESTATÍSTICAS
+============================================================ */
+
+function atualizarStats(jogos) {
+
+  document.getElementById("st-total").textContent =
+    jogos.length;
+
+
+  const comNota =
+    jogos.filter(
+      j =>
+        j.nota !== null &&
+        j.nota !== undefined
+    );
+
+
+  document.getElementById("st-nota").textContent =
+
+    comNota.length
+
+      ? (
+
+          comNota.reduce(
+
+            (s, j) =>
+
+              s +
+              (
+                parseFloat(
+                  String(j.nota)
+                    .replace(",", ".")
+                ) || 0
+              ),
+
+            0
+
+          ) / comNota.length
+
+        ).toFixed(1)
+
+      : "—";
+
+
+  const totalH = jogos.reduce(
+
+    (s, j) => {
+
+      const h =
+        (j.horas || "").toLowerCase();
+
+
+      const n =
+        parseFloat(
+          h
+            .replace(/[^0-9.,]/g, "")
+            .replace(",", ".")
+        ) || 0;
+
+
+      return s + (
+        h.includes("m")
+          ? n / 60
+          : n
+      );
+
+    },
+
+    0
+
+  );
+
+
+  document.getElementById("st-horas").textContent =
+    Math.round(totalH) + "h";
+
+
+  document.getElementById("st-platinas").textContent =
+
+    jogos.filter(
+      j => j.platina
+    ).length;
+
+
+  document.getElementById("st-nota10").textContent =
+
+    jogos.filter(
+
+      j =>
+        parseFloat(
+          String(j.nota).replace(",", ".")
+        ) >= 10
+
+    ).length;
+
+}
+
+
+/* ============================================================
+   COMENTÁRIO
+============================================================ */
+
+window.toggleComentario = function(e, tr, id) {
+
+  if (
+    e.target.closest(".row-btns")
+  ) {
+
+    return;
+
+  }
+
+
+  const next =
+    tr.nextElementSibling;
+
+
+  if (
+    next &&
+    next.classList.contains("comentario")
+  ) {
+
+    next.remove();
+
+    return;
+
+  }
+
+
+  document
+    .querySelectorAll("tr.comentario")
+    .forEach(c => c.remove());
+
+
+  const row =
+    document.createElement("tr");
+
+
+  row.className =
+    "comentario";
+
+
+  const td =
+    document.createElement("td");
+
+
+  td.colSpan = 9;
+
+
+  td.textContent =
+    (window._reviews || {})[id] ||
+    "Sem comentário cadastrado.";
+
+
+  row.appendChild(td);
+
+
+  tr.parentNode.insertBefore(
+    row,
+    tr.nextSibling
+  );
+
+};
+
+
+/* ============================================================
+   MODAL
+============================================================ */
+
+window.abrirModal = function() {
+
+  limparModal();
+
+
+  document.getElementById(
+    "modal-titulo"
+  ).textContent =
+    "➕ Adicionar Jogo";
+
+
+  document.getElementById(
+    "modal"
+  ).style.display = "flex";
+
+};
+
+
+window.fecharModal = function() {
+
+  document.getElementById(
+    "modal"
+  ).style.display = "none";
+
+};
+
+
+window.fecharModalBg = function(e) {
+
+  if (
+    e.target ===
+    document.getElementById("modal")
+  ) {
+
+    fecharModal();
+
+  }
+
+};
+
+
+window.toggleUrl = function() {
+
+  const w =
+    document.getElementById("url-wrap");
+
+
+  w.style.display =
+    w.style.display === "none"
+      ? "block"
+      : "none";
+
+};
+
+
+document
+  .getElementById("f-imagem")
+  .addEventListener(
+    "change",
+    function() {
+
+      const f =
+        this.files[0];
+
+
+      if (!f) {
+        return;
+      }
+
+
+      const r =
+        new FileReader();
+
+
+      r.onload = e => {
+
+        const img =
+          document.getElementById(
+            "preview-img"
+          );
+
+
+        img.src =
+          e.target.result;
+
+
+        img.style.display =
+          "block";
+
+      };
+
+
+      r.readAsDataURL(f);
+
+    }
+  );
+
+
+/* ============================================================
+   SALVAR JOGO
+============================================================ */
+
+window.salvarJogo = async function() {
+
+  const nome =
+    document
+      .getElementById("f-nome")
+      .value
+      .trim();
+
+
+  if (!nome) {
+
+    modalStatus(
+      "Nome é obrigatório.",
+      "err"
+    );
+
+    return;
+
+  }
+
+
+  const btnOk =
+    document.querySelector(".btn-ok");
+
+
+  btnOk.disabled = true;
+
+  btnOk.textContent =
+    "Salvando...";
+
+
+  try {
+
+    let imgUrl =
+      document
+        .getElementById("f-img-url")
+        .value
+        .trim();
+
+
+    const fileInput =
+      document.getElementById("f-imagem");
+
+
+    if (fileInput.files[0]) {
+
+      modalStatus(
+        "Enviando imagem...",
+        "ok"
+      );
+
+
+      const fd =
+        new FormData();
+
+
+      fd.append(
+        "file",
+        fileInput.files[0]
+      );
+
+
+      fd.append(
+        "upload_preset",
+        UPLOAD_PRESET
+      );
+
+
+      const r = await fetch(
+
+        `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`,
+
+        {
+          method: "POST",
+          body: fd
+        }
+
+      );
+
+
+      const data =
+        await r.json();
+
+
+      if (!r.ok) {
+
+        throw new Error(
+          data.error?.message ||
+          "Erro ao enviar imagem."
+        );
+
+      }
+
+
+      imgUrl =
+        data.secure_url ||
+        imgUrl;
+
+    }
+
+
+    const notaInput =
+      document
+        .getElementById("f-nota")
+        .value;
+
+
+    const jogo = {
+
+      uid:
+        usuarioAtual.uid,
+
+      nome,
+
+      genero:
+        document
+          .getElementById("f-genero")
+          .value,
+
+      plataforma:
+        document
+          .getElementById("f-plataforma")
+          .value,
+
+      horas:
+        document
+          .getElementById("f-horas")
+          .value
+          .trim(),
+
+      nota:
+        notaInput
+          ? parseFloat(notaInput)
+          : null,
+
+      data:
+        document
+          .getElementById("f-data")
+          .value
+          ? formatarDataBR(
+              document
+                .getElementById("f-data")
+                .value
+            )
+          : "",
+
+      platina:
+        document
+          .getElementById("f-platina")
+          .value,
+
+      imagem:
+        imgUrl,
+
+      review:
+        document
+          .getElementById("f-review")
+          .value
+          .trim(),
+
+      atualizadoEm:
+        Date.now()
+
+    };
+
+
+    const docId =
+      document
+        .getElementById("doc-id")
+        .value;
+
+
+    if (docId) {
+
+      await updateDoc(
+
+        doc(
+          db,
+          "jogos",
+          docId
+        ),
+
+        jogo
+
+      );
+
+    } else {
+
+      await addDoc(
+
+        collection(
+          db,
+          "jogos"
+        ),
+
+        jogo
+
+      );
+
+    }
+
+
+    fecharModal();
+
+    await carregarJogos();
+
+
+  } catch (e) {
+
+    console.error(e);
+
+    modalStatus(
+      "Erro: " + e.message,
+      "err"
+    );
+
+
+  } finally {
+
+    btnOk.disabled = false;
+
+    btnOk.textContent =
+      "💾 Salvar";
+
+  }
+
+};
+
+
+/* ============================================================
+   EDITAR
+============================================================ */
+
+window.editarJogo = function(e, id) {
+
+  e.stopPropagation();
+
+
+  const j =
+    todosJogos.find(
+      x => x.id === id
+    );
+
+
+  if (!j) {
+    return;
+  }
+
+
+  document.getElementById(
+    "doc-id"
+  ).value = id;
+
+
+  document.getElementById(
+    "f-nome"
+  ).value =
+    j.nome || "";
+
+
+  document.getElementById(
+    "f-genero"
+  ).value =
+    j.genero || "";
+
+
+  document.getElementById(
+    "f-plataforma"
+  ).value =
+    j.plataforma || "";
+
+
+  document.getElementById(
+    "f-horas"
+  ).value =
+    j.horas || "";
+
+
+  document.getElementById(
+    "f-nota"
+  ).value =
+    j.nota ?? "";
+
+
+  document.getElementById(
+    "f-data"
+  ).value =
+    dataParaInput(
+      j.data || ""
+    );
+
+
+  document.getElementById(
+    "f-platina"
+  ).value =
+    j.platina || "";
+
+
+  document.getElementById(
+    "f-img-url"
+  ).value =
+    j.imagem || "";
+
+
+  document.getElementById(
+    "url-wrap"
+  ).style.display =
+    "block";
+
+
+  document.getElementById(
+    "f-review"
+  ).value =
+    j.review || "";
+
+
+  const preview =
+    document.getElementById(
+      "preview-img"
+    );
+
+
+  if (j.imagem) {
+
+    preview.src =
+      j.imagem;
+
+    preview.style.display =
+      "block";
+
+  } else {
+
+    preview.style.display =
+      "none";
+
+  }
+
+
+  document.getElementById(
+    "modal-titulo"
+  ).textContent =
+    "✏️ Editar Jogo";
+
+
+  document.getElementById(
+    "modal"
+  ).style.display =
+    "flex";
+
+};
+
+
+/* ============================================================
+   DELETAR
+============================================================ */
+
+window.deletarJogo = async function(
+  e,
+  id,
+  nome
+) {
+
+  e.stopPropagation();
+
+
+  if (
+    !confirm(
+      `Deletar "${nome}"?`
+    )
+  ) {
+
+    return;
+
+  }
+
+
+  try {
+
+    await deleteDoc(
+      doc(
+        db,
+        "jogos",
+        id
+      )
+    );
+
+
+    await carregarJogos();
+
+
+  } catch (error) {
+
+    alert(
+      "Erro ao deletar jogo: " +
+      error.message
+    );
+
+  }
+
+};
+
+
+/* ============================================================
+   ORDENAÇÃO
+============================================================ */
+
+function linhasVisiveis() {
+
+  return Array.from(
+    document.getElementById(
+      "tbody"
+    ).rows
+  )
+  .filter(
+    r =>
+      !r.classList.contains(
+        "comentario"
+      ) &&
+      r.style.display !== "none"
+  );
+
+}
+
+
+function reaplicar(rows) {
+
+  const tbody =
+    document.getElementById(
+      "tbody"
+    );
+
+
+  document
+    .querySelectorAll(
+      "tr.comentario"
+    )
+    .forEach(
+      c => c.remove()
+    );
+
+
+  rows.forEach(
+    r =>
+      tbody.appendChild(r)
+  );
+
+
+  aplicarFiltros();
+
+}
+
+
+function aplicarFiltros() {
+
+  const plat =
+    plataformaAtiva;
+
+
+  const busca =
+    (
+      document.getElementById(
+        "busca"
+      ).value || ""
+    ).toLowerCase();
+
+
+  Array.from(
+    document.getElementById(
+      "tbody"
+    ).rows
+  )
+  .filter(
+    r =>
+      !r.classList.contains(
+        "comentario"
+      )
+  )
+  .forEach(r => {
+
+    const platOk =
+      plat === "todas" ||
+      (
+        r.cells[3] &&
+        r.cells[3]
+          .textContent
+          .includes(plat)
+      );
+
+
+    const nomeOk =
+      !busca ||
+      (
+        r.cells[1] &&
+        r.cells[1]
+          .textContent
+          .toLowerCase()
+          .includes(busca)
+      );
+
+
+    r.style.display =
+      platOk && nomeOk
+        ? ""
+        : "none";
+
+  });
+
+}
+
+
+/* A-Z */
+
+window.ordenarAlfabetico =
+  () => {
+
+    reaplicar(
+
+      linhasVisiveis()
+        .sort(
+          (a, b) =>
+            a.cells[1]
+              .textContent
+              .localeCompare(
+                b.cells[1]
+                  .textContent,
+                "pt-BR"
+              )
+        )
+
+    );
+
+  };
+
+
+/* NOTA */
+
+window.ordenarPorNota =
+  () => {
+
+    reaplicar(
+
+      linhasVisiveis()
+        .sort(
+
+          (a, b) =>
+
+            (
+              parseFloat(
+                b.cells[5]
+                  .textContent
+              ) || 0
+            )
+
+            -
+
+            (
+              parseFloat(
+                a.cells[5]
+                  .textContent
+              ) || 0
+            )
+
+        )
+
+    );
+
+  };
+
+
+/* PLATINAS */
+
+window.ordenarPlatinas =
+  () => {
+
+    reaplicar(
+
+      linhasVisiveis()
+        .sort(
+
+          (a, b) =>
+
+            (
+              b.cells[7]
+                .textContent
+                .includes("🏆")
+                ? 1
+                : 0
+            )
+
+            -
+
+            (
+              a.cells[7]
+                .textContent
+                .includes("🏆")
+                ? 1
+                : 0
+            )
+
+        )
+
+    );
+
+  };
+
+
+/* HORAS */
+
+window.ordenarHoras =
+  ordem => {
+
+    reaplicar(
+
+      linhasVisiveis()
+        .sort(
+
+          (a, b) => {
+
+            const ph =
+              v => {
+
+                const texto =
+                  v.toLowerCase();
+
+
+                const n =
+                  parseFloat(
+                    texto
+                      .replace(
+                        /[^0-9.,]/g,
+                        ""
+                      )
+                      .replace(
+                        ",",
+                        "."
+                      )
+                  ) || 0;
+
+
+                return texto.includes("m")
+                  ? n / 60
+                  : n;
+
+              };
+
+
+            return ordem === "maior"
+
+              ? ph(
+                  b.cells[4]
+                    .textContent
+                )
+                -
+                ph(
+                  a.cells[4]
+                    .textContent
+                )
+
+              : ph(
+                  a.cells[4]
+                    .textContent
+                )
+                -
+                ph(
+                  b.cells[4]
+                    .textContent
+                );
+
+          }
+
+        )
+
+    );
+
+  };
+
+
+/* DATA */
+
+window.ordenarData =
+  ordem => {
+
+    reaplicar(
+
+      linhasVisiveis()
+        .sort(
+
+          (a, b) => {
+
+            const pd =
+              v => {
+
+                const p =
+                  v.split("/");
+
+
+                return p.length === 3
+
+                  ? new Date(
+                      p[2],
+                      p[1] - 1,
+                      p[0]
+                    )
+
+                  : new Date(0);
+
+              };
+
+
+            return ordem === "recente"
+
+              ? pd(
+                  b.cells[6]
+                    .textContent
+                )
+                -
+                pd(
+                  a.cells[6]
+                    .textContent
+                )
+
+              : pd(
+                  a.cells[6]
+                    .textContent
+                )
+                -
+                pd(
+                  b.cells[6]
+                    .textContent
+                );
+
+          }
+
+        )
+
+    );
+
+  };
+
+
+/* FILTRO PLATAFORMA */
+
+window.filtrarPlataforma =
+  p => {
+
+    plataformaAtiva =
+      p;
+
+    aplicarFiltros();
+
+  };
+
+
+/* BUSCA */
+
+window.filtrarBusca =
+  () => {
+
+    aplicarFiltros();
+
+  };
+
+
+/* ============================================================
+   HELPERS
+============================================================ */
+
+function formatarDataBR(iso) {
+
+  const [
+    y,
+    m,
+    d
+  ] =
+    iso.split("-");
+
+
+  return `${d}/${m}/${y}`;
+
+}
+
+
+function dataParaInput(br) {
+
+  const p =
+    br.split("/");
+
+
+  if (
+    p.length !== 3
+  ) {
+
+    return "";
+
+  }
+
+
+  return `${p[2]}-${p[1].padStart(2, "0")}-${p[0].padStart(2, "0")}`;
+
+}
+
+
+function modalStatus(
+  msg,
+  tipo
+) {
+
+  const el =
+    document.getElementById(
+      "modal-status"
+    );
+
+
+  el.textContent =
+    msg;
+
+
+  el.className =
+    tipo;
+
+
+  el.style.display =
+    "block";
+
+}
+
+
+function limparModal() {
+
+  [
+    "doc-id",
+    "f-nome",
+    "f-horas",
+    "f-nota",
+    "f-data",
+    "f-img-url",
+    "f-review"
+  ]
+  .forEach(
+
+    id => {
+
+      document.getElementById(
+        id
+      ).value = "";
+
+    }
+
+  );
+
+
+  document.getElementById(
+    "f-genero"
+  ).value = "";
+
+
+  document.getElementById(
+    "f-plataforma"
+  ).value = "";
+
+
+  document.getElementById(
+    "f-platina"
+  ).value = "";
+
+
+  document.getElementById(
+    "f-imagem"
+  ).value = "";
+
+
+  document.getElementById(
+    "preview-img"
+  ).style.display =
+    "none";
+
+
+  document.getElementById(
+    "url-wrap"
+  ).style.display =
+    "none";
+
+
+  document.getElementById(
+    "modal-status"
+  ).style.display =
+    "none";
+
+}
+
+</script>
+
+</body>
+</html>
