@@ -736,18 +736,7 @@ tr.comentario td {
     <div class="rawg-box">
       <div class="rawg-head">
         <strong>🎮 Buscar jogo automaticamente</strong>
-        <button type="button" onclick="toggleRawgConfig()">⚙️ API RAWG</button>
-      </div>
-
-      <div class="rawg-config" id="rawg-config">
-        <div class="rawg-config-row">
-          <input type="password" id="rawg-key" placeholder="Cole sua chave da RAWG">
-          <button type="button" onclick="salvarRawgKey()">Salvar chave</button>
-        </div>
-        <small>
-          A chave fica salva somente neste navegador.
-          <a href="https://rawg.io/apidocs" target="_blank" rel="noopener">Obter chave RAWG</a>
-        </small>
+        <span style="font-size:11px;color:#4ade80;font-weight:700">● Biblioteca conectada</span>
       </div>
 
       <div class="rawg-search-row">
@@ -1108,8 +1097,9 @@ let plataformaAtiva = "todas";
 /* ============================================================
    BIBLIOTECA RAWG
 ============================================================ */
-const RAWG_KEY_STORAGE = "meusJogosRawgApiKey";
-let rawgApiKey = localStorage.getItem(RAWG_KEY_STORAGE) || "";
+// Chave compartilhada do projeto.
+// Em GitHub Pages ela fica acessível no código-fonte do navegador.
+const rawgApiKey = "5dc4d764153c4664b8583c29ed0d4a77";
 let rawgResultados = [];
 
 function escaparHtmlRawg(valor) {
@@ -1123,14 +1113,9 @@ function escaparHtmlRawg(valor) {
 }
 
 function prepararRawgUI() {
-  const keyInput = document.getElementById("rawg-key");
-  const config = document.getElementById("rawg-config");
   const resultados = document.getElementById("rawg-results");
   const selecionado = document.getElementById("rawg-selected");
   const busca = document.getElementById("rawg-search");
-
-  if (keyInput) keyInput.value = rawgApiKey;
-  if (config) config.style.display = rawgApiKey ? "none" : "block";
   if (resultados) resultados.innerHTML = "";
   if (selecionado) {
     selecionado.innerHTML = "";
@@ -1139,28 +1124,6 @@ function prepararRawgUI() {
   if (busca) busca.value = "";
   rawgResultados = [];
 }
-
-window.toggleRawgConfig = function() {
-  const box = document.getElementById("rawg-config");
-  if (!box) return;
-  box.style.display = box.style.display === "block" ? "none" : "block";
-};
-
-window.salvarRawgKey = function() {
-  const key = document.getElementById("rawg-key")?.value.trim() || "";
-
-  if (!key) {
-    localStorage.removeItem(RAWG_KEY_STORAGE);
-    rawgApiKey = "";
-    modalStatus("Digite uma chave RAWG válida.", "err");
-    return;
-  }
-
-  rawgApiKey = key;
-  localStorage.setItem(RAWG_KEY_STORAGE, key);
-  document.getElementById("rawg-config").style.display = "none";
-  modalStatus("✅ Chave RAWG salva neste navegador.", "ok");
-};
 
 function mapearGeneroRawg(generos) {
   const nomes = (generos || []).map(g => String(g.name || "").toLowerCase());
@@ -1243,13 +1206,6 @@ window.buscarRawg = async function() {
   const buscaInput = document.getElementById("rawg-search");
   const resultados = document.getElementById("rawg-results");
   const termo = (buscaInput?.value || document.getElementById("f-nome")?.value || "").trim();
-
-  if (!rawgApiKey) {
-    document.getElementById("rawg-config").style.display = "block";
-    resultados.innerHTML = '<div class="rawg-error">Salve sua chave RAWG antes de pesquisar.</div>';
-    document.getElementById("rawg-key")?.focus();
-    return;
-  }
 
   if (termo.length < 2) {
     resultados.innerHTML = '<div class="rawg-empty">Digite pelo menos 2 letras.</div>';
