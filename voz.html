@@ -2685,7 +2685,14 @@ async function v5EnsureVoicePeer(user){
 
       // Tracks dos transceivers podem nascer muted e só receber mídia depois.
       if(!e.track.muted)showTrack();
-      e.track.onunmute=showTrack;
+      e.track.onunmute=()=>{
+        showTrack();
+        if(isScreen){
+          const rs=v5MediaStreams.get('screen:'+user.uid) || new MediaStream([e.track]);
+          v5MediaStreams.set('screen:'+user.uid,rs);
+          status.textContent='Transmissão disponível';
+        }
+      };
       e.track.onmute=()=>{
         if(isScreen){
           v5RemoveMediaCard('screen',user.uid);
@@ -2860,28 +2867,53 @@ window.v5AssistirTransmissao=async owner=>{
     }
 
     status.textContent='Entrando na transmissão...';
-    mostrarToast('Conectando à live...');
 
-    await v5EnsureScreenViewerPeer(user);
+    // Garante que a conexão principal com esse usuário existe.
+    await v5EnsureVoicePeer(user);
 
-    let tentativas=0;
-    const esperar=()=>{
-      const stream=v5MediaStreams.get('screen:'+owner);
-      if(stream && stream.getVideoTracks().length){
+    const tentarAbrir=()=>{
+      const vp=v5VoicePeers.get(owner);
+      const track=vp?.screenTransceiver?.receiver?.track;
+
+      if(track && track.readyState==='live'){
+        let stream=v5MediaStreams.get('screen:'+owner);
+        if(!stream || !stream.getTracks().some(t=>t.id===track.id)){
+          stream=new MediaStream([track]);
+          v5MediaStreams.set('screen:'+owner,stream);
+        }
+
+        // Mesmo se ainda estiver "muted", deixa o player preparado.
+        v5UpsertMediaCard('screen',owner,user.nome||'Usuário',stream,false);
+        v5UpsertStreamTile(owner,user.nome||'Usuário',stream,user.streamQuality||'AO VIVO',false);
         v5FocusMedia('screen',owner);
-        status.textContent='Assistindo transmissão';
+
+        if(track.muted){
+          status.textContent='Conectado à live — aguardando imagem...';
+        }else{
+          status.textContent='Assistindo transmissão';
+        }
+        return true;
+      }
+      return false;
+    };
+
+    if(tentarAbrir())return;
+
+    // Aguarda a receiver track principal aparecer/desmutar.
+    let tentativas=0;
+    const timer=setInterval(()=>{
+      tentativas++;
+      if(tentarAbrir()){
+        clearInterval(timer);
         return;
       }
-
-      tentativas++;
-      if(tentativas<20){
-        setTimeout(esperar,300);
-      }else{
-        status.textContent='A transmissão está ao vivo, mas o vídeo ainda não chegou';
-        mostrarToast('Não consegui abrir o vídeo. Clique na live para tentar novamente.');
+      if(tentativas>=30){
+        clearInterval(timer);
+        status.textContent='A LIVE está ativa, mas a track de vídeo não chegou';
+        mostrarToast('A conexão de voz existe, mas a tela ainda não chegou. O transmissor deve parar e compartilhar novamente.');
       }
-    };
-    esperar();
+    },250);
+
   }catch(e){
     console.error('Erro ao assistir transmissão:',e);
     status.textContent='Erro ao abrir transmissão';
@@ -2971,7 +3003,15 @@ window.compartilhar=async()=>{
       status.textContent='Transmitindo — aguardando alguém entrar';
     }
     for(const p of peers){
-      if(p.screenSender)await p.screenSender.replaceTrack(vt);
+      if(!p.screenSender)continue;
+      try{
+        await p.screenSender.replaceTrack(vt);
+        console.log('[TELA] enviada para',p.uid,p.screenSender.track?.id);
+      }catch(e){
+        console.warn('[TELA] replaceTrack falhou, tentando novamente',p.uid,e);
+        await new Promise(r=>setTimeout(r,250));
+        await p.screenSender.replaceTrack(vt);
+      }
     }
 
     v5MediaStreams.set('screen:'+auth.currentUser.uid,screenStream);
@@ -3052,17 +3092,26 @@ async function v5HandleUsers(users){
     await v5EnsureVoicePeer(u).catch(console.warn);
 
     if(u.screenActive){
-      // Primeiro atualiza/recria o peer. Um peer antigo pode ser fechado aqui.
-      await v5EnsureScreenViewerPeer(u).catch(console.warn);
-
-      // Só depois garante o card visível. Assim ele não some se um peer antigo
-      // for fechado durante a troca de screenRev.
+      // A V3 usa SOMENTE a conexão WebRTC principal (voz/câmera/tela).
+      // Não cria mais uma segunda PeerConnection para a transmissão.
       v5UpsertStreamPlaceholder(u.uid,u.nome||'Usuário',u.streamQuality||'AO VIVO');
+
+      // Se a track da tela já existe no receiver principal, monta o stream agora.
+      const vp=v5VoicePeers.get(u.uid);
+      const rt=vp?.screenTransceiver?.receiver?.track;
+      if(rt && rt.readyState==='live'){
+        const rs=new MediaStream([rt]);
+        v5MediaStreams.set('screen:'+u.uid,rs);
+        if(!rt.muted){
+          v5UpsertMediaCard('screen',u.uid,u.nome||'Usuário',rs,false);
+          v5UpsertStreamTile(u.uid,u.nome||'Usuário',rs,u.streamQuality||'AO VIVO',false);
+        }
+      }
     }else{
       v5RemoveStreamTile(u.uid);
+      v5RemoveMediaCard('screen',u.uid);
+      v5MediaStreams.delete('screen:'+u.uid);
     }
-
-    if(screenStream)await v5EnsureScreenOwnerPeer(u).catch(console.warn);
     const c=document.getElementById('media-camera-'+v5SafeId(u.uid));
     if(c)c.style.display=u.cameraActive?'block':'none';
   }
@@ -3099,7 +3148,10 @@ window.trocarSala=async id=>{try{if(id===fixedRoomKey){mostrarToast('Você já e
 async function v5CleanupRoom({deixarLobby=false}={}){
   if(v5PresenceTimer){clearInterval(v5PresenceTimer);v5PresenceTimer=null}if(v5StatsTimer){clearInterval(v5StatsTimer);v5StatsTimer=null}if(v5AfkTimer){clearInterval(v5AfkTimer);v5AfkTimer=null}
   if(screenStream)await window.pararTela().catch(()=>{});if(cameraAtiva){cameraStream?.getTracks().forEach(t=>t.stop());cameraStream=null;cameraTrack=null;cameraAtiva=false}
-  for(const uid of [...v5VoicePeers.keys()])v5CloseVoicePeer(uid);for(const owner of [...v5ScreenViewerPeers.keys()])await v5CloseScreenViewerPeer(owner);for(const uid of [...v5ScreenOwnerPeers.keys()])v5CloseScreenOwnerPeer(uid);
+  for(const uid of [...v5VoicePeers.keys()])v5CloseVoicePeer(uid);
+  // As PeerConnections de tela separadas ficaram apenas como legado e não são mais usadas.
+  for(const owner of [...v5ScreenViewerPeers.keys()])await v5CloseScreenViewerPeer(owner);
+  for(const uid of [...v5ScreenOwnerPeers.keys()])v5CloseScreenOwnerPeer(uid);
   for(const [owner,un] of v5ViewerWatchUnsubs){try{un()}catch(_){}}v5ViewerWatchUnsubs.clear();v5CurrentRoomSubs.forEach(fn=>{try{fn()}catch(_){}});v5CurrentRoomSubs=[];
   if(fixedRoomKey&&auth.currentUser)await deleteDoc(doc(db,'salasFixas',fixedRoomKey,'usuarios',auth.currentUser.uid)).catch(()=>{});
   try{micStream?.getTracks().forEach(t=>t.stop())}catch(_){}if(v5RawMicStream!==micStream)try{v5RawMicStream?.getTracks().forEach(t=>t.stop())}catch(_){}v5StopMicProcessor();micStream=null;v5RawMicStream=null;
