@@ -478,6 +478,203 @@ tr.comentario td {
   color: #f87171;
 }
 
+
+/* ============================================================
+   BIBLIOTECA RAWG
+============================================================ */
+.rawg-box {
+  grid-column: 1 / -1;
+  background: linear-gradient(135deg, #101024 0%, #17172f 100%);
+  border: 1px solid #32325a;
+  border-radius: 12px;
+  padding: 14px;
+  margin-bottom: 4px;
+}
+
+.rawg-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.rawg-head strong {
+  font-size: 13px;
+  color: #d8d4ff;
+}
+
+.rawg-head button,
+.rawg-search-row button,
+.rawg-config-row button {
+  border: 1px solid #3b3b69;
+  background: #242447;
+  color: #ddd;
+  border-radius: 8px;
+  padding: 9px 11px;
+  cursor: pointer;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.rawg-head button:hover,
+.rawg-search-row button:hover,
+.rawg-config-row button:hover {
+  background: #31315c;
+}
+
+.rawg-search-row,
+.rawg-config-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.rawg-search-row input,
+.rawg-config-row input {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+}
+
+.rawg-config {
+  display: none;
+  padding: 10px;
+  margin-bottom: 10px;
+  border-radius: 9px;
+  background: #0c0c1c;
+  border: 1px solid #29294a;
+}
+
+.rawg-config small,
+.rawg-note {
+  display: block;
+  color: #777;
+  font-size: 10px;
+  line-height: 1.45;
+  margin-top: 7px;
+}
+
+.rawg-config a,
+.rawg-attribution a {
+  color: #9b8aff;
+}
+
+.rawg-results {
+  display: grid;
+  gap: 8px;
+  margin-top: 10px;
+  max-height: 330px;
+  overflow-y: auto;
+}
+
+.rawg-result {
+  display: grid;
+  grid-template-columns: 96px minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: center;
+  background: #0d0d1f;
+  border: 1px solid #29294a;
+  border-radius: 9px;
+  padding: 8px;
+  cursor: pointer;
+  transition: .15s;
+}
+
+.rawg-result:hover {
+  border-color: #7c6af7;
+  background: #15152b;
+}
+
+.rawg-result img {
+  width: 96px;
+  height: 64px;
+  border-radius: 7px;
+  object-fit: cover;
+  background: #090916;
+}
+
+.rawg-result-title {
+  font-size: 13px;
+  font-weight: 800;
+  color: #eee;
+  margin-bottom: 4px;
+}
+
+.rawg-result-meta {
+  font-size: 10px;
+  line-height: 1.45;
+  color: #85859b;
+}
+
+.rawg-result-select {
+  color: #a99cff;
+  font-size: 18px;
+  padding: 0 6px;
+}
+
+.rawg-loading,
+.rawg-empty,
+.rawg-error {
+  padding: 12px;
+  text-align: center;
+  color: #888;
+  font-size: 11px;
+  border-radius: 8px;
+  background: #0d0d1f;
+  border: 1px dashed #29294a;
+}
+
+.rawg-error {
+  color: #ff9b9b;
+  border-color: #5a252e;
+  background: #2a1015;
+}
+
+.rawg-selected {
+  display: none;
+  margin-top: 10px;
+  padding: 10px;
+  background: #10251a;
+  border: 1px solid #26583a;
+  color: #9ce0b6;
+  border-radius: 9px;
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+.rawg-selected b {
+  color: #d8ffe6;
+}
+
+.rawg-attribution {
+  margin: 8px 20px 24px;
+  text-align: right;
+  color: #555;
+  font-size: 10px;
+}
+
+@media (max-width: 560px) {
+  .rawg-search-row,
+  .rawg-config-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .rawg-result {
+    grid-template-columns: 72px minmax(0, 1fr);
+  }
+
+  .rawg-result img {
+    width: 72px;
+    height: 54px;
+  }
+
+  .rawg-result-select {
+    display: none;
+  }
+}
+
 /* RESPONSIVO */
 
 @media (max-width: 700px) {
@@ -530,6 +727,46 @@ tr.comentario td {
     <h2 id="modal-titulo">➕ Adicionar Jogo</h2>
 
     <input type="hidden" id="doc-id">
+
+    <input type="hidden" id="f-rawg-id">
+    <input type="hidden" id="f-rawg-slug">
+    <input type="hidden" id="f-rawg-released">
+    <input type="hidden" id="f-rawg-platforms">
+
+    <div class="rawg-box">
+      <div class="rawg-head">
+        <strong>🎮 Buscar jogo automaticamente</strong>
+        <button type="button" onclick="toggleRawgConfig()">⚙️ API RAWG</button>
+      </div>
+
+      <div class="rawg-config" id="rawg-config">
+        <div class="rawg-config-row">
+          <input type="password" id="rawg-key" placeholder="Cole sua chave da RAWG">
+          <button type="button" onclick="salvarRawgKey()">Salvar chave</button>
+        </div>
+        <small>
+          A chave fica salva somente neste navegador.
+          <a href="https://rawg.io/apidocs" target="_blank" rel="noopener">Obter chave RAWG</a>
+        </small>
+      </div>
+
+      <div class="rawg-search-row">
+        <input
+          type="text"
+          id="rawg-search"
+          placeholder="Digite o jogo, ex: Resident Evil 4"
+          autocomplete="off"
+        >
+        <button type="button" onclick="buscarRawg()">🔍 Buscar</button>
+      </div>
+
+      <span class="rawg-note">
+        Escolha um resultado para preencher nome, imagem e gênero automaticamente.
+      </span>
+
+      <div class="rawg-results" id="rawg-results"></div>
+      <div class="rawg-selected" id="rawg-selected"></div>
+    </div>
 
     <div class="modal-grid">
 
@@ -793,6 +1030,12 @@ tr.comentario td {
 
 </div>
 
+
+<div class="rawg-attribution">
+  Dados e imagens de jogos fornecidos por
+  <a href="https://rawg.io/" target="_blank" rel="noopener">RAWG</a>.
+</div>
+
 <script type="module">
 
 import {
@@ -860,6 +1103,245 @@ let usuarioAtual = null;
 let todosJogos = [];
 
 let plataformaAtiva = "todas";
+
+
+/* ============================================================
+   BIBLIOTECA RAWG
+============================================================ */
+const RAWG_KEY_STORAGE = "meusJogosRawgApiKey";
+let rawgApiKey = localStorage.getItem(RAWG_KEY_STORAGE) || "";
+let rawgResultados = [];
+
+function escaparHtmlRawg(valor) {
+  return String(valor ?? "").replace(/[&<>"']/g, c => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#039;"
+  }[c]));
+}
+
+function prepararRawgUI() {
+  const keyInput = document.getElementById("rawg-key");
+  const config = document.getElementById("rawg-config");
+  const resultados = document.getElementById("rawg-results");
+  const selecionado = document.getElementById("rawg-selected");
+  const busca = document.getElementById("rawg-search");
+
+  if (keyInput) keyInput.value = rawgApiKey;
+  if (config) config.style.display = rawgApiKey ? "none" : "block";
+  if (resultados) resultados.innerHTML = "";
+  if (selecionado) {
+    selecionado.innerHTML = "";
+    selecionado.style.display = "none";
+  }
+  if (busca) busca.value = "";
+  rawgResultados = [];
+}
+
+window.toggleRawgConfig = function() {
+  const box = document.getElementById("rawg-config");
+  if (!box) return;
+  box.style.display = box.style.display === "block" ? "none" : "block";
+};
+
+window.salvarRawgKey = function() {
+  const key = document.getElementById("rawg-key")?.value.trim() || "";
+
+  if (!key) {
+    localStorage.removeItem(RAWG_KEY_STORAGE);
+    rawgApiKey = "";
+    modalStatus("Digite uma chave RAWG válida.", "err");
+    return;
+  }
+
+  rawgApiKey = key;
+  localStorage.setItem(RAWG_KEY_STORAGE, key);
+  document.getElementById("rawg-config").style.display = "none";
+  modalStatus("✅ Chave RAWG salva neste navegador.", "ok");
+};
+
+function mapearGeneroRawg(generos) {
+  const nomes = (generos || []).map(g => String(g.name || "").toLowerCase());
+
+  if (nomes.includes("action") && nomes.includes("adventure")) return "AÇÃO/ADVENTURE";
+  if (nomes.includes("action")) return "AÇÃO";
+  if (nomes.includes("adventure")) return "AVENTURA";
+  if (nomes.includes("role-playing games (rpg)") || nomes.includes("rpg")) return "RPG";
+  if (nomes.includes("puzzle")) return "QUEBRA-CABEÇA";
+  if (nomes.includes("platformer") || nomes.includes("platform")) return "PLATAFORMA";
+
+  return nomes.length ? "OUTRO" : "";
+}
+
+function mapearPlataformasRawg(platforms) {
+  const saida = [];
+
+  (platforms || []).forEach(item => {
+    const nome = String(item?.platform?.name || "").toLowerCase();
+
+    if (nome === "pc" && !saida.includes("PC")) saida.push("PC");
+    if (nome.includes("playstation 5") && !saida.includes("PS5")) saida.push("PS5");
+    if (nome.includes("playstation 4") && !saida.includes("PS4")) saida.push("PS4");
+    if (nome.includes("playstation 3") && !saida.includes("PS3")) saida.push("PS3");
+
+    if (
+      (
+        nome.includes("xbox one") ||
+        nome.includes("xbox series") ||
+        nome.includes("xbox 360") ||
+        nome === "xbox"
+      ) &&
+      !saida.includes("Xbox")
+    ) {
+      saida.push("Xbox");
+    }
+  });
+
+  return saida;
+}
+
+function renderizarResultadosRawg(jogos) {
+  const box = document.getElementById("rawg-results");
+  if (!box) return;
+
+  if (!jogos.length) {
+    box.innerHTML = '<div class="rawg-empty">Nenhum jogo encontrado.</div>';
+    return;
+  }
+
+  box.innerHTML = jogos.map(jogo => {
+    const plataformas = mapearPlataformasRawg(jogo.platforms);
+    const generos = (jogo.genres || []).map(g => g.name).join(", ");
+    const lancamento = jogo.released
+      ? new Date(jogo.released + "T12:00:00").toLocaleDateString("pt-BR")
+      : "data não informada";
+
+    const imagem = jogo.background_image || "";
+    const imagemHtml = imagem
+      ? `<img src="${escaparHtmlRawg(imagem)}" alt="">`
+      : '<div style="width:96px;height:64px;border-radius:7px;background:#16162b;display:flex;align-items:center;justify-content:center;color:#777">🎮</div>';
+
+    return `
+      <div class="rawg-result" onclick="selecionarJogoRawg(${Number(jogo.id)})">
+        ${imagemHtml}
+        <div>
+          <div class="rawg-result-title">${escaparHtmlRawg(jogo.name)}</div>
+          <div class="rawg-result-meta">
+            ${escaparHtmlRawg(generos || "Gênero não informado")}<br>
+            ${escaparHtmlRawg(plataformas.join(" • ") || "Plataforma não mapeada")} • ${escaparHtmlRawg(lancamento)}
+          </div>
+        </div>
+        <div class="rawg-result-select">›</div>
+      </div>
+    `;
+  }).join("");
+}
+
+window.buscarRawg = async function() {
+  const buscaInput = document.getElementById("rawg-search");
+  const resultados = document.getElementById("rawg-results");
+  const termo = (buscaInput?.value || document.getElementById("f-nome")?.value || "").trim();
+
+  if (!rawgApiKey) {
+    document.getElementById("rawg-config").style.display = "block";
+    resultados.innerHTML = '<div class="rawg-error">Salve sua chave RAWG antes de pesquisar.</div>';
+    document.getElementById("rawg-key")?.focus();
+    return;
+  }
+
+  if (termo.length < 2) {
+    resultados.innerHTML = '<div class="rawg-empty">Digite pelo menos 2 letras.</div>';
+    return;
+  }
+
+  resultados.innerHTML = '<div class="rawg-loading">Buscando jogos...</div>';
+
+  try {
+    const url =
+      "https://api.rawg.io/api/games" +
+      "?key=" + encodeURIComponent(rawgApiKey) +
+      "&search=" + encodeURIComponent(termo) +
+      "&search_precise=true" +
+      "&page_size=10";
+
+    const resposta = await fetch(url);
+    const dados = await resposta.json().catch(() => ({}));
+
+    if (!resposta.ok) {
+      if (resposta.status === 401 || resposta.status === 403) {
+        throw new Error("Chave RAWG inválida ou sem permissão.");
+      }
+      throw new Error(dados?.detail || "A RAWG não respondeu à pesquisa.");
+    }
+
+    rawgResultados = Array.isArray(dados.results) ? dados.results : [];
+    renderizarResultadosRawg(rawgResultados);
+
+  } catch (e) {
+    console.error("RAWG:", e);
+    resultados.innerHTML =
+      `<div class="rawg-error">${escaparHtmlRawg(e.message || "Erro ao buscar jogos.")}</div>`;
+  }
+};
+
+window.selecionarJogoRawg = function(id) {
+  const jogo = rawgResultados.find(j => Number(j.id) === Number(id));
+  if (!jogo) return;
+
+  const plataformas = mapearPlataformasRawg(jogo.platforms);
+  const genero = mapearGeneroRawg(jogo.genres);
+  const imagem = jogo.background_image || "";
+
+  document.getElementById("f-rawg-id").value = jogo.id || "";
+  document.getElementById("f-rawg-slug").value = jogo.slug || "";
+  document.getElementById("f-rawg-released").value = jogo.released || "";
+  document.getElementById("f-rawg-platforms").value = plataformas.join("|");
+
+  document.getElementById("f-nome").value = jogo.name || "";
+
+  if (genero) {
+    document.getElementById("f-genero").value = genero;
+  }
+
+  const plataformaSelect = document.getElementById("f-plataforma");
+  if (plataformaSelect && plataformas.length === 1) {
+    plataformaSelect.value = plataformas[0];
+  } else if (plataformaSelect && plataformas.length > 1 && !plataformas.includes(plataformaSelect.value)) {
+    plataformaSelect.value = "";
+  }
+
+  if (imagem) {
+    document.getElementById("f-img-url").value = imagem;
+    document.getElementById("url-wrap").style.display = "block";
+
+    const preview = document.getElementById("preview-img");
+    preview.src = imagem;
+    preview.style.display = "block";
+  }
+
+  const info = document.getElementById("rawg-selected");
+  info.innerHTML =
+    `✅ <b>${escaparHtmlRawg(jogo.name)}</b> selecionado.<br>` +
+    `Disponível em: ${escaparHtmlRawg(plataformas.join(" • ") || "não mapeado")}. ` +
+    `Escolha abaixo a plataforma em que você jogou.`;
+  info.style.display = "block";
+
+  document.getElementById("rawg-results").innerHTML = "";
+  document.getElementById("rawg-search").value = jogo.name || "";
+
+  modalStatus("Dados do jogo preenchidos. Complete suas informações pessoais.", "ok");
+};
+
+document.getElementById("rawg-search")?.addEventListener("keydown", e => {
+  if (e.key === "Enter") {
+    e.preventDefault();
+    buscarRawg();
+  }
+});
+
+
 
 
 /* ============================================================
@@ -1449,6 +1931,8 @@ window.abrirModal = function() {
     "modal"
   ).style.display = "flex";
 
+  prepararRawgUI();
+
 };
 
 
@@ -1650,6 +2134,20 @@ window.salvarJogo = async function() {
 
       nome,
 
+      rawgId:
+        document.getElementById("f-rawg-id").value || null,
+
+      rawgSlug:
+        document.getElementById("f-rawg-slug").value || "",
+
+      rawgReleased:
+        document.getElementById("f-rawg-released").value || "",
+
+      rawgPlatforms:
+        (document.getElementById("f-rawg-platforms").value || "")
+          .split("|")
+          .filter(Boolean),
+
       genero:
         document
           .getElementById("f-genero")
@@ -1794,6 +2292,21 @@ window.editarJogo = function(e, id) {
     "f-nome"
   ).value =
     j.nome || "";
+
+  document.getElementById("f-rawg-id").value = j.rawgId || "";
+  document.getElementById("f-rawg-slug").value = j.rawgSlug || "";
+  document.getElementById("f-rawg-released").value = j.rawgReleased || "";
+  document.getElementById("f-rawg-platforms").value =
+    Array.isArray(j.rawgPlatforms) ? j.rawgPlatforms.join("|") : "";
+
+  prepararRawgUI();
+
+  if (j.rawgId) {
+    const rawgSelecionado = document.getElementById("rawg-selected");
+    rawgSelecionado.innerHTML =
+      `🎮 Jogo vinculado à biblioteca RAWG (ID ${escaparHtmlRawg(j.rawgId)}).`;
+    rawgSelecionado.style.display = "block";
+  }
 
 
   document.getElementById(
@@ -2080,29 +2593,23 @@ window.ordenarPorNota =
       linhasVisiveis()
         .sort(
 
-          (a, b) => {
+          (a, b) =>
 
-            const notaA =
-              parseFloat(
-                a.cells[5]
-                  .querySelector(".nota-num")
-                  ?.textContent
-                  .trim()
-                  .replace(",", ".")
-              ) || 0;
-
-            const notaB =
+            (
               parseFloat(
                 b.cells[5]
-                  .querySelector(".nota-num")
-                  ?.textContent
-                  .trim()
-                  .replace(",", ".")
-              ) || 0;
+                  .textContent
+              ) || 0
+            )
 
-            return notaB - notaA;
+            -
 
-          }
+            (
+              parseFloat(
+                a.cells[5]
+                  .textContent
+              ) || 0
+            )
 
         )
 
@@ -2373,6 +2880,10 @@ function limparModal() {
 
   [
     "doc-id",
+    "f-rawg-id",
+    "f-rawg-slug",
+    "f-rawg-released",
+    "f-rawg-platforms",
     "f-nome",
     "f-horas",
     "f-nota",
@@ -2429,6 +2940,18 @@ function limparModal() {
     "modal-status"
   ).style.display =
     "none";
+
+  const rawgResults = document.getElementById("rawg-results");
+  if (rawgResults) rawgResults.innerHTML = "";
+
+  const rawgSelected = document.getElementById("rawg-selected");
+  if (rawgSelected) {
+    rawgSelected.innerHTML = "";
+    rawgSelected.style.display = "none";
+  }
+
+  const rawgSearch = document.getElementById("rawg-search");
+  if (rawgSearch) rawgSearch.value = "";
 
 }
 
