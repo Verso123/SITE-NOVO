@@ -170,6 +170,15 @@ header{
 .reply-banner{display:none;align-items:center;justify-content:space-between;gap:8px;background:#171724;border:1px solid #303044;border-radius:7px;padding:6px 8px;margin-bottom:6px;font-size:9px;color:#aaa}.reply-banner.show{display:flex}.reply-banner b{color:#ddd}.reply-close{border:0;background:transparent;color:#aaa}
 .emoji-menu{position:fixed;display:none;z-index:16000;background:#171725;border:1px solid #3b3b55;border-radius:10px;padding:7px;box-shadow:0 18px 50px #000c;gap:4px}.emoji-menu.show{display:flex}.emoji-menu button{border:0;background:#242438;border-radius:7px;padding:7px;font-size:16px}
 
+
+/* V3 — DEAFEN + PINNED + TYPING + MENTIONS + UNREAD */
+.unread-badge{display:none;min-width:16px;height:16px;padding:0 5px;border-radius:999px;background:#ed5d68;color:#fff;font-size:9px;font-weight:900;align-items:center;justify-content:center;margin-left:5px}.unread-badge.show{display:inline-flex}
+.typing-indicator{min-height:18px;padding:3px 2px 0;color:#777;font-size:9px}.typing-indicator b{color:#aaa}.typing-dots{letter-spacing:2px;animation:typingPulse 1s infinite}@keyframes typingPulse{0%,100%{opacity:.35}50%{opacity:1}}
+.mention{background:#3d356d;color:#d9d2ff;border-radius:3px;padding:0 2px;font-weight:800}.chat-msg.mentioned{background:#2b2619;border-left:2px solid #e9bd5a}.chat-msg.pinned{box-shadow:inset 2px 0 0 #e9bd5a}.pin-mark{font-size:8px;color:#e9bd5a;margin-left:5px}
+.chat-titlebar{display:flex;align-items:center;justify-content:space-between;gap:8px}.chat-title-actions{display:flex;align-items:center;gap:5px}.chat-title-btn{border:1px solid #303044;background:#171724;color:#aaa;border-radius:6px;padding:4px 6px;font-size:9px}.chat-title-btn:hover{color:#fff;background:#242438}
+.pins-bg{position:fixed;inset:0;background:#0009;display:none;align-items:center;justify-content:center;z-index:17000}.pins-bg.show{display:flex}.pins-card{width:min(560px,92vw);max-height:72vh;background:#151522;border:1px solid #34344b;border-radius:14px;box-shadow:0 25px 80px #000c;display:flex;flex-direction:column;overflow:hidden}.pins-head{padding:14px 16px;border-bottom:1px solid #2b2b3e;display:flex;align-items:center;justify-content:space-between;font-size:13px;font-weight:900}.pins-head button{border:0;background:transparent;color:#aaa;font-size:18px}.pins-list{padding:10px;overflow:auto}.pin-item{padding:10px;border-radius:8px;background:#1a1a27;margin-bottom:7px;border:1px solid #2e2e43}.pin-item-head{font-size:9px;color:#8d8d9d;margin-bottom:4px}.pin-item-text{font-size:11px;color:#ddd;word-break:break-word}.pin-empty{padding:25px;text-align:center;color:#777;font-size:11px}
+.deafened{background:#351419!important;border-color:#5a222b!important;color:#ff929d!important}
+
 /* RESPONSIVE */
 @media(max-width:900px){
   .call-shell{grid-template-columns:190px minmax(0,1fr)}
@@ -182,6 +191,22 @@ header{
   .stage{margin:8px}
   .controls{gap:5px}.controls button{padding:9px 10px}
 }
+
+/* ===== V5 MEGA UPDATE ===== */
+.lobby-room-tools{display:flex;justify-content:flex-end;margin:-8px 0 12px}.lobby-room-tools button,.mini-top-btn{border:1px solid #343449;background:#1b1b28;color:#ddd;border-radius:8px;padding:7px 10px;font-weight:800;font-size:10px}.lobby-room-tools button:hover,.mini-top-btn:hover{background:#29283b;color:#fff}
+.v5-room-title{display:flex;align-items:center;justify-content:space-between}.v5-room-title button{width:25px;height:25px;border:0;border-radius:6px;background:#1c1c29;color:#aaa}.v5-room-title button:hover{background:#29283b;color:#fff}.room-lock{font-size:9px;margin-left:4px}.room-count{font-size:9px;color:#777;margin-left:auto}.room-admin-mark{font-size:9px;color:#e9bd5a}
+.dock-activity{font-size:8px;color:#9b8aff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:110px;margin-top:1px}.v5-top-actions{display:flex;align-items:center;gap:7px}.v5-shortcuts{font-size:9px;color:#666}
+.camera-strip{display:none!important}.v5-media-grid{position:absolute;inset:10px;display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));grid-auto-rows:minmax(150px,1fr);gap:9px;align-content:center;overflow:auto;z-index:3}.v5-media-grid:empty{display:none}.v5-media-card{position:relative;background:#0d0d14;border:1px solid #29293a;border-radius:11px;overflow:hidden;min-height:150px;cursor:pointer;transition:.15s}.v5-media-card.selected{border-color:#8c7df8;box-shadow:0 0 0 2px #7c6af744}.v5-media-card.speaking-card{border-color:#3fc978;box-shadow:0 0 0 2px #3fc97866,0 0 24px #3fc97822}.v5-media-card.dragging{opacity:.45}.v5-media-card video{width:100%;height:100%;object-fit:cover;background:#050508;display:block}.v5-media-card.screen video{object-fit:contain}.v5-media-label{position:absolute;left:7px;bottom:7px;background:#000b;padding:4px 7px;border-radius:6px;font-size:9px;font-weight:900;max-width:70%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.v5-media-badges{position:absolute;right:7px;top:7px;display:flex;gap:4px}.v5-media-badge{font-size:8px;background:#000b;border-radius:5px;padding:3px 5px}.v5-viewers{position:absolute;right:7px;bottom:7px;background:#000b;border-radius:6px;padding:4px 7px;font-size:8px;max-width:45%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.v5-media-toolbar{position:absolute;left:50%;top:9px;transform:translateX(-50%);z-index:8;display:none;align-items:center;gap:5px;background:#0e0e16e8;border:1px solid #303044;border-radius:9px;padding:5px 7px}.v5-media-toolbar.show{display:flex}.v5-media-toolbar span{font-size:9px;color:#aaa;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.v5-media-toolbar button{border:0;background:#222233;color:#ddd;border-radius:5px;padding:5px 7px;font-size:9px}.v5-media-grid.focus-hidden{display:none!important}
+#mainStream{z-index:5;position:relative}.stream-overlay{z-index:6}.empty{z-index:1}.focus-mode .sidebar,.focus-mode .members-panel{display:none!important}.focus-mode .call-shell{grid-template-columns:1fr!important}.focus-mode .topbar{display:none!important}.focus-mode .stage{margin:0;border-radius:0;border:0}.focus-mode .controls{background:#0b0b12;padding-top:8px}
+.v5-stream-tile{display:block}.v5-stream-tile .stream-viewer-count{font-size:8px;color:#a99cff;margin-top:3px}.stream-tile[draggable="true"]{cursor:grab}.stream-tile.dragging{opacity:.45}
+.setting-input,.v5-field input{width:100%;background:#0d0d16;border:1px solid #343449;color:#eee;border-radius:8px;padding:10px}.inline-setting-btn{margin-top:7px;border:1px solid #343449;background:#222235;color:#ddd;border-radius:7px;padding:7px 9px;font-size:10px}.afk-setting{padding-top:8px;border-top:1px solid #262637}
+.v5-modal-bg{position:fixed;inset:0;background:#000a;display:none;align-items:center;justify-content:center;z-index:17000}.v5-modal-bg.show{display:flex}.v5-modal-card{width:min(560px,92vw);max-height:86vh;overflow:auto;background:#151522;border:1px solid #383850;border-radius:15px;padding:17px;box-shadow:0 25px 80px #000d}.v5-modal-card.small{width:min(430px,92vw)}.v5-modal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}.v5-modal-head b{font-size:15px}.v5-modal-head button{width:30px;height:30px;border:0;border-radius:7px;background:#242438;color:#ddd}.v5-help{font-size:10px;color:#888;line-height:1.5;margin:0 0 12px}.sound-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}.sound-grid button{border:1px solid #35354a;background:#202030;color:#eee;border-radius:9px;padding:14px 9px;font-weight:900}.sound-grid button:hover{border-color:#7c6af7;background:#29283c}.v5-field{margin:9px 0}.v5-field label{display:block;font-size:9px;font-weight:900;color:#888;margin-bottom:5px}.v5-row-buttons{display:flex;gap:7px;flex-wrap:wrap;margin:11px 0}.v5-row-buttons button,.primary-mini,.danger-mini{border:1px solid #35354a;background:#242438;color:#ddd;border-radius:7px;padding:8px 10px;font-weight:800;font-size:10px}.primary-mini{background:#6d5be8!important;border-color:#7c6af7!important;color:#fff!important}.danger-mini{background:#351419!important;border-color:#5a222b!important;color:#ff9ba5!important}.music-status{font-size:10px;color:#aaa;background:#0e0e17;border-radius:8px;padding:9px;margin-top:8px}.v5-check{font-size:10px;color:#aaa;display:flex;align-items:center;gap:7px;margin:8px 0}.v5-create-room{border-bottom:1px solid #2a2a3a;padding-bottom:13px;margin-bottom:12px}.v5-room-manager-list{display:flex;flex-direction:column;gap:7px}.v5-room-manage-item{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;background:#0f0f18;border:1px solid #29293b;border-radius:9px;padding:9px}.v5-room-manage-name{font-size:11px;font-weight:900}.v5-room-manage-sub{font-size:8px;color:#777;margin-top:2px}.v5-room-manage-actions{display:flex;gap:5px;flex-wrap:wrap;justify-content:flex-end}.v5-room-manage-actions button{border:0;background:#252538;color:#ccc;border-radius:6px;padding:6px 7px;font-size:9px}
+.v5-user-context{position:fixed;display:none;z-index:18000;width:260px;background:#151522;border:1px solid #3a3a50;border-radius:11px;box-shadow:0 20px 60px #000d;padding:10px}.v5-user-context.show{display:block}.v5-user-context h4{margin:0 0 3px;font-size:12px}.v5-user-context .sub{font-size:8px;color:#777;margin-bottom:9px}.v5-context-row{display:grid;grid-template-columns:32px 1fr 38px;gap:6px;align-items:center;margin:7px 0}.v5-context-row button,.v5-context-action{border:0;background:#242438;color:#ddd;border-radius:6px;padding:6px;font-size:10px}.v5-context-row input{width:100%;accent-color:#7c6af7}.v5-context-action{display:block;width:100%;text-align:left;margin-top:5px}.v5-context-action.admin{color:#e9bd5a}.v5-context-action.danger{color:#ff8e99;background:#32171c}
+.member-state-line{display:flex;gap:4px;flex-wrap:wrap;margin-top:3px}.call-chip{font-size:8px;padding:2px 4px;border-radius:4px;background:#20202d;color:#999}.call-chip.on{color:#bdb3ff;background:#28223c}.call-chip.live{color:#ff9aa3;background:#35171c;position:static}.call-chip.game{color:#88dbac;background:#163023}.member-role{font-size:8px;margin-left:4px}.member-role.owner{color:#e9bd5a}.member-role.admin{color:#9b8aff}.member[data-remote="1"]{user-select:none}
+.music-bot-member{opacity:.95}.music-bot-member .avatar{background:linear-gradient(135deg,#45bd85,#236c50)}
+@media(max-width:900px){.v5-shortcuts{display:none}.v5-top-actions{gap:4px}.mini-top-btn{padding:5px 6px}.v5-media-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:650px){.v5-media-grid{grid-template-columns:1fr}.v5-media-toolbar span{display:none}.sound-grid{grid-template-columns:1fr}.v5-room-manage-item{grid-template-columns:1fr}}
+
 </style></head><body>
 <header>
   <div class="header-brand">🎧 <span>Meu Espaço Voice</span></div>
@@ -193,13 +218,8 @@ header{
   <h1 class="lobby-title">Canais de voz</h1>
   <div class="lobby-sub">Escolha uma sala para entrar. Os avatares mostram quem já está conectado.</div>
 
-  <div class="fixed-rooms">
-    <button id="roomBtn-sala1" onclick="entrarSalaFixa('sala1')"><span>🔊 Sala 1</span><span class="room-users" id="users-sala1"></span></button>
-    <button id="roomBtn-sala2" onclick="entrarSalaFixa('sala2')"><span>🔊 Sala 2</span><span class="room-users" id="users-sala2"></span></button>
-    <button id="roomBtn-sala3" onclick="entrarSalaFixa('sala3')"><span>🔊 Sala 3</span><span class="room-users" id="users-sala3"></span></button>
-    <button id="roomBtn-sala4" onclick="entrarSalaFixa('sala4')"><span>🔊 Sala 4</span><span class="room-users" id="users-sala4"></span></button>
-    <button id="roomBtn-sala5" onclick="entrarSalaFixa('sala5')"><span>🔊 Sala 5</span><span class="room-users" id="users-sala5"></span></button>
-  </div>
+  <div class="lobby-room-tools"><button onclick="abrirGerenciadorSalas()">➕ Criar / gerenciar salas</button></div>
+  <div class="fixed-rooms" id="fixedRooms"><div class="room-empty">Carregando salas...</div></div>
 
   <div id="lobbyErro" style="display:none;margin-top:14px;padding:12px 14px;border-radius:9px;background:#321116;border:1px solid #66252e;color:#ff9a9a;font-size:12px"></div>
 </section><section class="room" id="room">
@@ -212,18 +232,14 @@ header{
     </div>
 
     <div class="rooms-nav">
-      <div class="rooms-nav-title">Salas</div>
-      <div class="room-nav-item" id="nav-sala1" onclick="trocarSala('sala1')"><span class="hash">🔊</span><span>Sala 1</span><span class="room-users" id="side-users-sala1" style="margin-left:auto"></span></div>
-      <div class="room-nav-item" id="nav-sala2" onclick="trocarSala('sala2')"><span class="hash">🔊</span><span>Sala 2</span><span class="room-users" id="side-users-sala2" style="margin-left:auto"></span></div>
-      <div class="room-nav-item" id="nav-sala3" onclick="trocarSala('sala3')"><span class="hash">🔊</span><span>Sala 3</span><span class="room-users" id="side-users-sala3" style="margin-left:auto"></span></div>
-      <div class="room-nav-item" id="nav-sala4" onclick="trocarSala('sala4')"><span class="hash">🔊</span><span>Sala 4</span><span class="room-users" id="side-users-sala4" style="margin-left:auto"></span></div>
-      <div class="room-nav-item" id="nav-sala5" onclick="trocarSala('sala5')"><span class="hash">🔊</span><span>Sala 5</span><span class="room-users" id="side-users-sala5" style="margin-left:auto"></span></div>
-      <div class="room-nav-item" onclick="abrirChat()"><span class="hash">#</span> chat-geral <span style="margin-left:auto;color:#7c6af7">abrir</span></div>
+      <div class="rooms-nav-title v5-room-title"><span>Salas</span><button onclick="abrirGerenciadorSalas()" title="Gerenciar salas">＋</button></div>
+      <div id="roomsNavDynamic"><div class="room-empty" style="padding:8px">Carregando...</div></div>
+      <div class="room-nav-item" onclick="abrirChat()"><span class="hash">#</span> chat-geral <span id="sideUnread" class="unread-badge"></span><span style="margin-left:auto;color:#7c6af7">abrir</span></div>
     </div>
 
     <div class="streams">
       <div class="streams-title">Transmissões</div>
-      <div class="stream-list">
+      <div class="stream-list" id="streamList">
         <div class="stream-tile" id="streamTile" onclick="abrirTransmissao()" oncontextmenu="abrirMenuAudio(event)">
           <div class="stream-thumb">
             <video id="streamPreview" autoplay muted playsinline></video>
@@ -244,11 +260,12 @@ header{
         <div class="dock-avatar" id="dockAvatar">EU</div>
         <div class="dock-text">
           <div class="dock-name" id="dockName">Você</div>
-          <div class="dock-status" id="dockStatus">● Online</div>
+          <div class="dock-status" id="dockStatus">● Online</div><div class="dock-activity" id="dockActivity"></div>
         </div>
       </div>
       <div class="dock-buttons">
         <button class="dock-btn" id="dockMic" onclick="toggleMic()" title="Microfone (Ctrl+M)">🎙️</button>
+        <button class="dock-btn" id="dockDeafen" onclick="toggleDeafen()" title="Ensurdecer áudio (Ctrl+D)">🎧</button>
         <button class="dock-btn" onclick="abrirConfiguracoes()" title="Configurações">⚙️</button>
       </div>
     </div>
@@ -260,9 +277,11 @@ header{
         <div class="top-title">🔊 <span id="roomCode"></span></div>
         <div class="connection-badge" id="status">Preparando...</div>
       </div>
-      <div style="display:flex;align-items:center;gap:12px">
+      <div class="v5-top-actions">
         <div class="ptt-indicator" id="pttIndicator"><span class="ptt-dot"></span>Push to Talk</div>
-        <div style="font-size:10px;color:#666">Ctrl+M mute • Ctrl+Shift+S transmitir</div>
+        <button class="mini-top-btn" onclick="copiarConviteV5()">🔗 Convite</button>
+        <button class="mini-top-btn" onclick="abrirGerenciadorSalas()">⚙ Sala</button>
+        <div class="v5-shortcuts">Ctrl+M mute • Ctrl+D ensurdecer • Ctrl+Shift+S transmitir</div>
       </div>
     </div>
 
@@ -282,13 +301,26 @@ header{
         <div class="camera-card" id="localCameraCard"><video id="localCamera" autoplay muted playsinline></video><div class="camera-label">Você</div></div>
         <div class="camera-card" id="remoteCameraCard"><video id="remoteCamera" autoplay playsinline></video><div class="camera-label" id="remoteCameraName">Amigo</div></div>
       </div>
+      <div class="v5-media-grid" id="mediaGrid"></div>
+      <div class="v5-media-toolbar" id="mediaToolbar">
+        <span id="selectedMediaLabel">Nenhuma mídia selecionada</span>
+        <button onclick="pictureInPictureV5()">▣ PiP</button>
+        <button onclick="popoutV5()">↗ Pop-out</button>
+        <button onclick="voltarGradeV5()">▦ Grade</button>
+      </div>
     </div>
 
     <div class="controls">
       <button class="primary" id="mic" onclick="toggleMic()">🎙️ Microfone ligado</button>
+      <button id="deafenBtn" onclick="toggleDeafen()">🎧 Ensurdecer</button>
       <button id="cameraBtn" onclick="toggleCamera()">📷 Ligar câmera</button>
-       <button onclick="compartilhar()">🖥️ Compartilhar</button>
+      <button onclick="compartilhar()">🖥️ Compartilhar</button>
       <button onclick="pararTela()">⏹ Parar tela</button>
+      <button onclick="abrirSoundboardV5()">🔊 Soundboard</button>
+      <button onclick="abrirMusicaV5()">🎵 Música</button>
+      <button onclick="toggleFocusModeV5()">🎬 Foco</button>
+      <button onclick="pictureInPictureV5()">▣ PiP</button>
+      <button onclick="popoutV5()">↗ Pop-out</button>
       <button onclick="telaCheia()">⛶ Tela cheia</button>
       <button id="btnAjusteTela" onclick="alternarAjusteTela()">▣ Preencher</button>
       <button onclick="abrirConfiguracoes()">⚙️ Áudio</button>
@@ -299,13 +331,13 @@ header{
   <aside class="members-panel">
     <div class="right-tabs">
       <button class="right-tab active" id="tabMembers" onclick="mostrarPainelDireito('members')">Participantes</button>
-      <button class="right-tab" id="tabChat" onclick="mostrarPainelDireito('chat')">Chat</button>
+      <button class="right-tab" id="tabChat" onclick="mostrarPainelDireito('chat')">Chat <span id="tabUnread" class="unread-badge"></span></button>
     </div>
 
     <div class="right-view active" id="viewMembers">
       <div class="channel">
         <div class="channel-title">Participantes</div>
-        <div class="channel-sub">Clique em alguém para ajustar o volume</div>
+        <div class="channel-sub">Clique para volume • botão direito para mais opções</div>
       </div>
       <div class="members">
         <div class="members-title">Na chamada</div>
@@ -314,7 +346,7 @@ header{
     </div>
 
     <div class="right-view" id="viewChat">
-      <div class="chat-titlebar"># chat-geral</div>
+      <div class="chat-titlebar"><span># chat-geral</span><div class="chat-title-actions"><button class="chat-title-btn" onclick="abrirFixadas()">📌 Fixadas</button></div></div>
       <div class="chat-messages" id="chatMessages">
         <div class="chat-empty">Nenhuma mensagem ainda.</div>
       </div>
@@ -324,6 +356,7 @@ header{
           <input id="chatInput" maxlength="500" placeholder="Mensagem em #chat-geral" autocomplete="off">
           <button class="chat-send" onclick="enviarMensagemChat()">➤</button>
         </div>
+        <div class="typing-indicator" id="typingIndicator"></div>
       </div>
     </div>
   </aside>
@@ -373,8 +406,15 @@ header{
     </div>
 
     <div class="setting-row">
+      <label>ATIVIDADE / JOGO (manual no navegador)</label>
+      <input id="activityGame" class="setting-input" maxlength="60" placeholder="Ex.: Jogando Minecraft">
+      <div class="quality-note">Um site não consegue descobrir automaticamente qual jogo está aberto no Windows. Este campo deixa a integração pronta para uma futura versão desktop.</div>
+    </div>
+
+    <div class="setting-row">
       <label>MICROFONE</label>
       <select id="micDevice"><option value="">Microfone padrão</option></select>
+      <button class="inline-setting-btn" onclick="testarMicrofoneV5()">🎙️ Testar por 5 segundos</button>
     </div>
 
     <div class="setting-row">
@@ -411,7 +451,13 @@ header{
     <div class="setting-check"><span>Cancelamento de eco</span><input type="checkbox" id="echoCancellation" checked></div>
     <div class="setting-check"><span>Supressão de ruído</span><input type="checkbox" id="noiseSuppression" checked></div>
     <div class="setting-check"><span>Ganho automático</span><input type="checkbox" id="autoGainControl" checked></div>
+    <div class="setting-check"><span>Supressão aprimorada + noise gate</span><input type="checkbox" id="enhancedNoise"></div>
     <div class="setting-check"><span>Sons de entrada/saída</span><input type="checkbox" id="joinLeaveSounds" checked></div>
+    <div class="setting-row afk-setting">
+      <label>CANAL AFK</label>
+      <div class="quality-grid"><select id="afkEnabled"><option value="1">Ativado</option><option value="0">Desativado</option></select><select id="afkMinutes"><option value="5">5 minutos</option><option value="10">10 minutos</option><option value="15">15 minutos</option><option value="30">30 minutos</option><option value="60">60 minutos</option></select></div>
+      <div class="quality-note">Sem atividade no teclado/mouse, você será movido para o canal AFK.</div>
+    </div>
 
     <div class="settings-actions">
       <button onclick="fecharConfiguracoes()">Cancelar</button>
@@ -420,11 +466,58 @@ header{
   </div>
 </div>
 
+<div class="pins-bg" id="pinsBg" onclick="fecharFixadasFundo(event)">
+  <div class="pins-card">
+    <div class="pins-head"><span>📌 Mensagens fixadas</span><button onclick="fecharFixadas()">×</button></div>
+    <div class="pins-list" id="pinsList"><div class="pin-empty">Nenhuma mensagem fixada.</div></div>
+  </div>
+</div>
+
+<div class="v5-modal-bg" id="soundboardBg" onclick="fecharModalV5(event,'soundboardBg')">
+  <div class="v5-modal-card small">
+    <div class="v5-modal-head"><b>🔊 Soundboard</b><button onclick="fecharModalIdV5('soundboardBg')">×</button></div>
+    <p class="v5-help">Os sons são sincronizados pelo Firebase e tocados para todos que estão na sala.</p>
+    <div class="sound-grid">
+      <button onclick="tocarSoundV5('airhorn')">📣 Airhorn</button><button onclick="tocarSoundV5('game')">🎮 Game</button>
+      <button onclick="tocarSoundV5('pop')">💥 Pop</button><button onclick="tocarSoundV5('laugh')">😂 Risada</button>
+      <button onclick="tocarSoundV5('alert')">🚨 Alerta</button><button onclick="tocarSoundV5('victory')">🏆 Vitória</button>
+    </div>
+  </div>
+</div>
+
+<div class="v5-modal-bg" id="musicBg" onclick="fecharModalV5(event,'musicBg')">
+  <div class="v5-modal-card">
+    <div class="v5-modal-head"><b>🎵 Music Bot</b><button onclick="fecharModalIdV5('musicBg')">×</button></div>
+    <p class="v5-help">Use um link direto de áudio (.mp3/.ogg/.wav). YouTube e Spotify não fornecem áudio direto para um site comum.</p>
+    <div class="v5-field"><label>Nome da música</label><input id="musicTitle" placeholder="Minha música"></div>
+    <div class="v5-field"><label>URL direta do áudio</label><input id="musicUrl" placeholder="https://.../musica.mp3"></div>
+    <div class="music-status" id="musicStatus">Nenhuma música tocando.</div>
+    <div class="v5-row-buttons"><button class="primary-mini" onclick="tocarMusicaV5()">▶ Tocar</button><button onclick="pausarMusicaV5()">⏸ Pausar</button><button onclick="retomarMusicaV5()">⏯ Retomar</button><button class="danger-mini" onclick="pararMusicaV5()">⏹ Parar</button></div>
+    <div class="v5-field"><label>Volume local</label><input type="range" id="musicVolume" min="0" max="100" value="55" oninput="volumeMusicaV5(this.value)"></div>
+  </div>
+</div>
+<audio id="musicBotAudio" preload="auto"></audio>
+
+<div class="v5-modal-bg" id="roomManagerBg" onclick="fecharModalV5(event,'roomManagerBg')">
+  <div class="v5-modal-card room-manager-card">
+    <div class="v5-modal-head"><b>⚙️ Gerenciar salas</b><button onclick="fecharModalIdV5('roomManagerBg')">×</button></div>
+    <div class="v5-create-room">
+      <div class="v5-field"><label>Nome da nova sala</label><input id="newRoomName" maxlength="32" placeholder="Sala dos amigos"></div>
+      <label class="v5-check"><input id="newRoomPrivate" type="checkbox" onchange="togglePinFieldV5()"> 🔒 Sala privada</label>
+      <div class="v5-field" id="newRoomPinRow" style="display:none"><label>PIN</label><input id="newRoomPin" maxlength="12" placeholder="1234"></div>
+      <button class="primary-mini" onclick="criarSalaV5()">＋ Criar sala</button>
+    </div>
+    <div class="v5-room-manager-list" id="roomManagerList"></div>
+  </div>
+</div>
+
+<div class="v5-user-context" id="v5UserContext" onclick="event.stopPropagation()"></div>
+
 <div class="event-feed" id="eventFeed"></div>
 <div class="toast" id="toast"></div>
 </section></main>
 <script type="module">
-import{initializeApp}from'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';import{getAuth,onAuthStateChanged}from'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';import{getFirestore,doc,setDoc,getDoc,updateDoc,collection,addDoc,onSnapshot,getDocs,deleteDoc,runTransaction,serverTimestamp,arrayUnion,query,orderBy,limit}from'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+import{initializeApp}from'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';import{getAuth,onAuthStateChanged}from'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';import{getFirestore,doc,setDoc,getDoc,updateDoc,collection,addDoc,onSnapshot,getDocs,deleteDoc,runTransaction,serverTimestamp,arrayUnion,arrayRemove,query,orderBy,limit}from'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 const cfg={apiKey:'AIzaSyAaIxroCAMOvDxg5aLUr2P8jweygemm1uM',authDomain:'lista-de-jogos-f1874.firebaseapp.com',projectId:'lista-de-jogos-f1874',storageBucket:'lista-de-jogos-f1874.firebasestorage.app',messagingSenderId:'692334284655',appId:'1:692334284655:web:a55db647b5f8b39d00a29a'};const app=initializeApp(cfg),auth=getAuth(app),db=getFirestore(app);let pc,micStream,screenStream,roomId,isHost=false,unsubs=[];const remote=document.getElementById('remote'),status=document.getElementById('status'),streamPreview=document.getElementById('streamPreview'),mainStream=document.getElementById('mainStream');let remoteStreamAtual=null;
 let screenPc=null;
 let cameraStream=null;
@@ -474,6 +567,7 @@ onAuthStateChanged(auth,async u=>{
     if(meuPerfilAtual.fotoURL) da.innerHTML=`<img src="${meuPerfilAtual.fotoURL}" alt="">`;
     else da.textContent=iniciais(meuPerfilAtual.nome||'EU');
   }
+  aplicarEstadoDeafen();
   observarSalas();
 });const NOMES_SALAS={sala1:'Sala 1',sala2:'Sala 2',sala3:'Sala 3',sala4:'Sala 4',sala5:'Sala 5'};
 const rtc={iceServers:[{urls:['stun:stun.l.google.com:19302','stun:stun1.l.google.com:19302']}]};
@@ -709,7 +803,7 @@ async function criarViewerScreenPc(r,d){
       const a=document.getElementById('remoteScreenAudio');
       a.srcObject=new MediaStream([e.track]);
       a.volume=(Number(document.getElementById('volumeTransmissao')?.value||100))/100;
-      a.muted=document.getElementById('muteTransmissao')?.dataset.muted==='1';
+      a.muted=ensurdecido||document.getElementById('muteTransmissao')?.dataset.muted==='1';
       a.play().catch(()=>{});
     }
   };
@@ -831,7 +925,7 @@ async function setup(){
         const a=document.getElementById('remoteMicAudio');
         a.srcObject=new MediaStream([e.track]);
         a.volume=(Number(document.getElementById('volumeAmigo')?.value||100))/100;
-        a.muted=document.getElementById('muteAmigo')?.dataset.muted==='1';
+        a.muted=ensurdecido||document.getElementById('muteAmigo')?.dataset.muted==='1';
         a.play().catch(()=>{});
         setTimeout(()=>{
           const remoto=document.querySelector('#roomMembers .member[data-remote="1"]');
@@ -847,7 +941,7 @@ async function setup(){
         const a=document.getElementById('remoteScreenAudio');
         a.srcObject=new MediaStream([e.track]);
         a.volume=(Number(document.getElementById('volumeTransmissao')?.value||100))/100;
-        a.muted=document.getElementById('muteTransmissao')?.dataset.muted==='1';
+        a.muted=ensurdecido||document.getElementById('muteTransmissao')?.dataset.muted==='1';
         a.play().catch(()=>{});
       }
     }
@@ -1119,6 +1213,10 @@ async function cleanupSalaAtual({deixarLobby=false}={}){
       document.getElementById('mainStream').style.display='none';
       document.getElementById('empty').style.display='block';
     }catch(_){}
+
+    try{if(auth.currentUser)await deleteDoc(doc(db,'chats','geral','digitando',auth.currentUser.uid)).catch(()=>{});}catch(_){}
+    if(typingUnsub){try{typingUnsub()}catch(_){} typingUnsub=null;}
+    chatCarregado=false;chatInicializado=false;idsMensagensConhecidas=new Set();
 
     fixedRoomKey=null;
     membrosAnteriores=new Map();
@@ -1640,7 +1738,7 @@ function aplicarVolumeUsuario(uid){
 
   const cfg=cfgVolume(uid);
   audio.volume=cfg.volume;
-  audio.muted=cfg.muted;
+  audio.muted=ensurdecido||cfg.muted;
 }
 
 function abrirVolumeUsuario(e,uid,nome){
@@ -1740,7 +1838,7 @@ window.mutarAmigo=()=>{
   const b=document.getElementById('muteAmigo');
   const novo=b.dataset.muted!=='1';
   b.dataset.muted=novo?'1':'0';
-  a.muted=novo;
+  a.muted=ensurdecido||novo;
   b.textContent=novo?'🔇':'🔊';
 };
 window.mutarTransmissao=()=>{
@@ -1748,7 +1846,7 @@ window.mutarTransmissao=()=>{
   const b=document.getElementById('muteTransmissao');
   const novo=b.dataset.muted!=='1';
   b.dataset.muted=novo?'1':'0';
-  a.muted=novo;
+  a.muted=ensurdecido||novo;
   b.textContent=novo?'🔇':'🔊';
 };
 
@@ -1931,6 +2029,30 @@ function avatarChatHTML(msg){
 let chatDocsAtuais=[];
 let replyState=null;
 let emojiMsgId=null;
+let mensagensNaoLidas=0;
+let chatInicializado=false;
+let idsMensagensConhecidas=new Set();
+let typingUnsub=null;
+let typingTimer=null;
+let typingLastWrite=0;
+let ensurdecido=localStorage.getItem('voiceDeafened')==='1';
+
+
+function estaChatAberto(){return document.getElementById('viewChat')?.classList.contains('active') && document.getElementById('room')?.style.display!=='none';}
+function atualizarBadgeNaoLidas(){for(const id of ['tabUnread','sideUnread']){const el=document.getElementById(id);if(!el)continue;el.textContent=mensagensNaoLidas>99?'99+':String(mensagensNaoLidas);el.classList.toggle('show',mensagensNaoLidas>0);}}
+function zerarNaoLidas(){mensagensNaoLidas=0;atualizarBadgeNaoLidas();}
+function tokensMeuNome(){const nome=(meuPerfilAtual.nome||'').trim().toLowerCase();const first=nome.split(/\s+/)[0]||'';return [...new Set([nome,first].filter(Boolean))];}
+function mensagemMencionaMe(texto){const t=String(texto||'').toLowerCase();return tokensMeuNome().some(n=>t.includes('@'+n));}
+function formatarTextoChat(texto){let out=escaparHtml(texto||'');out=out.replace(/(^|\s)(@[\p{L}\p{N}_.-]+)/gu,(m,p,a)=>`${p}<span class="mention">${a}</span>`);return out;}
+function aplicarEstadoDeafen(){
+  const mic=document.getElementById('remoteMicAudio'), tela=document.getElementById('remoteScreenAudio');
+  if(mic){const remoto=[...document.querySelectorAll('#roomMembers .member[data-remote="1"]')][0];const cfg=remoto?cfgVolume(remoto.dataset.uid):{muted:false};mic.muted=ensurdecido||!!cfg.muted;}
+  if(tela){const manual=document.getElementById('muteTransmissao')?.dataset.muted==='1';tela.muted=ensurdecido||manual;}
+  const b=document.getElementById('deafenBtn'),d=document.getElementById('dockDeafen');
+  if(b){b.textContent=ensurdecido?'🔇 Áudio ensurdecido':'🎧 Ensurdecer';b.classList.toggle('deafened',ensurdecido);}
+  if(d){d.textContent=ensurdecido?'🔇':'🎧';d.classList.toggle('deafened',ensurdecido);}
+}
+window.toggleDeafen=()=>{ensurdecido=!ensurdecido;localStorage.setItem('voiceDeafened',ensurdecido?'1':'0');aplicarEstadoDeafen();mostrarToast(ensurdecido?'Você não ouvirá os outros':'Áudio recebido ativado');};
 
 function renderChat(docs){
   const box=document.getElementById('chatMessages');
@@ -1942,20 +2064,25 @@ function renderChat(docs){
     const reacts=m.reacoes||{};
     const reactHtml=Object.entries(reacts).filter(([,uids])=>Array.isArray(uids)&&uids.length).map(([emo,uids])=>`<button class="reaction ${uids.includes(auth.currentUser?.uid)?'mine':''}" onclick="reagirMensagem('${d.id}','${emo}')">${emo} ${uids.length}</button>`).join('');
     const reply=m.resposta?`<div class="chat-reply">↪ ${escaparHtml(m.resposta.nome||'Usuário')}: ${escaparHtml(m.resposta.texto||'')}</div>`:'';
-    return `<div class="chat-msg" data-msg-id="${d.id}">
+    const mentioned=!mine && mensagemMencionaMe(m.texto);
+    return `<div class="chat-msg ${mentioned?'mentioned':''} ${m.fixada?'pinned':''}" data-msg-id="${d.id}">
       <div class="chat-avatar">${avatarChatHTML(m)}</div>
-      <div>${reply}<div class="chat-head"><span class="chat-name">${escaparHtml(m.nome||'Usuário')}</span><span class="chat-time">${horarioChat(m.criadoEm)}</span>${m.editadoEm?'<span class="chat-edited">(editado)</span>':''}</div><div class="chat-text">${escaparHtml(m.texto||'')}</div><div class="chat-reactions">${reactHtml}</div></div>
-      <div class="chat-actions"><button class="chat-action" onclick="responderMensagem('${d.id}')" title="Responder">↩</button><button class="chat-action" onclick="abrirEmojis(event,'${d.id}')" title="Reagir">😀</button>${mine?`<button class="chat-action" onclick="editarMensagem('${d.id}')" title="Editar">✎</button><button class="chat-action" onclick="excluirMensagem('${d.id}')" title="Excluir">🗑</button>`:''}</div>
+      <div>${reply}<div class="chat-head"><span class="chat-name">${escaparHtml(m.nome||'Usuário')}</span><span class="chat-time">${horarioChat(m.criadoEm)}</span>${m.editadoEm?'<span class="chat-edited">(editado)</span>':''}${m.fixada?'<span class="pin-mark">📌 fixada</span>':''}</div><div class="chat-text">${formatarTextoChat(m.texto||'')}</div><div class="chat-reactions">${reactHtml}</div></div>
+      <div class="chat-actions"><button class="chat-action" onclick="responderMensagem('${d.id}')" title="Responder">↩</button><button class="chat-action" onclick="abrirEmojis(event,'${d.id}')" title="Reagir">😀</button><button class="chat-action" onclick="alternarFixada('${d.id}')" title="${m.fixada?'Desafixar':'Fixar'}">📌</button>${mine?`<button class="chat-action" onclick="editarMensagem('${d.id}')" title="Editar">✎</button><button class="chat-action" onclick="excluirMensagem('${d.id}')" title="Excluir">🗑</button>`:''}</div>
     </div>`;
   }).join('');
   box.scrollTop=box.scrollHeight;
 }
-
 function msgPorId(id){return chatDocsAtuais.find(d=>d.id===id);}
 window.responderMensagem=id=>{const d=msgPorId(id);if(!d)return;const m=d.data();replyState={id,nome:m.nome||'Usuário',texto:m.texto||''};document.getElementById('replyName').textContent=replyState.nome;document.getElementById('replyText').textContent=replyState.texto.slice(0,80);document.getElementById('replyBanner').classList.add('show');document.getElementById('chatInput')?.focus();};
 window.cancelarResposta=()=>{replyState=null;document.getElementById('replyBanner')?.classList.remove('show');};
 window.editarMensagem=async id=>{const d=msgPorId(id);if(!d||d.data().uid!==auth.currentUser?.uid)return;const novo=prompt('Editar mensagem:',d.data().texto||'');if(novo===null)return;const texto=novo.trim();if(!texto)return;try{await updateDoc(doc(db,'chats','geral','mensagens',id),{texto:texto.slice(0,500),editadoEm:serverTimestamp()});}catch(e){console.error(e);mostrarToast('Não foi possível editar');}};
 window.excluirMensagem=async id=>{const d=msgPorId(id);if(!d||d.data().uid!==auth.currentUser?.uid)return;if(!confirm('Excluir esta mensagem?'))return;try{await deleteDoc(doc(db,'chats','geral','mensagens',id));}catch(e){console.error(e);mostrarToast('Não foi possível excluir');}};
+window.alternarFixada=async id=>{const d=msgPorId(id);if(!d)return;try{await updateDoc(doc(db,'chats','geral','mensagens',id),{fixada:!d.data().fixada,fixadaEm:serverTimestamp(),fixadaPor:auth.currentUser?.uid||null});mostrarToast(d.data().fixada?'Mensagem desafixada':'Mensagem fixada');}catch(e){console.error(e);mostrarToast('Não foi possível alterar a fixação');}};
+window.abrirFixadas=()=>{const bg=document.getElementById('pinsBg'),list=document.getElementById('pinsList');const pins=chatDocsAtuais.filter(d=>d.data().fixada);if(!pins.length)list.innerHTML='<div class="pin-empty">Nenhuma mensagem fixada.</div>';else list.innerHTML=pins.slice().reverse().map(d=>{const m=d.data();return `<div class="pin-item"><div class="pin-item-head">📌 ${escaparHtml(m.nome||'Usuário')} • ${horarioChat(m.criadoEm)}</div><div class="pin-item-text">${formatarTextoChat(m.texto||'')}</div></div>`;}).join('');bg?.classList.add('show');};
+window.fecharFixadas=()=>document.getElementById('pinsBg')?.classList.remove('show');
+window.fecharFixadasFundo=e=>{if(e.target===document.getElementById('pinsBg'))fecharFixadas();};
+
 window.abrirEmojis=(e,id)=>{e.stopPropagation();emojiMsgId=id;const menu=document.getElementById('emojiMenu');menu.style.left=Math.min(e.clientX,window.innerWidth-240)+'px';menu.style.top=Math.min(e.clientY,window.innerHeight-60)+'px';menu.classList.add('show');};
 document.querySelectorAll('#emojiMenu button').forEach(b=>b.addEventListener('click',()=>{if(emojiMsgId)reagirMensagem(emojiMsgId,b.textContent);document.getElementById('emojiMenu').classList.remove('show');}));
 window.reagirMensagem=async(id,emo)=>{try{const ref=doc(db,'chats','geral','mensagens',id);await runTransaction(db,async tx=>{const snap=await tx.get(ref);if(!snap.exists())return;const data=snap.data(), r={...(data.reacoes||{})}, arr=Array.isArray(r[emo])?[...r[emo]]:[], uid=auth.currentUser.uid, i=arr.indexOf(uid);if(i>=0)arr.splice(i,1);else arr.push(uid);r[emo]=arr;tx.update(ref,{reacoes:r});});}catch(e){console.error(e);mostrarToast('Não foi possível reagir');}};
@@ -1969,12 +2096,31 @@ function iniciarChat(){
   const q=query(ref,orderBy('criadoEm','asc'),limit(80));
 
   chatUnsub=onSnapshot(q,s=>{
+    const novos=[];
+    s.docChanges().forEach(c=>{if(c.type==='added' && !idsMensagensConhecidas.has(c.doc.id))novos.push(c.doc);});
     renderChat(s.docs);
+    if(chatInicializado){
+      novos.forEach(d=>{const m=d.data();if(m.uid===auth.currentUser?.uid)return;if(!estaChatAberto())mensagensNaoLidas++;if(mensagemMencionaMe(m.texto)){eventoSala(`💬 <b>${m.nome||'Usuário'}</b> mencionou você`);beep('join');}});
+      atualizarBadgeNaoLidas();
+    }
+    idsMensagensConhecidas=new Set(s.docs.map(d=>d.id));
+    chatInicializado=true;
   },e=>{
     console.error('Chat:',e);
     const box=document.getElementById('chatMessages');
     if(box)box.innerHTML='<div class="chat-empty">Não foi possível carregar o chat.</div>';
   });
+
+  const typingRef=collection(db,'chats','geral','digitando');
+  typingUnsub=onSnapshot(typingRef,s=>{
+    const agora=Date.now();
+    const nomes=s.docs.map(d=>d.data()).filter(x=>x.uid!==auth.currentUser?.uid && Number(x.expiraEm||0)>agora).map(x=>x.nome||'Usuário');
+    const el=document.getElementById('typingIndicator');
+    if(!el)return;
+    if(!nomes.length)el.innerHTML='';
+    else if(nomes.length===1)el.innerHTML=`<b>${escaparHtml(nomes[0])}</b> está digitando<span class="typing-dots">...</span>`;
+    else el.innerHTML=`<b>${escaparHtml(nomes.slice(0,2).join(' e '))}</b> estão digitando<span class="typing-dots">...</span>`;
+  },e=>console.warn('Indicador digitando indisponível:',e));
 }
 
 window.mostrarPainelDireito=(qual)=>{
@@ -1986,6 +2132,7 @@ window.mostrarPainelDireito=(qual)=>{
 
   if(!members){
     iniciarChat();
+    zerarNaoLidas();
     setTimeout(()=>document.getElementById('chatInput')?.focus(),50);
   }
 };
@@ -2013,6 +2160,8 @@ window.enviarMensagemChat=async()=>{
     });
 
     input.value='';
+    clearTimeout(typingTimer);
+    deleteDoc(doc(db,'chats','geral','digitando',auth.currentUser.uid)).catch(()=>{});
     cancelarResposta();
   }catch(e){
     console.error(e);
@@ -2022,6 +2171,14 @@ window.enviarMensagemChat=async()=>{
     input.focus();
   }
 };
+
+document.getElementById('chatInput')?.addEventListener('input',()=>{
+  if(!auth.currentUser)return;
+  const agora=Date.now();
+  if(agora-typingLastWrite>900){typingLastWrite=agora;setDoc(doc(db,'chats','geral','digitando',auth.currentUser.uid),{uid:auth.currentUser.uid,nome:meuPerfilAtual.nome||'Usuário',expiraEm:agora+2600},{merge:true}).catch(()=>{});}
+  clearTimeout(typingTimer);
+  typingTimer=setTimeout(()=>deleteDoc(doc(db,'chats','geral','digitando',auth.currentUser.uid)).catch(()=>{}),2800);
+});
 
 document.addEventListener('keydown',e=>{
   if(e.target?.id==='chatInput' && e.key==='Enter' && !e.shiftKey){
@@ -2155,6 +2312,12 @@ document.addEventListener('keydown',e=>{
     }
   }
 
+  if(e.ctrlKey && !e.shiftKey && e.key.toLowerCase()==='d'){
+    e.preventDefault();
+    toggleDeafen();
+    return;
+  }
+
   if(e.ctrlKey && !e.shiftKey && e.key.toLowerCase()==='m'){
     e.preventDefault();
     if(inputMode==='ptt'){
@@ -2195,4 +2358,598 @@ window.sairSala=async()=>{
   observarSalas();
   mostrarToast('Você saiu do canal de voz');
 };
+
+
+/* ========================================================================
+   V5 MEGA UPDATE — malha WebRTC + salas dinâmicas + mídia múltipla
+   Mantém o chat e recursos anteriores, mas substitui a arquitetura 2-pessoas
+   por conexões diretas peer-to-peer para grupos pequenos.
+   ======================================================================== */
+
+const v5DefaultRooms=[
+  {id:'sala1',nome:'Sala 1'},{id:'sala2',nome:'Sala 2'},{id:'sala3',nome:'Sala 3'},
+  {id:'sala4',nome:'Sala 4'},{id:'sala5',nome:'Sala 5'},{id:'afk',nome:'💤 AFK',afk:true}
+];
+let v5Rooms=new Map();
+let v5RoomUsers=new Map();
+let v5DirectoryUnsubs=[];
+let v5RoomUserUnsubs=new Map();
+let v5DirectoryStarted=false;
+let v5CurrentRoomMeta=null;
+let v5CurrentRoomSubs=[];
+let v5CurrentUsers=[];
+let v5RoomEnteredAt=0;
+let v5SessionToken='';
+let v5PresenceTimer=null;
+let v5StatsTimer=null;
+let v5AfkTimer=null;
+let v5LastActivity=Date.now();
+let v5AfkEnabled=localStorage.getItem('voiceAfkEnabled')!=='0';
+let v5AfkMinutes=Number(localStorage.getItem('voiceAfkMinutes')||15);
+let v5ActivityGame=localStorage.getItem('voiceActivityGame')||'';
+let v5EnhancedNoise=localStorage.getItem('voiceEnhancedNoise')==='1';
+let v5RawMicStream=null;
+let v5MicProcessor=null;
+let v5MicTestAudio=null;
+let v5SelectedMedia=null;
+let v5SelectedScreenOwner=null;
+let v5FocusMode=false;
+let v5RoomMetaUnsub=null;
+let v5RoomEventsUnsub=null;
+let v5SeenEvents=new Set();
+let v5SoundCtx=null;
+let v5LocalMonitorToken=0;
+let v5MusicSyncRev=0;
+const v5MusicAudio=document.getElementById('musicBotAudio');
+
+// Voz em malha: um RTCPeerConnection por amigo.
+const v5VoicePeers=new Map();
+// Compartilhamento: um PC por transmissor/espectador, permitindo várias telas.
+const v5ScreenOwnerPeers=new Map();
+const v5ScreenViewerPeers=new Map();
+const v5ScreenStreams=new Map();
+const v5ScreenAudios=new Map();
+const v5ViewerWatchUnsubs=new Map();
+const v5MediaStreams=new Map();
+const v5ScreenVolume={};
+
+function v5SafeId(s){return String(s||'').replace(/[^a-zA-Z0-9_-]/g,'_')}
+function v5NowActive(u){const ms=Number(u?.lastSeenMs||millisPresenca(u?.lastSeen)||0);return !!u?.uid && (!ms || Date.now()-ms<45000)}
+function v5RoomName(id){return v5Rooms.get(id)?.nome||NOMES_SALAS[id]||id||'Sala'}
+function v5CurrentMeta(){return v5Rooms.get(fixedRoomKey)||v5CurrentRoomMeta||null}
+function v5IsOwner(meta=v5CurrentMeta()){return !!(meta&&auth.currentUser&&meta.createdBy===auth.currentUser.uid)}
+function v5IsAdmin(meta=v5CurrentMeta()){return !!(meta&&auth.currentUser&&(meta.createdBy===auth.currentUser.uid||(meta.admins||[]).includes(auth.currentUser.uid)))}
+function v5EscapeAttr(s){return escaparHtml(String(s??''))}
+
+async function v5Sha256(texto){
+  const buf=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(String(texto)));
+  return [...new Uint8Array(buf)].map(b=>b.toString(16).padStart(2,'0')).join('');
+}
+
+async function v5SeedRooms(){
+  if(!auth.currentUser)return;
+  for(const r of v5DefaultRooms){
+    const ref=doc(db,'salasFixas',r.id);
+    try{
+      await runTransaction(db,async tx=>{
+        const s=await tx.get(ref);
+        if(!s.exists()){
+          tx.set(ref,{nome:r.nome,createdBy:auth.currentUser.uid,admins:[auth.currentUser.uid],privada:false,afk:!!r.afk,createdAt:Date.now(),v5:true});
+        }else{
+          const d=s.data()||{},up={v5:true};
+          if(!d.nome)up.nome=r.nome;
+          if(!d.createdBy)up.createdBy=auth.currentUser.uid;
+          if(!Array.isArray(d.admins))up.admins=[d.createdBy||auth.currentUser.uid];
+          if(r.afk)up.afk=true;
+          tx.set(ref,up,{merge:true});
+        }
+      });
+    }catch(e){console.warn('Seed sala',r.id,e)}
+  }
+}
+
+function v5RenderRoomUsersMini(users,max=3){
+  const ativos=(users||[]).filter(v5NowActive);
+  if(!ativos.length)return '<span class="room-empty">Vazia</span>';
+  const shown=ativos.slice(0,max).map(u=>`<span class="room-user" title="${v5EscapeAttr(u.nome||'Usuário')}">${u.foto?`<img src="${v5EscapeAttr(u.foto)}" alt="">`:iniciais(u.nome||'Usuário')}</span>`).join('');
+  return shown+(ativos.length>max?`<span class="room-count">+${ativos.length-max}</span>`:'');
+}
+
+function v5RenderRooms(){
+  const ordered=[...v5Rooms.values()].sort((a,b)=>{
+    if(a.afk&&!b.afk)return 1;if(!a.afk&&b.afk)return -1;
+    const da=v5DefaultRooms.findIndex(x=>x.id===a.id),dbi=v5DefaultRooms.findIndex(x=>x.id===b.id);
+    if(da>=0&&dbi>=0)return da-dbi;if(da>=0)return -1;if(dbi>=0)return 1;
+    return String(a.nome||'').localeCompare(String(b.nome||''),'pt-BR');
+  });
+  const lobby=document.getElementById('fixedRooms');
+  if(lobby){
+    lobby.innerHTML='';
+    ordered.forEach(r=>{
+      const users=v5RoomUsers.get(r.id)||[];
+      const b=document.createElement('button');
+      b.id='roomBtn-'+v5SafeId(r.id);
+      b.innerHTML=`<span>${r.afk?'💤':'🔊'} ${escaparHtml(r.nome||r.id)} ${r.privada?'<span class="room-lock">🔒</span>':''}</span><span class="room-users">${v5RenderRoomUsersMini(users)}</span>`;
+      b.onclick=()=>entrarSalaFixa(r.id);
+      lobby.appendChild(b);
+    });
+  }
+  const nav=document.getElementById('roomsNavDynamic');
+  if(nav){
+    nav.innerHTML='';
+    ordered.forEach(r=>{
+      const users=(v5RoomUsers.get(r.id)||[]).filter(v5NowActive);
+      const el=document.createElement('div');
+      el.className='room-nav-item'+(fixedRoomKey===r.id?' active':'');
+      el.id='nav-'+v5SafeId(r.id);
+      el.innerHTML=`<span class="hash">${r.afk?'💤':'🔊'}</span><span>${escaparHtml(r.nome||r.id)}</span>${r.privada?'<span class="room-lock">🔒</span>':''}<span class="room-count">${users.length||''}</span>`;
+      el.onclick=()=>trocarSala(r.id);
+      nav.appendChild(el);
+    });
+  }
+  v5RenderRoomManager();
+}
+
+function v5AttachDirectoryUsers(id){
+  if(v5RoomUserUnsubs.has(id))return;
+  const ref=collection(db,'salasFixas',id,'usuarios');
+  const unsub=onSnapshot(ref,s=>{
+    const users=s.docs.map(d=>d.data());
+    v5RoomUsers.set(id,users);
+    v5RenderRooms();
+  },e=>console.warn('Usuários da sala '+id,e));
+  v5RoomUserUnsubs.set(id,unsub);
+}
+
+async function v5StartDirectory(){
+  if(v5DirectoryStarted)return;
+  v5DirectoryStarted=true;
+  await v5SeedRooms();
+  const unsub=onSnapshot(collection(db,'salasFixas'),s=>{
+    const next=new Map();
+    s.docs.forEach(d=>{
+      const data=d.data()||{};
+      // Ignora documentos de sessões antigas sem identidade de canal apenas quando não são defaults.
+      const isDefault=v5DefaultRooms.some(x=>x.id===d.id);
+      if(!isDefault&&!data.nome&&!data.v5)return;
+      const meta={id:d.id,...data,nome:data.nome||(v5DefaultRooms.find(x=>x.id===d.id)?.nome)||d.id};
+      next.set(d.id,meta);NOMES_SALAS[d.id]=meta.nome;
+      v5AttachDirectoryUsers(d.id);
+    });
+    v5Rooms=next;
+    v5RenderRooms();
+  },e=>{console.error('Diretório de salas',e);erroLobby(e)});
+  v5DirectoryUnsubs.push(unsub);
+}
+
+observarSalas=v5StartDirectory;
+
+function v5PresencePayload(){
+  const track=micStream?.getAudioTracks?.()[0];
+  return {
+    uid:auth.currentUser?.uid||'',
+    nome:meuPerfilAtual.nome||auth.currentUser?.displayName||'Usuário',
+    foto:meuPerfilAtual.fotoURL||'',
+    status:meuPerfilAtual.status||'Online',
+    activityGame:v5ActivityGame||'',
+    micMuted:track?!track.enabled:true,
+    deafened:!!ensurdecido,
+    cameraActive:!!cameraAtiva,
+    screenActive:!!screenStream,
+    screenRev:screenStream?screenRev:0,
+    streamQuality:screenStream?`${streamResolution}p • ${streamFps} FPS`:'',
+    sessionToken:v5SessionToken,
+    lastSeen:serverTimestamp(),lastSeenMs:Date.now()
+  };
+}
+
+async function v5WritePresence(){
+  if(!fixedRoomKey||!auth.currentUser)return;
+  try{await setDoc(doc(db,'salasFixas',fixedRoomKey,'usuarios',auth.currentUser.uid),v5PresencePayload(),{merge:true})}catch(e){console.warn('presence v5',e)}
+}
+
+async function v5OpenMic(deviceId=''){
+  v5StopMicProcessor();
+  try{v5RawMicStream?.getTracks().forEach(t=>t.stop())}catch(_){}
+  const constraints={audio:{
+    echoCancellation:localStorage.getItem('voiceEchoCancellation')!=='0',
+    noiseSuppression:localStorage.getItem('voiceNoiseSuppression')!=='0',
+    autoGainControl:localStorage.getItem('voiceAutoGainControl')!=='0'
+  },video:false};
+  if(deviceId)constraints.audio.deviceId={exact:deviceId};
+  v5RawMicStream=await navigator.mediaDevices.getUserMedia(constraints);
+  if(v5EnhancedNoise){
+    micStream=v5CreateProcessedMic(v5RawMicStream);
+  }else micStream=v5RawMicStream;
+  setTimeout(aplicarEstadoPtt,0);
+  v5StartLocalVoiceMonitor();
+  return micStream;
+}
+
+function v5CreateProcessedMic(raw){
+  try{
+    const Ctx=window.AudioContext||window.webkitAudioContext,ctx=new Ctx();
+    const src=ctx.createMediaStreamSource(raw),hp=ctx.createBiquadFilter(),comp=ctx.createDynamicsCompressor(),gate=ctx.createGain(),an=ctx.createAnalyser(),dest=ctx.createMediaStreamDestination();
+    hp.type='highpass';hp.frequency.value=85;hp.Q.value=.7;
+    comp.threshold.value=-28;comp.knee.value=18;comp.ratio.value=4;comp.attack.value=.006;comp.release.value=.22;
+    an.fftSize=512;gate.gain.value=1;
+    src.connect(hp);hp.connect(comp);comp.connect(an);comp.connect(gate);gate.connect(dest);
+    const arr=new Uint8Array(an.fftSize);
+    const timer=setInterval(()=>{
+      if(ctx.state==='suspended')ctx.resume().catch(()=>{});
+      an.getByteTimeDomainData(arr);let sum=0;for(const v of arr){const n=(v-128)/128;sum+=n*n}const rms=Math.sqrt(sum/arr.length);
+      const target=rms<0.009?0.06:1;gate.gain.setTargetAtTime(target,ctx.currentTime,.025);
+    },45);
+    v5MicProcessor={ctx,timer};
+    return dest.stream;
+  }catch(e){console.warn('Noise gate indisponível',e);return raw}
+}
+function v5StopMicProcessor(){if(v5MicProcessor){clearInterval(v5MicProcessor.timer);try{v5MicProcessor.ctx.close()}catch(_){}v5MicProcessor=null}}
+
+function v5StartLocalVoiceMonitor(){
+  const token=++v5LocalMonitorToken,stream=micStream;if(!stream)return;
+  try{const Ctx=window.AudioContext||window.webkitAudioContext,ctx=new Ctx(),src=ctx.createMediaStreamSource(stream),an=ctx.createAnalyser();an.fftSize=256;src.connect(an);const arr=new Uint8Array(an.fftSize);let smooth=0;const loop=()=>{if(token!==v5LocalMonitorToken||micStream!==stream){try{ctx.close()}catch(_){}return}if(ctx.state==='suspended')ctx.resume().catch(()=>{});an.getByteTimeDomainData(arr);let sum=0;for(const v of arr){const n=(v-128)/128;sum+=n*n}smooth=.75*smooth+.25*Math.sqrt(sum/arr.length);const on=smooth>.033&&stream.getAudioTracks()[0]?.enabled!==false;document.getElementById('media-camera-'+v5SafeId(auth.currentUser?.uid))?.classList.toggle('speaking-card',on);requestAnimationFrame(loop)};loop()}catch(_){}
+}
+
+function v5AudioEl(uid){
+  let el=document.getElementById('v5VoiceAudio-'+v5SafeId(uid));
+  if(!el){el=document.createElement('audio');el.id='v5VoiceAudio-'+v5SafeId(uid);el.autoplay=true;el.playsInline=true;el.dataset.uid=uid;document.body.appendChild(el)}
+  return el;
+}
+
+function v5UserCfg(uid){const c=cfgVolume(uid);if(c.deaf===undefined)c.deaf=false;return c}
+function v5ApplyUserAudio(uid){
+  const cfg=v5UserCfg(uid),a=document.getElementById('v5VoiceAudio-'+v5SafeId(uid));
+  if(a){a.volume=cfg.volume;a.muted=ensurdecido||cfg.muted||cfg.deaf;a.play().catch(()=>{})}
+  const sa=v5ScreenAudios.get(uid);if(sa){const sc=v5ScreenVolume[uid]||{volume:1,muted:false};sa.volume=sc.volume;sa.muted=ensurdecido||cfg.deaf||sc.muted;sa.play().catch(()=>{})}
+}
+aplicarVolumeUsuario=v5ApplyUserAudio;
+
+function v5PairInfo(otherUid,otherToken=''){
+  const me=auth.currentUser.uid, arr=[me,otherUid].sort(),a=arr[0],b=arr[1];
+  const myToken=v5SessionToken;
+  return {a,b,isA:me===a,pairId:v5SafeId(a+'__'+b),tokenA:me===a?myToken:otherToken,tokenB:me===b?myToken:otherToken};
+}
+
+async function v5EnsureVoicePeer(user){
+  if(!fixedRoomKey||!user?.uid||user.uid===auth.currentUser?.uid||!micStream)return;
+  const old=v5VoicePeers.get(user.uid);if(old&&old.token===user.sessionToken)return;if(old)v5CloseVoicePeer(user.uid);
+  const info=v5PairInfo(user.uid,user.sessionToken||'');
+  const sig=doc(db,'salasFixas',fixedRoomKey,'sinais',info.pairId);
+  const p={uid:user.uid,name:user.nome||'Usuário',token:user.sessionToken||'',pc:new RTCPeerConnection(rtc),sig,info,rev:0,lastOffer:0,candCount:0,pending:[],signalReady:false,unsub:null,micSender:null,cameraSender:null};
+  v5VoicePeers.set(user.uid,p);
+  const mt=micStream.getAudioTracks()[0];if(mt)p.micSender=p.pc.addTrack(mt,micStream);
+  const camTr=p.pc.addTransceiver('video',{direction:'sendrecv'});p.cameraSender=camTr.sender;
+  if(cameraTrack)await p.cameraSender.replaceTrack(cameraTrack).catch(()=>{});
+  p.pc.onicecandidate=e=>{
+    if(!e.candidate)return;const c=e.candidate.toJSON();
+    if(!p.signalReady){p.pending.push(c);return}
+    setDoc(sig,{[info.isA?'candA':'candB']:arrayUnion(c)},{merge:true}).catch(console.warn);
+  };
+  p.pc.ontrack=e=>{
+    if(e.track.kind==='audio'){
+      const a=v5AudioEl(user.uid);a.srcObject=new MediaStream([e.track]);v5ApplyUserAudio(user.uid);
+      v5MonitorRemoteVoice(user.uid,new MediaStream([e.track]));
+    }else if(e.track.kind==='video'){
+      const stream=new MediaStream([e.track]);v5MediaStreams.set('camera:'+user.uid,stream);v5UpsertMediaCard('camera',user.uid,user.nome||'Usuário',stream,false);
+      e.track.onmute=()=>v5ToggleMediaCard('camera',user.uid,false);
+      e.track.onunmute=()=>v5ToggleMediaCard('camera',user.uid,true);
+      e.track.onended=()=>v5RemoveMediaCard('camera',user.uid);
+    }
+  };
+  p.pc.onconnectionstatechange=()=>{if(['failed','closed'].includes(p.pc.connectionState)){const el=document.getElementById('member-'+v5SafeId(user.uid));el?.classList.remove('speaking')}};
+  p.unsub=onSnapshot(sig,s=>v5ProcessVoiceSignal(p,s.data()).catch(e=>console.warn('signal voice',e)),e=>console.warn('signal voice snapshot',e));
+  if(info.isA){
+    const offer=await p.pc.createOffer();await p.pc.setLocalDescription(offer);p.rev=Date.now();
+    await setDoc(sig,{uidA:info.a,uidB:info.b,tokenA:info.tokenA,tokenB:info.tokenB,rev:p.rev,offer:{type:offer.type,sdp:offer.sdp},answer:null,answerRev:0,candA:[],candB:[],updatedAt:Date.now()});
+    p.signalReady=true;for(const c of p.pending.splice(0))await setDoc(sig,{candA:arrayUnion(c)},{merge:true});
+  }
+}
+
+async function v5ProcessVoiceSignal(p,d){
+  if(!d||!p||p.pc.signalingState==='closed')return;
+  const inf=p.info;if(d.tokenA!==inf.tokenA||d.tokenB!==inf.tokenB)return;
+  if(!inf.isA){
+    if(d.offer&&d.rev&&d.rev>p.lastOffer){
+      p.lastOffer=d.rev;p.rev=d.rev;p.candCount=0;
+      if(p.pc.signalingState!=='stable')return;
+      await p.pc.setRemoteDescription(d.offer);
+      const ans=await p.pc.createAnswer();await p.pc.setLocalDescription(ans);
+      await setDoc(p.sig,{answer:{type:ans.type,sdp:ans.sdp},answerRev:d.rev,candB:[],updatedAt:Date.now()},{merge:true});
+      p.signalReady=true;for(const c of p.pending.splice(0))await setDoc(p.sig,{candB:arrayUnion(c)},{merge:true});
+    }
+    if(p.pc.remoteDescription){const arr=d.candA||[];for(let i=p.candCount;i<arr.length;i++){try{await p.pc.addIceCandidate(arr[i])}catch(_){}}p.candCount=arr.length}
+  }else{
+    if(d.answer&&d.answerRev===p.rev&&!p.pc.currentRemoteDescription){await p.pc.setRemoteDescription(d.answer)}
+    if(p.pc.remoteDescription){const arr=d.candB||[];for(let i=p.candCount;i<arr.length;i++){try{await p.pc.addIceCandidate(arr[i])}catch(_){}}p.candCount=arr.length}
+  }
+}
+
+function v5CloseVoicePeer(uid){
+  const p=v5VoicePeers.get(uid);if(!p)return;try{p.unsub?.()}catch(_){}try{p.pc.close()}catch(_){}v5VoicePeers.delete(uid);
+  const a=document.getElementById('v5VoiceAudio-'+v5SafeId(uid));a?.remove();v5RemoveMediaCard('camera',uid);
+}
+
+function v5MonitorRemoteVoice(uid,stream){
+  try{
+    const Ctx=window.AudioContext||window.webkitAudioContext,ctx=new Ctx(),src=ctx.createMediaStreamSource(stream),an=ctx.createAnalyser();an.fftSize=256;src.connect(an);const arr=new Uint8Array(an.fftSize);let smooth=0;
+    const loop=()=>{if(!v5VoicePeers.has(uid)){try{ctx.close()}catch(_){}return}an.getByteTimeDomainData(arr);let sum=0;for(const v of arr){const n=(v-128)/128;sum+=n*n}smooth=.75*smooth+.25*Math.sqrt(sum/arr.length);const on=smooth>.033;document.getElementById('member-'+v5SafeId(uid))?.querySelector('.avatar')?.classList.toggle('speaking',on);document.getElementById('media-camera-'+v5SafeId(uid))?.classList.toggle('speaking-card',on);requestAnimationFrame(loop)};loop();
+  }catch(_){}
+}
+
+function v5MediaKey(type,uid){return type+':'+uid}
+function v5UpsertMediaCard(type,uid,name,stream,local=false){
+  const grid=document.getElementById('mediaGrid');if(!grid||!stream)return null;
+  const id='media-'+type+'-'+v5SafeId(uid);let card=document.getElementById(id);
+  if(!card){
+    card=document.createElement('div');card.id=id;card.className='v5-media-card '+(type==='screen'?'screen':'camera');card.draggable=true;card.dataset.type=type;card.dataset.uid=uid;
+    card.innerHTML=`<video autoplay ${local?'muted':''} playsinline></video><div class="v5-media-label"></div><div class="v5-media-badges"></div>${type==='screen'?'<div class="v5-viewers"></div>':''}`;
+    grid.appendChild(card);v5MakeDraggable(card,grid);
+    card.onclick=()=>v5SelectMedia(type,uid);
+    card.ondblclick=()=>v5FocusMedia(type,uid);
+  }
+  const video=card.querySelector('video');video.srcObject=stream;video.muted=!!local;video.play().catch(()=>{});
+  card.querySelector('.v5-media-label').textContent=(type==='screen'?'🖥️ ':'📷 ')+(name||'Usuário')+(local?' (você)':'');
+  const badges=card.querySelector('.v5-media-badges');if(badges)badges.innerHTML=type==='screen'?`<span class="v5-media-badge">AO VIVO</span>`:'';
+  card.style.display='block';document.getElementById('empty').style.display='none';
+  v5MediaStreams.set(v5MediaKey(type,uid),stream);return card;
+}
+function v5ToggleMediaCard(type,uid,show){const c=document.getElementById('media-'+type+'-'+v5SafeId(uid));if(c)c.style.display=show?'block':'none'}
+function v5RemoveMediaCard(type,uid){const c=document.getElementById('media-'+type+'-'+v5SafeId(uid));c?.remove();v5MediaStreams.delete(v5MediaKey(type,uid));if(v5SelectedMedia?.type===type&&v5SelectedMedia?.uid===uid)v5SelectedMedia=null;v5UpdateEmpty()}
+function v5UpdateEmpty(){const grid=document.getElementById('mediaGrid'),has=[...(grid?.children||[])].some(c=>c.style.display!=='none');if(!has&&mainStream.style.display==='none')document.getElementById('empty').style.display='block'}
+function v5SelectMedia(type,uid){document.querySelectorAll('.v5-media-card').forEach(c=>c.classList.remove('selected'));const c=document.getElementById('media-'+type+'-'+v5SafeId(uid));c?.classList.add('selected');v5SelectedMedia={type,uid};const label=c?.querySelector('.v5-media-label')?.textContent||'Mídia';document.getElementById('selectedMediaLabel').textContent=label;document.getElementById('mediaToolbar')?.classList.add('show')}
+function v5FocusMedia(type,uid){const s=v5MediaStreams.get(v5MediaKey(type,uid));if(!s)return;v5SelectMedia(type,uid);mainStream.srcObject=s;mainStream.muted=true;mainStream.style.display='block';mainStream.play().catch(()=>{});document.getElementById('mediaGrid')?.classList.add('focus-hidden');document.getElementById('empty').style.display='none';const chip=document.getElementById('streamOwnerChip');if(chip)chip.textContent=type==='screen'?'🖥️ Transmissão em foco':'📷 Câmera em foco'}
+window.voltarGradeV5=()=>{mainStream.srcObject=null;mainStream.style.display='none';document.getElementById('mediaGrid')?.classList.remove('focus-hidden');document.getElementById('streamOverlay')?.classList.remove('show');v5UpdateEmpty()};
+function v5MakeDraggable(card,container){card.addEventListener('dragstart',()=>card.classList.add('dragging'));card.addEventListener('dragend',()=>card.classList.remove('dragging'));container.addEventListener('dragover',e=>{e.preventDefault();const dragging=container.querySelector('.dragging');if(!dragging)return;const after=[...container.querySelectorAll('.v5-media-card:not(.dragging)')].find(el=>{const r=el.getBoundingClientRect();return e.clientY<r.top+r.height/2});if(after)container.insertBefore(dragging,after);else container.appendChild(dragging)})}
+
+window.pictureInPictureV5=async()=>{
+  try{if(document.pictureInPictureElement){await document.exitPictureInPicture();return}let video=null;if(v5SelectedMedia){video=document.querySelector(`#media-${v5SelectedMedia.type}-${v5SafeId(v5SelectedMedia.uid)} video`)}if(!video&&mainStream.srcObject)video=mainStream;if(!video)video=document.querySelector('.v5-media-card video');if(!video||!video.srcObject)throw new Error('Selecione uma câmera ou transmissão.');await video.play().catch(()=>{});await video.requestPictureInPicture()}catch(e){mostrarToast(e.message||'PiP não disponível')}
+};
+window.popoutV5=()=>{
+  try{let video=null,label='Mídia';if(v5SelectedMedia){const c=document.getElementById('media-'+v5SelectedMedia.type+'-'+v5SafeId(v5SelectedMedia.uid));video=c?.querySelector('video');label=c?.querySelector('.v5-media-label')?.textContent||label}if(!video?.srcObject)throw new Error('Selecione uma mídia.');const w=window.open('','discordPopout','width=960,height=600');if(!w)throw new Error('O navegador bloqueou a janela.');w.document.write(`<title>${escaparHtml(label)}</title><style>html,body{margin:0;background:#000;height:100%;overflow:hidden}video{width:100%;height:100%;object-fit:contain}</style><video id="v" autoplay playsinline></video>`);w.document.close();const v=w.document.getElementById('v');v.srcObject=video.srcObject;v.muted=true;v.play().catch(()=>{})}catch(e){mostrarToast(e.message||'Não foi possível abrir pop-out')}
+};
+window.toggleFocusModeV5=()=>{v5FocusMode=!v5FocusMode;document.body.classList.toggle('focus-mode',v5FocusMode);mostrarToast(v5FocusMode?'Modo foco ativado':'Modo foco desativado')};
+
+function v5StreamSignalRef(owner,viewer){return doc(db,'salasFixas',fixedRoomKey,'screenSignals',v5SafeId(owner+'__'+viewer))}
+async function v5EnsureScreenOwnerPeer(user){
+  if(!screenStream||!user?.uid||user.uid===auth.currentUser.uid)return;const uid=user.uid,existing=v5ScreenOwnerPeers.get(uid);if(existing&&existing.rev===screenRev)return;if(existing)v5CloseScreenOwnerPeer(uid);
+  const sig=v5StreamSignalRef(auth.currentUser.uid,uid),p={uid,rev:screenRev,pc:new RTCPeerConnection(rtc),sig,pending:[],ready:false,candCount:0,unsub:null};v5ScreenOwnerPeers.set(uid,p);
+  screenStream.getTracks().forEach(t=>p.pc.addTrack(t,screenStream));
+  p.pc.onicecandidate=e=>{if(!e.candidate)return;const c=e.candidate.toJSON();if(!p.ready){p.pending.push(c);return}setDoc(sig,{candOwner:arrayUnion(c)},{merge:true}).catch(console.warn)};
+  p.unsub=onSnapshot(sig,s=>v5ProcessScreenOwnerSignal(p,s.data()).catch(console.warn),console.warn);
+  const offer=await p.pc.createOffer();await p.pc.setLocalDescription(offer);
+  await setDoc(sig,{ownerUid:auth.currentUser.uid,viewerUid:uid,rev:screenRev,active:true,offer:{type:offer.type,sdp:offer.sdp},answer:null,answerRev:0,candOwner:[],candViewer:[],quality:`${streamResolution}p • ${streamFps} FPS`,updatedAt:Date.now()});p.ready=true;
+  for(const c of p.pending.splice(0))await setDoc(sig,{candOwner:arrayUnion(c)},{merge:true});
+}
+async function v5ProcessScreenOwnerSignal(p,d){if(!d||d.rev!==p.rev||!d.active)return;if(d.answer&&d.answerRev===p.rev&&!p.pc.currentRemoteDescription)await p.pc.setRemoteDescription(d.answer);if(p.pc.remoteDescription){const arr=d.candViewer||[];for(let i=p.candCount;i<arr.length;i++){try{await p.pc.addIceCandidate(arr[i])}catch(_){}}p.candCount=arr.length}}
+function v5CloseScreenOwnerPeer(uid){const p=v5ScreenOwnerPeers.get(uid);if(!p)return;try{p.unsub?.()}catch(_){}try{p.pc.close()}catch(_){}v5ScreenOwnerPeers.delete(uid)}
+
+async function v5EnsureScreenViewerPeer(user){
+  const owner=user?.uid,rev=Number(user?.screenRev||0);if(!owner||owner===auth.currentUser.uid||!user.screenActive||!rev)return;const old=v5ScreenViewerPeers.get(owner);if(old&&old.rev===rev)return;if(old)await v5CloseScreenViewerPeer(owner);
+  const sig=v5StreamSignalRef(owner,auth.currentUser.uid),p={owner,rev,pc:new RTCPeerConnection(rtc),sig,pending:[],ready:false,candCount:0,unsub:null,stream:new MediaStream(),audio:null,viewerTimer:null};v5ScreenViewerPeers.set(owner,p);v5ScreenStreams.set(owner,p.stream);
+  p.pc.onicecandidate=e=>{if(!e.candidate)return;const c=e.candidate.toJSON();if(!p.ready){p.pending.push(c);return}setDoc(sig,{candViewer:arrayUnion(c)},{merge:true}).catch(console.warn)};
+  p.pc.ontrack=e=>{
+    if(!p.stream.getTracks().some(t=>t.id===e.track.id))p.stream.addTrack(e.track);
+    if(e.track.kind==='video'){
+      v5MediaStreams.set('screen:'+owner,p.stream);v5UpsertMediaCard('screen',owner,user.nome||'Usuário',p.stream,false);v5UpsertStreamTile(owner,user.nome||'Usuário',p.stream,user.streamQuality||'AO VIVO',false);
+      e.track.onended=()=>v5CloseScreenViewerPeer(owner);
+    }else{
+      let a=v5ScreenAudios.get(owner);if(!a){a=document.createElement('audio');a.autoplay=true;a.playsInline=true;a.dataset.owner=owner;document.body.appendChild(a);v5ScreenAudios.set(owner,a)}a.srcObject=new MediaStream([e.track]);v5ApplyScreenAudio(owner);
+    }
+  };
+  p.unsub=onSnapshot(sig,s=>v5ProcessScreenViewerSignal(p,s.data(),user).catch(console.warn),console.warn);
+  await v5MarkViewing(owner,true);
+  p.viewerTimer=setInterval(()=>v5MarkViewing(owner,true).catch(()=>{}),10000);
+}
+async function v5ProcessScreenViewerSignal(p,d,user){
+  if(!d||d.rev!==p.rev||!d.active)return;
+  if(d.offer&&!p.pc.currentRemoteDescription){await p.pc.setRemoteDescription(d.offer);const ans=await p.pc.createAnswer();await p.pc.setLocalDescription(ans);await setDoc(p.sig,{answer:{type:ans.type,sdp:ans.sdp},answerRev:p.rev,candViewer:[],updatedAt:Date.now()},{merge:true});p.ready=true;for(const c of p.pending.splice(0))await setDoc(p.sig,{candViewer:arrayUnion(c)},{merge:true})}
+  if(p.pc.remoteDescription){const arr=d.candOwner||[];for(let i=p.candCount;i<arr.length;i++){try{await p.pc.addIceCandidate(arr[i])}catch(_){}}p.candCount=arr.length}
+}
+async function v5MarkViewing(owner,on){if(!fixedRoomKey||!auth.currentUser)return;const ref=doc(db,'salasFixas',fixedRoomKey,'streams',owner,'viewers',auth.currentUser.uid);if(on)await setDoc(ref,{uid:auth.currentUser.uid,nome:meuPerfilAtual.nome||'Usuário',foto:meuPerfilAtual.fotoURL||'',lastSeenMs:Date.now()},{merge:true});else await deleteDoc(ref).catch(()=>{})}
+async function v5CloseScreenViewerPeer(owner){const p=v5ScreenViewerPeers.get(owner);if(!p)return;try{p.unsub?.()}catch(_){}clearInterval(p.viewerTimer);try{p.pc.close()}catch(_){}v5ScreenViewerPeers.delete(owner);v5ScreenStreams.delete(owner);v5ScreenAudios.get(owner)?.remove();v5ScreenAudios.delete(owner);await v5MarkViewing(owner,false).catch(()=>{});v5RemoveMediaCard('screen',owner);v5RemoveStreamTile(owner)}
+
+function v5StartViewerWatch(owner){if(v5ViewerWatchUnsubs.has(owner)||!fixedRoomKey)return;const ref=collection(db,'salasFixas',fixedRoomKey,'streams',owner,'viewers');const unsub=onSnapshot(ref,s=>{const viewers=s.docs.map(d=>d.data()).filter(v=>Date.now()-Number(v.lastSeenMs||0)<30000);const names=viewers.map(v=>v.nome||'Usuário');const card=document.getElementById('media-screen-'+v5SafeId(owner));const el=card?.querySelector('.v5-viewers');if(el)el.textContent=names.length?'👀 '+names.join(', '):'👀 Ninguém';const tile=document.getElementById('streamTile-'+v5SafeId(owner));const c=tile?.querySelector('.stream-viewer-count');if(c)c.textContent=names.length?`👀 ${names.length} assistindo`:'👀 ninguém assistindo'},console.warn);v5ViewerWatchUnsubs.set(owner,unsub)}
+function v5StopViewerWatch(owner){try{v5ViewerWatchUnsubs.get(owner)?.()}catch(_){}v5ViewerWatchUnsubs.delete(owner)}
+
+function v5UpsertStreamTile(owner,name,stream,quality,local){
+  const list=document.getElementById('streamList');if(!list)return;let tile=document.getElementById('streamTile-'+v5SafeId(owner));if(!tile){tile=document.createElement('div');tile.className='stream-tile v5-stream-tile';tile.id='streamTile-'+v5SafeId(owner);tile.dataset.owner=owner;tile.draggable=true;tile.innerHTML=`<div class="stream-thumb"><video autoplay muted playsinline></video><div class="live">AO VIVO</div><div class="v5-q-badge" style="position:absolute;right:6px;bottom:6px;background:#000a;color:#ddd;border-radius:4px;padding:2px 5px;font-size:8px;font-weight:800"></div></div><div class="stream-info"><div class="stream-name"></div><div class="stream-help">Clique para assistir • botão direito: áudio</div><div class="stream-viewer-count"></div></div>`;list.appendChild(tile);tile.onclick=()=>v5FocusMedia('screen',owner);tile.oncontextmenu=e=>abrirMenuAudio(e,owner);v5MakeStreamTileDraggable(tile,list)}const v=tile.querySelector('video');v.srcObject=stream;v.play().catch(()=>{});tile.querySelector('.stream-name').textContent=(local?'Sua transmissão':name+' está transmitindo');tile.querySelector('.v5-q-badge').textContent=quality||'';if(local)v5StartViewerWatch(owner)}
+function v5RemoveStreamTile(owner){document.getElementById('streamTile-'+v5SafeId(owner))?.remove();v5StopViewerWatch(owner)}
+function v5MakeStreamTileDraggable(tile,list){tile.addEventListener('dragstart',()=>tile.classList.add('dragging'));tile.addEventListener('dragend',()=>tile.classList.remove('dragging'));list.addEventListener('dragover',e=>{e.preventDefault();const d=list.querySelector('.v5-stream-tile.dragging');if(!d)return;const others=[...list.querySelectorAll('.v5-stream-tile:not(.dragging)')];const after=others.find(el=>{const r=el.getBoundingClientRect();return e.clientY<r.top+r.height/2});if(after)list.insertBefore(d,after);else list.appendChild(d)})}
+
+function v5ApplyScreenAudio(owner){const a=v5ScreenAudios.get(owner);if(!a)return;const cfg=v5ScreenVolume[owner]||(v5ScreenVolume[owner]={volume:1,muted:false}),uc=v5UserCfg(owner);a.volume=cfg.volume;a.muted=ensurdecido||cfg.muted||uc.deaf;a.play().catch(()=>{})}
+window.abrirMenuAudio=(e,owner)=>{e.preventDefault();e.stopPropagation();v5SelectedScreenOwner=owner||e.currentTarget?.dataset?.owner||null;const cfg=v5ScreenVolume[v5SelectedScreenOwner]||(v5ScreenVolume[v5SelectedScreenOwner]={volume:1,muted:false});const range=document.getElementById('volumeTransmissao'),num=document.getElementById('volumeTransmissaoNum'),b=document.getElementById('muteTransmissao');if(range)range.value=Math.round(cfg.volume*100);if(num)num.textContent=Math.round(cfg.volume*100)+'%';if(b){b.dataset.muted=cfg.muted?'1':'0';b.textContent=cfg.muted?'🔇':'🔊'}const menu=document.getElementById('audioMenu');menu.classList.add('show');let x=e.clientX,y=e.clientY,w=285,h=160,m=10;if(x+w>innerWidth-m)x=innerWidth-w-m;if(y+h>innerHeight-m)y=innerHeight-h-m;menu.style.left=Math.max(m,x)+'px';menu.style.top=Math.max(m,y)+'px'};
+window.mudarVolumeTransmissao=valor=>{if(!v5SelectedScreenOwner)return;const cfg=v5ScreenVolume[v5SelectedScreenOwner]||(v5ScreenVolume[v5SelectedScreenOwner]={volume:1,muted:false});cfg.volume=Math.max(0,Math.min(100,Number(valor)))/100;document.getElementById('volumeTransmissaoNum').textContent=Math.round(cfg.volume*100)+'%';v5ApplyScreenAudio(v5SelectedScreenOwner)};
+window.mutarTransmissao=()=>{if(!v5SelectedScreenOwner)return;const cfg=v5ScreenVolume[v5SelectedScreenOwner]||(v5ScreenVolume[v5SelectedScreenOwner]={volume:1,muted:false});cfg.muted=!cfg.muted;const b=document.getElementById('muteTransmissao');b.dataset.muted=cfg.muted?'1':'0';b.textContent=cfg.muted?'🔇':'🔊';v5ApplyScreenAudio(v5SelectedScreenOwner)};
+
+window.compartilhar=async()=>{
+  try{
+    if(!fixedRoomKey)throw new Error('Entre em uma sala primeiro.');if(screenStream)await window.pararTela();
+    const w=streamResolution===1080?1920:1280,h=streamResolution===1080?1080:720;
+    screenStream=await navigator.mediaDevices.getDisplayMedia({video:{width:{ideal:w},height:{ideal:h},frameRate:{ideal:streamFps,max:streamFps}},audio:true});
+    const vt=screenStream.getVideoTracks()[0];if(!vt)throw new Error('Nenhuma tela selecionada.');screenRev=Date.now();screenOwnerUid=auth.currentUser.uid;
+    v5MediaStreams.set('screen:'+auth.currentUser.uid,screenStream);v5UpsertMediaCard('screen',auth.currentUser.uid,meuPerfilAtual.nome||'Você',screenStream,true);v5UpsertStreamTile(auth.currentUser.uid,meuPerfilAtual.nome||'Você',screenStream,`${streamResolution}p • ${streamFps} FPS`,true);
+    for(const u of v5CurrentUsers.filter(u=>u.uid!==auth.currentUser.uid))v5EnsureScreenOwnerPeer(u).catch(console.warn);
+    vt.onended=()=>{if(screenStream)window.pararTela()};await v5WritePresence();status.textContent=`Transmitindo ${streamResolution}p • ${streamFps} FPS`;mostrarToast('Transmissão iniciada — várias pessoas podem assistir');
+  }catch(e){console.error(e);mostrarToast(e?.message||'Compartilhamento cancelado')}
+};
+window.pararTela=async()=>{
+  if(!screenStream)return;try{screenStream.getTracks().forEach(t=>t.stop())}catch(_){}screenStream=null;
+  for(const uid of [...v5ScreenOwnerPeers.keys()]){const p=v5ScreenOwnerPeers.get(uid);if(p)await setDoc(p.sig,{active:false,updatedAt:Date.now()},{merge:true}).catch(()=>{});v5CloseScreenOwnerPeer(uid)}
+  v5RemoveMediaCard('screen',auth.currentUser?.uid);v5RemoveStreamTile(auth.currentUser?.uid);await v5WritePresence();status.textContent='Tela não compartilhada';mostrarToast('Transmissão encerrada')
+};
+
+window.toggleCamera=async()=>{
+  try{
+    if(!fixedRoomKey)throw new Error('Entre em uma sala primeiro.');
+    if(cameraAtiva){
+      for(const p of v5VoicePeers.values())await p.cameraSender?.replaceTrack(null).catch(()=>{});cameraStream?.getTracks().forEach(t=>t.stop());cameraStream=null;cameraTrack=null;cameraAtiva=false;v5RemoveMediaCard('camera',auth.currentUser.uid);document.getElementById('cameraBtn').textContent='📷 Ligar câmera';await v5WritePresence();mostrarToast('Câmera desligada');return;
+    }
+    cameraStream=await navigator.mediaDevices.getUserMedia({video:{width:{ideal:1280},height:{ideal:720},frameRate:{ideal:30,max:30}},audio:false});cameraTrack=cameraStream.getVideoTracks()[0];cameraAtiva=true;
+    for(const p of v5VoicePeers.values())await p.cameraSender?.replaceTrack(cameraTrack).catch(()=>{});
+    v5MediaStreams.set('camera:'+auth.currentUser.uid,cameraStream);v5UpsertMediaCard('camera',auth.currentUser.uid,meuPerfilAtual.nome||'Você',cameraStream,true);document.getElementById('cameraBtn').textContent='📷 Desligar câmera';cameraTrack.onended=()=>{if(cameraAtiva)toggleCamera()};await v5WritePresence();mostrarToast('Câmera ligada');
+  }catch(e){console.error(e);mostrarToast(e?.message||'Não foi possível abrir a câmera')}
+};
+
+window.toggleMic=async()=>{
+  if(inputMode==='ptt'){mostrarToast('Push to Talk ativo — segure '+(pttKey===' '?'SPACE':pttKey.toUpperCase())+' para falar');return}
+  const t=micStream?.getAudioTracks()[0];if(!t)return;t.enabled=!t.enabled;atualizarUiMic(t.enabled);if(!t.enabled)document.getElementById('myAvatar')?.classList.remove('speaking');await v5WritePresence();mostrarToast(t.enabled?'Microfone ativado':'Microfone silenciado')
+};
+
+// Deafen agora afeta voz de todos, todas as telas e o Music Bot.
+aplicarEstadoDeafen=()=>{
+  for(const uid of v5VoicePeers.keys())v5ApplyUserAudio(uid);for(const owner of v5ScreenAudios.keys())v5ApplyScreenAudio(owner);if(v5MusicAudio)v5MusicAudio.muted=ensurdecido;
+  const b=document.getElementById('deafenBtn'),d=document.getElementById('dockDeafen');if(b){b.textContent=ensurdecido?'🔇 Áudio ensurdecido':'🎧 Ensurdecer';b.classList.toggle('deafened',ensurdecido)}if(d){d.textContent=ensurdecido?'🔇':'🎧';d.classList.toggle('deafened',ensurdecido)};v5WritePresence().catch(()=>{})
+};
+window.toggleDeafen=()=>{ensurdecido=!ensurdecido;localStorage.setItem('voiceDeafened',ensurdecido?'1':'0');aplicarEstadoDeafen();mostrarToast(ensurdecido?'Você não ouvirá ninguém':'Áudio recebido ativado')};
+
+function v5RoleHTML(u,meta){if(u.uid===meta?.createdBy)return '<span class="member-role owner">👑 Dono</span>';if((meta?.admins||[]).includes(u.uid))return '<span class="member-role admin">🛡 Admin</span>';return ''}
+renderMembrosDaSala=usuarios=>{
+  detectarMudancasMembros(usuarios);membrosSalaAtual=usuarios||[];v5CurrentUsers=(usuarios||[]).filter(v5NowActive);const box=document.getElementById('roomMembers');if(!box)return;
+  const meta=v5CurrentMeta();if(!v5CurrentUsers.length){box.innerHTML='<div class="member empty-member">Ninguém conectado ainda.</div>';return}
+  box.innerHTML=v5CurrentUsers.map(u=>{const eu=u.uid===auth.currentUser?.uid;const avId=eu?'myAvatar':'member-'+v5SafeId(u.uid);const chips=[`<span class="call-chip ${u.micMuted?'':'on'}">${u.micMuted?'🔇':'🎙️'}</span>`,u.deafened?'<span class="call-chip">🎧 off</span>':'',u.cameraActive?'<span class="call-chip on">📷</span>':'',u.screenActive?'<span class="call-chip live">🖥️ LIVE</span>':'',u.activityGame?`<span class="call-chip game">🎮 ${escaparHtml(u.activityGame)}</span>`:''].join('');return `<div class="member" id="member-${v5SafeId(u.uid)}" data-uid="${v5EscapeAttr(u.uid)}" data-remote="${eu?'0':'1'}"><div>${avatarHTML(u,avId)}</div><div style="min-width:0"><div class="member-name">${escaparHtml(u.nome||'Usuário')}${eu?' <span style="color:#7c6af7;font-size:9px">(você)</span>':''}${v5RoleHTML(u,meta)}</div><div class="member-state">${escaparHtml(u.status||'Online')}</div><div class="member-state-line">${chips}</div></div></div>`}).join('');
+  if(meta?.music?.playing){box.insertAdjacentHTML('beforeend',`<div class="member music-bot-member"><div class="avatar">🎵<span class="dot"></span></div><div><div class="member-name">Music Bot</div><div class="member-state">Tocando: ${escaparHtml(meta.music.title||'Música')}</div></div></div>`)}
+  if(micStream){const my=document.getElementById('myAvatar');if(my)try{detectorVoz(micStream,my)}catch(_){}}
+};
+
+async function v5HandleUsers(users){
+  v5CurrentUsers=(users||[]).filter(v5NowActive);renderMembrosDaSala(v5CurrentUsers);
+  const remote=v5CurrentUsers.filter(u=>u.uid!==auth.currentUser.uid),ids=new Set(remote.map(u=>u.uid));
+  for(const uid of [...v5VoicePeers.keys()])if(!ids.has(uid))v5CloseVoicePeer(uid);
+  for(const owner of [...v5ScreenViewerPeers.keys()])if(!ids.has(owner)||!remote.find(u=>u.uid===owner)?.screenActive)await v5CloseScreenViewerPeer(owner);
+  for(const u of remote){await v5EnsureVoicePeer(u).catch(console.warn);if(u.screenActive)await v5EnsureScreenViewerPeer(u).catch(console.warn);if(screenStream)await v5EnsureScreenOwnerPeer(u).catch(console.warn);const c=document.getElementById('media-camera-'+v5SafeId(u.uid));if(c)c.style.display=u.cameraActive?'block':'none'}
+  v5RenderRooms();
+}
+
+async function v5StartRoomSubs(id){
+  v5CurrentRoomSubs.forEach(fn=>{try{fn()}catch(_){}});v5CurrentRoomSubs=[];
+  const metaRef=doc(db,'salasFixas',id);v5RoomMetaUnsub=onSnapshot(metaRef,s=>{if(!s.exists())return;v5CurrentRoomMeta={id,...s.data()};v5Rooms.set(id,v5CurrentRoomMeta);NOMES_SALAS[id]=v5CurrentRoomMeta.nome||id;document.getElementById('roomCode').textContent=v5RoomName(id);document.getElementById('sideRoomCode').textContent=v5RoomName(id);v5SyncMusic(v5CurrentRoomMeta.music||null);v5RenderRooms()},console.warn);v5CurrentRoomSubs.push(v5RoomMetaUnsub);
+  const uUn=onSnapshot(collection(db,'salasFixas',id,'usuarios'),s=>v5HandleUsers(s.docs.map(d=>d.data())).catch(console.warn),console.warn);v5CurrentRoomSubs.push(uUn);
+  v5StartRoomEvents(id);
+}
+
+async function v5CheckRoomAccess(id){
+  let meta=v5Rooms.get(id);if(!meta){const s=await getDoc(doc(db,'salasFixas',id));if(!s.exists())throw new Error('Sala não encontrada.');meta={id,...s.data()};v5Rooms.set(id,meta)}
+  if(meta.privada&&!v5IsAdmin(meta)){
+    const pin=prompt('🔒 Esta sala é privada. Digite o PIN:');if(pin===null)throw new Error('Entrada cancelada.');const hash=await v5Sha256(pin);if(hash!==meta.pinHash)throw new Error('PIN incorreto.')
+  }
+  return meta;
+}
+
+async function v5JoinRoom(id){
+  limparErro();if(!auth.currentUser)throw new Error('Sua sessão ainda não carregou.');if(fixedRoomKey===id){mostrarToast('Você já está nesta sala');return}
+  if(fixedRoomKey)await v5CleanupRoom();
+  const meta=await v5CheckRoomAccess(id);fixedRoomKey=id;roomId=id;sessionId='v5-'+id;isHost=false;v5CurrentRoomMeta=meta;v5RoomEnteredAt=Date.now();v5SessionToken=Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,10);v5SeenEvents.clear();
+  status.textContent='Abrindo microfone...';await v5OpenMic();aplicarEstadoPtt();await v5WritePresence();if(v5PresenceTimer)clearInterval(v5PresenceTimer);v5PresenceTimer=setInterval(v5WritePresence,5000);
+  await v5StartRoomSubs(id);show();document.getElementById('roomCode').textContent=v5RoomName(id);document.getElementById('sideRoomCode').textContent=v5RoomName(id);v5RenderRooms();status.textContent='Conectando aos participantes...';v5StartStats();v5StartAfk();
+  const da=document.getElementById('dockActivity');if(da)da.textContent=v5ActivityGame?('🎮 '+v5ActivityGame):'';mostrarToast('Entrou em '+v5RoomName(id));
+}
+window.entrarSalaFixa=async id=>{try{await v5JoinRoom(id)}catch(e){console.error(e);erroLobby(e);mostrarToast(e?.message||'Não foi possível entrar')}};
+window.trocarSala=async id=>{try{if(id===fixedRoomKey){mostrarToast('Você já está nesta sala');return}await v5JoinRoom(id)}catch(e){console.error(e);mostrarToast(e?.message||'Não foi possível trocar de sala')}};
+
+async function v5CleanupRoom({deixarLobby=false}={}){
+  if(v5PresenceTimer){clearInterval(v5PresenceTimer);v5PresenceTimer=null}if(v5StatsTimer){clearInterval(v5StatsTimer);v5StatsTimer=null}if(v5AfkTimer){clearInterval(v5AfkTimer);v5AfkTimer=null}
+  if(screenStream)await window.pararTela().catch(()=>{});if(cameraAtiva){cameraStream?.getTracks().forEach(t=>t.stop());cameraStream=null;cameraTrack=null;cameraAtiva=false}
+  for(const uid of [...v5VoicePeers.keys()])v5CloseVoicePeer(uid);for(const owner of [...v5ScreenViewerPeers.keys()])await v5CloseScreenViewerPeer(owner);for(const uid of [...v5ScreenOwnerPeers.keys()])v5CloseScreenOwnerPeer(uid);
+  for(const [owner,un] of v5ViewerWatchUnsubs){try{un()}catch(_){}}v5ViewerWatchUnsubs.clear();v5CurrentRoomSubs.forEach(fn=>{try{fn()}catch(_){}});v5CurrentRoomSubs=[];
+  if(fixedRoomKey&&auth.currentUser)await deleteDoc(doc(db,'salasFixas',fixedRoomKey,'usuarios',auth.currentUser.uid)).catch(()=>{});
+  try{micStream?.getTracks().forEach(t=>t.stop())}catch(_){}if(v5RawMicStream!==micStream)try{v5RawMicStream?.getTracks().forEach(t=>t.stop())}catch(_){}v5StopMicProcessor();micStream=null;v5RawMicStream=null;
+  document.querySelectorAll('.v5-media-card').forEach(x=>x.remove());document.querySelectorAll('.v5-stream-tile').forEach(x=>x.remove());mainStream.srcObject=null;mainStream.style.display='none';document.getElementById('mediaGrid')?.classList.remove('focus-hidden');document.getElementById('empty').style.display='block';document.getElementById('mediaToolbar')?.classList.remove('show');v5SelectedMedia=null;
+  fixedRoomKey=null;roomId=null;sessionId=null;v5CurrentUsers=[];v5CurrentRoomMeta=null;membrosAnteriores=new Map();v5RenderRooms();
+}
+cleanupSalaAtual=v5CleanupRoom;
+window.sairSala=async()=>{await v5CleanupRoom({deixarLobby:true});document.getElementById('room').style.display='none';document.getElementById('lobby').style.display='block';v5RenderRooms();mostrarToast('Você saiu do canal de voz')};
+
+function v5StartStats(){if(v5StatsTimer)clearInterval(v5StatsTimer);v5StatsTimer=setInterval(v5UpdateStats,3000);v5UpdateStats()}
+async function v5UpdateStats(){
+  const peers=[...v5VoicePeers.values()].filter(p=>p.pc.connectionState==='connected');if(!fixedRoomKey)return;if(!v5VoicePeers.size){status.textContent='Conectado • sozinho na sala';return}let rtts=[];
+  for(const p of peers){try{const st=await p.pc.getStats();st.forEach(r=>{if(r.type==='candidate-pair'&&r.state==='succeeded'&&(r.nominated||r.selected)&&typeof r.currentRoundTripTime==='number')rtts.push(r.currentRoundTripTime*1000)})}catch(_){}}
+  if(rtts.length){const ms=Math.round(rtts.reduce((a,b)=>a+b,0)/rtts.length),q=ms<70?'Ótima':ms<140?'Boa':ms<250?'Regular':'Ruim';status.textContent=`Conectado • ${ms} ms • ${q}`}else status.textContent=`Conectado • ${peers.length}/${v5VoicePeers.size} amigos`;
+}
+
+function v5StartAfk(){v5LastActivity=Date.now();if(v5AfkTimer)clearInterval(v5AfkTimer);v5AfkTimer=setInterval(()=>{if(!v5AfkEnabled||!fixedRoomKey||fixedRoomKey==='afk')return;if(Date.now()-v5LastActivity>=v5AfkMinutes*60000){mostrarToast('Movendo para o canal AFK...');trocarSala('afk')}},15000)}
+['mousemove','mousedown','keydown','touchstart','wheel'].forEach(ev=>document.addEventListener(ev,()=>{v5LastActivity=Date.now()},{passive:true}));
+
+// ===== Soundboard sincronizado =====
+function v5StartRoomEvents(id){
+  try{v5RoomEventsUnsub?.()}catch(_){}v5RoomEventsUnsub=onSnapshot(query(collection(db,'salasFixas',id,'eventos'),orderBy('ts','desc'),limit(40)),s=>{s.docChanges().forEach(ch=>{if(ch.type!=='added'||v5SeenEvents.has(ch.doc.id))return;v5SeenEvents.add(ch.doc.id);const d=ch.doc.data();if(Number(d.ts||0)<v5RoomEnteredAt-1500)return;if(d.type==='sound')v5PlayBuiltInSound(d.sound)})},console.warn);v5CurrentRoomSubs.push(v5RoomEventsUnsub)
+}
+function v5GetSoundCtx(){if(!v5SoundCtx)v5SoundCtx=new (window.AudioContext||window.webkitAudioContext)();if(v5SoundCtx.state==='suspended')v5SoundCtx.resume().catch(()=>{});return v5SoundCtx}
+function v5Osc(ctx,f,t,d=.12,type='sine',gain=.12){const o=ctx.createOscillator(),g=ctx.createGain();o.type=type;o.frequency.setValueAtTime(f,t);g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(gain,t+.01);g.gain.exponentialRampToValueAtTime(.0001,t+d);o.connect(g).connect(ctx.destination);o.start(t);o.stop(t+d+.02)}
+function v5Noise(ctx,t,d=.12,gain=.08){const len=Math.max(1,Math.floor(ctx.sampleRate*d)),buf=ctx.createBuffer(1,len,ctx.sampleRate),arr=buf.getChannelData(0);for(let i=0;i<len;i++)arr[i]=Math.random()*2-1;const s=ctx.createBufferSource(),g=ctx.createGain();s.buffer=buf;g.gain.setValueAtTime(gain,t);g.gain.exponentialRampToValueAtTime(.0001,t+d);s.connect(g).connect(ctx.destination);s.start(t)}
+function v5PlayBuiltInSound(name){if(ensurdecido)return;try{const c=v5GetSoundCtx(),t=c.currentTime+.02;if(name==='airhorn'){v5Osc(c,210,t,.45,'sawtooth',.18);v5Osc(c,230,t,.45,'square',.08)}else if(name==='game'){[440,660,880].forEach((f,i)=>v5Osc(c,f,t+i*.09,.13,'square',.08))}else if(name==='pop'){v5Noise(c,t,.1,.16);v5Osc(c,120,t,.12,'sine',.12)}else if(name==='laugh'){[320,380,300,400].forEach((f,i)=>v5Osc(c,f,t+i*.11,.09,'sine',.07))}else if(name==='alert'){[720,520,720,520].forEach((f,i)=>v5Osc(c,f,t+i*.16,.14,'square',.08))}else if(name==='victory'){[523,659,784,1046].forEach((f,i)=>v5Osc(c,f,t+i*.12,.2,'triangle',.1))}}catch(e){console.warn(e)}}
+window.abrirSoundboardV5=()=>document.getElementById('soundboardBg')?.classList.add('show');
+window.tocarSoundV5=async name=>{if(!fixedRoomKey){mostrarToast('Entre em uma sala primeiro');return}try{await addDoc(collection(db,'salasFixas',fixedRoomKey,'eventos'),{type:'sound',sound:name,uid:auth.currentUser.uid,nome:meuPerfilAtual.nome||'Usuário',ts:Date.now()})}catch(e){mostrarToast('Firebase bloqueou o soundboard');console.error(e)}};
+
+// ===== Music Bot sincronizado por URL direta =====
+function v5SyncMusic(music){
+  const st=document.getElementById('musicStatus');if(!music||!music.url){if(st)st.textContent='Nenhuma música tocando.';if(v5MusicAudio&&!v5MusicAudio.paused)v5MusicAudio.pause();return}
+  if(st)st.textContent=(music.playing?'▶ ':'⏸ ')+(music.title||'Música')+(music.byName?' • por '+music.byName:'');
+  if(!v5MusicAudio)return;const rev=Number(music.rev||0);if(v5MusicAudio.src!==music.url){v5MusicAudio.src=music.url;v5MusicAudio.load()}
+  v5MusicAudio.muted=ensurdecido;v5MusicAudio.volume=Number(document.getElementById('musicVolume')?.value||55)/100;
+  const position=music.playing?Math.max(0,(Date.now()-Number(music.startedAt||Date.now()))/1000):Number(music.position||0);
+  const apply=()=>{try{if(Number.isFinite(position)&&Math.abs((v5MusicAudio.currentTime||0)-position)>2)v5MusicAudio.currentTime=position}catch(_){}if(music.playing)v5MusicAudio.play().catch(()=>{if(st)st.textContent+=' • clique em Música para liberar o áudio'});else v5MusicAudio.pause()};
+  if(v5MusicAudio.readyState>=1)apply();else v5MusicAudio.onloadedmetadata=apply;v5MusicSyncRev=rev;
+}
+window.abrirMusicaV5=()=>document.getElementById('musicBg')?.classList.add('show');
+window.volumeMusicaV5=v=>{if(v5MusicAudio)v5MusicAudio.volume=Math.max(0,Math.min(100,Number(v)))/100};
+window.tocarMusicaV5=async()=>{if(!fixedRoomKey){mostrarToast('Entre em uma sala primeiro');return}const url=document.getElementById('musicUrl')?.value.trim(),title=document.getElementById('musicTitle')?.value.trim()||'Música';if(!url){mostrarToast('Cole um link direto de áudio');return}const music={url,title,playing:true,startedAt:Date.now()+250,position:0,byUid:auth.currentUser.uid,byName:meuPerfilAtual.nome||'Usuário',rev:Date.now()};await setDoc(doc(db,'salasFixas',fixedRoomKey),{music},{merge:true});};
+window.pausarMusicaV5=async()=>{if(!fixedRoomKey)return;const m=v5CurrentMeta()?.music;if(!m?.url)return;const pos=v5MusicAudio?.currentTime||Math.max(0,(Date.now()-Number(m.startedAt||Date.now()))/1000);await setDoc(doc(db,'salasFixas',fixedRoomKey),{music:{...m,playing:false,position:pos,rev:Date.now()}},{merge:true})};
+window.retomarMusicaV5=async()=>{if(!fixedRoomKey)return;const m=v5CurrentMeta()?.music;if(!m?.url)return;const pos=Number(m.position||0);await setDoc(doc(db,'salasFixas',fixedRoomKey),{music:{...m,playing:true,startedAt:Date.now()-pos*1000,rev:Date.now()}},{merge:true})};
+window.pararMusicaV5=async()=>{if(!fixedRoomKey)return;await setDoc(doc(db,'salasFixas',fixedRoomKey),{music:null},{merge:true})};
+
+// ===== Salas privadas, criação, renomear, apagar e admins =====
+window.abrirGerenciadorSalas=()=>{document.getElementById('roomManagerBg')?.classList.add('show');v5RenderRoomManager()};
+window.togglePinFieldV5=()=>{document.getElementById('newRoomPinRow').style.display=document.getElementById('newRoomPrivate').checked?'block':'none'};
+window.fecharModalIdV5=id=>document.getElementById(id)?.classList.remove('show');
+window.fecharModalV5=(e,id)=>{if(e.target===document.getElementById(id))fecharModalIdV5(id)};
+window.criarSalaV5=async()=>{try{const nome=document.getElementById('newRoomName').value.trim();if(!nome)throw new Error('Digite um nome para a sala.');const priv=document.getElementById('newRoomPrivate').checked,pin=document.getElementById('newRoomPin').value.trim();if(priv&&!pin)throw new Error('Digite um PIN.');const id='room-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,6),pinHash=priv?await v5Sha256(pin):'';await setDoc(doc(db,'salasFixas',id),{nome:nome.slice(0,32),createdBy:auth.currentUser.uid,admins:[auth.currentUser.uid],privada:priv,pinHash,createdAt:Date.now(),v5:true});document.getElementById('newRoomName').value='';document.getElementById('newRoomPin').value='';document.getElementById('newRoomPrivate').checked=false;togglePinFieldV5();mostrarToast('Sala criada')}catch(e){mostrarToast(e.message);console.error(e)}};
+window.renomearSalaV5=async id=>{const meta=v5Rooms.get(id);if(!v5IsAdmin(meta)){mostrarToast('Somente administradores podem renomear');return}const nome=prompt('Novo nome da sala:',meta.nome||id);if(!nome?.trim())return;await setDoc(doc(db,'salasFixas',id),{nome:nome.trim().slice(0,32)},{merge:true});};
+window.apagarSalaV5=async id=>{const meta=v5Rooms.get(id);if(!v5IsOwner(meta)){mostrarToast('Somente o dono pode excluir a sala');return}if(meta.afk){mostrarToast('O canal AFK não pode ser excluído');return}if(!confirm('Excluir a sala "'+(meta.nome||id)+'"?'))return;if(fixedRoomKey===id)await sairSala();await deleteDoc(doc(db,'salasFixas',id));mostrarToast('Sala excluída')};
+window.privacidadeSalaV5=async id=>{const meta=v5Rooms.get(id);if(!v5IsOwner(meta)){mostrarToast('Somente o dono pode alterar a privacidade');return}if(meta.privada){await setDoc(doc(db,'salasFixas',id),{privada:false,pinHash:''},{merge:true});mostrarToast('Sala agora é pública')}else{const pin=prompt('Digite um PIN para a sala:');if(!pin)return;await setDoc(doc(db,'salasFixas',id),{privada:true,pinHash:await v5Sha256(pin)},{merge:true});mostrarToast('Sala agora é privada')}};
+function v5RenderRoomManager(){const box=document.getElementById('roomManagerList');if(!box)return;const arr=[...v5Rooms.values()].sort((a,b)=>String(a.nome).localeCompare(String(b.nome)));box.innerHTML=arr.map(r=>{const admin=v5IsAdmin(r),owner=v5IsOwner(r);return `<div class="v5-room-manage-item"><div><div class="v5-room-manage-name">${r.afk?'💤':'🔊'} ${escaparHtml(r.nome||r.id)} ${r.privada?'🔒':''}</div><div class="v5-room-manage-sub">${owner?'👑 Você é o dono':admin?'🛡 Você é admin':'Membro'} • ${(v5RoomUsers.get(r.id)||[]).filter(v5NowActive).length} conectado(s)</div></div><div class="v5-room-manage-actions">${admin?`<button onclick="renomearSalaV5('${v5EscapeAttr(r.id)}')">✎ Renomear</button>`:''}${owner?`<button onclick="privacidadeSalaV5('${v5EscapeAttr(r.id)}')">${r.privada?'🔓 Pública':'🔒 Privada'}</button>${r.afk?'':`<button onclick="apagarSalaV5('${v5EscapeAttr(r.id)}')">🗑 Excluir</button>`}`:''}</div></div>`}).join('')||'<div class="room-empty">Nenhuma sala.</div>'}
+window.copiarConviteV5=async()=>{if(!fixedRoomKey){mostrarToast('Entre em uma sala primeiro');return}const url=new URL(location.href);url.searchParams.set('room',fixedRoomKey);try{await navigator.clipboard.writeText(url.toString());mostrarToast('Link de convite copiado')}catch(_){prompt('Copie o link:',url.toString())}};
+
+function v5OpenUserContext(e,uid,nome){
+  if(uid===auth.currentUser?.uid)return;const menu=document.getElementById('v5UserContext'),cfg=v5UserCfg(uid),meta=v5CurrentMeta(),target=v5CurrentUsers.find(u=>u.uid===uid),canAdmin=v5IsOwner(meta)&&uid!==meta.createdBy,isTargetAdmin=(meta?.admins||[]).includes(uid);
+  menu.innerHTML=`<h4>${escaparHtml(nome||target?.nome||'Usuário')}</h4><div class="sub">Ajustes só para você${target?.activityGame?' • 🎮 '+escaparHtml(target.activityGame):''}</div><div class="v5-context-row"><button onclick="v5ToggleMuteUser('${v5EscapeAttr(uid)}')">${cfg.muted?'🔇':'🔊'}</button><input type="range" min="0" max="100" value="${Math.round(cfg.volume*100)}" oninput="v5VolumeUser('${v5EscapeAttr(uid)}',this.value)"><span>${Math.round(cfg.volume*100)}%</span></div><button class="v5-context-action" onclick="v5ToggleDeafUser('${v5EscapeAttr(uid)}')">${cfg.deaf?'✅':'⬜'} Ignorar voz + transmissão deste usuário</button>${canAdmin?`<button class="v5-context-action admin" onclick="v5ToggleAdminUser('${v5EscapeAttr(uid)}')">${isTargetAdmin?'🛡 Remover administrador':'🛡 Tornar administrador'}</button>`:''}`;
+  let x=e.clientX+7,y=e.clientY+7,w=270,h=190;if(x+w>innerWidth-10)x=innerWidth-w-10;if(y+h>innerHeight-10)y=innerHeight-h-10;menu.style.left=Math.max(10,x)+'px';menu.style.top=Math.max(10,y)+'px';menu.classList.add('show')
+}
+window.v5VolumeUser=(uid,v)=>{const c=v5UserCfg(uid);c.volume=Number(v)/100;v5ApplyUserAudio(uid);const menu=document.getElementById('v5UserContext');menu.querySelector('.v5-context-row span').textContent=v+'%'};
+window.v5ToggleMuteUser=uid=>{const c=v5UserCfg(uid);c.muted=!c.muted;v5ApplyUserAudio(uid);mostrarToast(c.muted?'Usuário silenciado para você':'Usuário reativado')};
+window.v5ToggleDeafUser=uid=>{const c=v5UserCfg(uid);c.deaf=!c.deaf;v5ApplyUserAudio(uid);document.getElementById('v5UserContext')?.classList.remove('show');mostrarToast(c.deaf?'Usuário ignorado':'Usuário deixou de ser ignorado')};
+window.v5ToggleAdminUser=async uid=>{const meta=v5CurrentMeta();if(!v5IsOwner(meta))return;const is=(meta.admins||[]).includes(uid);await setDoc(doc(db,'salasFixas',fixedRoomKey),{admins:is?arrayRemove(uid):arrayUnion(uid)},{merge:true});document.getElementById('v5UserContext')?.classList.remove('show');mostrarToast(is?'Administrador removido':'Administrador adicionado')};
+abrirVolumeUsuario=(e,uid,nome)=>v5OpenUserContext(e,uid,nome);
+document.addEventListener('contextmenu',e=>{const row=e.target.closest('#roomMembers .member[data-remote="1"]');if(row){e.preventDefault();e.stopPropagation();v5OpenUserContext(e,row.dataset.uid,row.querySelector('.member-name')?.childNodes[0]?.textContent?.trim()||'Usuário')}});
+document.addEventListener('click',e=>{if(!e.target.closest('#v5UserContext')&&!e.target.closest('#roomMembers .member[data-remote=\"1\"]'))document.getElementById('v5UserContext')?.classList.remove('show')});
+
+// ===== Configurações V5: atividade, AFK, mic test e noise gate =====
+const v5LegacyOpenSettings=window.abrirConfiguracoes;
+window.abrirConfiguracoes=async()=>{await v5LegacyOpenSettings?.();const a=document.getElementById('activityGame');if(a)a.value=v5ActivityGame;const en=document.getElementById('enhancedNoise');if(en)en.checked=v5EnhancedNoise;const ae=document.getElementById('afkEnabled');if(ae)ae.value=v5AfkEnabled?'1':'0';const am=document.getElementById('afkMinutes');if(am)am.value=String(v5AfkMinutes);};
+window.testarMicrofoneV5=async()=>{try{if(v5MicTestAudio){v5MicTestAudio.pause();v5MicTestAudio.remove();v5MicTestAudio=null}const track=micStream?.getAudioTracks?.()[0];if(!track)throw new Error('Entre em uma sala primeiro.');const clone=track.clone(),a=document.createElement('audio');a.autoplay=true;a.volume=.65;a.srcObject=new MediaStream([clone]);document.body.appendChild(a);v5MicTestAudio=a;await a.play();mostrarToast('Teste do microfone por 5 segundos');setTimeout(()=>{clone.stop();a.remove();if(v5MicTestAudio===a)v5MicTestAudio=null},5000)}catch(e){mostrarToast(e.message||'Não foi possível testar o microfone')}};
+window.aplicarConfiguracoesAudio=async()=>{
+  try{
+    const deviceId=document.getElementById('micDevice')?.value||'';
+    localStorage.setItem('voiceEchoCancellation',document.getElementById('echoCancellation')?.checked?'1':'0');localStorage.setItem('voiceNoiseSuppression',document.getElementById('noiseSuppression')?.checked?'1':'0');localStorage.setItem('voiceAutoGainControl',document.getElementById('autoGainControl')?.checked?'1':'0');
+    v5EnhancedNoise=document.getElementById('enhancedNoise')?.checked===true;localStorage.setItem('voiceEnhancedNoise',v5EnhancedNoise?'1':'0');v5ActivityGame=(document.getElementById('activityGame')?.value||'').trim().slice(0,60);localStorage.setItem('voiceActivityGame',v5ActivityGame);
+    v5AfkEnabled=document.getElementById('afkEnabled')?.value!=='0';v5AfkMinutes=Number(document.getElementById('afkMinutes')?.value||15);localStorage.setItem('voiceAfkEnabled',v5AfkEnabled?'1':'0');localStorage.setItem('voiceAfkMinutes',String(v5AfkMinutes));
+    const novoStatus=document.getElementById('userStatus')?.value||'Online';meuPerfilAtual.status=novoStatus;localStorage.setItem('voiceUserStatus',novoStatus);document.getElementById('dockStatus').textContent='● '+novoStatus;document.getElementById('dockActivity').textContent=v5ActivityGame?('🎮 '+v5ActivityGame):'';
+    inputMode=document.getElementById('inputMode')?.value||'voice';localStorage.setItem('voiceInputMode',inputMode);localStorage.setItem('voicePttKey',pttKey);joinLeaveSounds=document.getElementById('joinLeaveSounds')?.checked!==false;localStorage.setItem('voiceJoinLeaveSounds',joinLeaveSounds?'1':'0');streamResolution=Number(document.getElementById('streamResolution')?.value||720);streamFps=Number(document.getElementById('streamFps')?.value||30);localStorage.setItem('voiceStreamResolution',String(streamResolution));localStorage.setItem('voiceStreamFps',String(streamFps));
+    if(fixedRoomKey){const wasEnabled=micStream?.getAudioTracks?.()[0]?.enabled!==false;await v5OpenMic(deviceId);const nt=micStream.getAudioTracks()[0];nt.enabled=wasEnabled;for(const p of v5VoicePeers.values())await p.micSender?.replaceTrack(nt).catch(()=>{});aplicarEstadoPtt();await v5WritePresence()}
+    fecharConfiguracoes();mostrarToast('Configurações aplicadas');
+  }catch(e){console.error(e);mostrarToast('Não foi possível aplicar as configurações')}
+};
+
+// Corrige UI de PTT/presença quando a tecla é pressionada/solta.
+const v5LegacySetPtt=setPttPressed;
+setPttPressed=pressed=>{v5LegacySetPtt(pressed);v5WritePresence().catch(()=>{})};
+
+// Convite direto pela URL.
+const v5InviteRoom=new URLSearchParams(location.search).get('room');
+onAuthStateChanged(auth,u=>{if(u&&v5InviteRoom)setTimeout(()=>{if(!fixedRoomKey)entrarSalaFixa(v5InviteRoom)},1300)});
+
+// A grade antiga de transmissão fica reservada para compatibilidade, mas V5 usa tiles dinâmicos.
+document.getElementById('streamTile')?.style.setProperty('display','none');
+
+
 </script></body></html>
