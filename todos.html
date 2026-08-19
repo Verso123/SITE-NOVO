@@ -736,7 +736,7 @@ tr.comentario td {
     <div class="rawg-box">
       <div class="rawg-head">
         <strong>🎮 Buscar jogo automaticamente</strong>
-        <span style="font-size:11px;color:#4ade80;font-weight:700">● Biblioteca conectada</span>
+        <span style="font-size:11px;color:#4ade80;font-weight:700">● Biblioteca via servidor seguro</span>
       </div>
 
       <div class="rawg-search-row">
@@ -1097,9 +1097,9 @@ let plataformaAtiva = "todas";
 /* ============================================================
    BIBLIOTECA RAWG
 ============================================================ */
-// Chave compartilhada do projeto.
-// Em GitHub Pages ela fica acessível no código-fonte do navegador.
-const rawgApiKey = "5dc4d764153c4664b8583c29ed0d4a77";
+// Endereço do Cloudflare Worker que faz a consulta à RAWG sem expor a chave.
+// Depois de publicar o Worker, troque apenas o endereço abaixo.
+const RAWG_PROXY_URL = "https://meus-jogos-api.luanfx18.workers.dev/";
 let rawgResultados = [];
 
 function escaparHtmlRawg(valor) {
@@ -1126,7 +1126,9 @@ function prepararRawgUI() {
 }
 
 function mapearGeneroRawg(generos) {
-  const nomes = (generos || []).map(g => String(g.name || "").toLowerCase());
+  const nomes = (generos || []).map(g =>
+    String(typeof g === "string" ? g : (g?.name || "")).toLowerCase()
+  );
 
   if (nomes.includes("action") && nomes.includes("adventure")) return "AÇÃO/ADVENTURE";
   if (nomes.includes("action")) return "AÇÃO";
@@ -1142,7 +1144,8 @@ function mapearPlataformasRawg(platforms) {
   const saida = [];
 
   (platforms || []).forEach(item => {
-    const nome = String(item?.platform?.name || "").toLowerCase();
+    const bruto = typeof item === "string" ? item : (item?.platform?.name || item?.name || "");
+    const nome = String(bruto).toLowerCase();
 
     if (nome === "pc" && !saida.includes("PC")) saida.push("PC");
     if (nome.includes("playstation 5") && !saida.includes("PS5")) saida.push("PS5");
@@ -1175,13 +1178,16 @@ function renderizarResultadosRawg(jogos) {
   }
 
   box.innerHTML = jogos.map(jogo => {
-    const plataformas = mapearPlataformasRawg(jogo.platforms);
-    const generos = (jogo.genres || []).map(g => g.name).join(", ");
-    const lancamento = jogo.released
-      ? new Date(jogo.released + "T12:00:00").toLocaleDateString("pt-BR")
+    const plataformas = mapearPlataformasRawg(jogo.plataformas || jogo.platforms);
+    const listaGeneros = jogo.generos || jogo.genres || [];
+    const generos = listaGeneros.map(g => typeof g === "string" ? g : g?.name).filter(Boolean).join(", ");
+    const dataLancamento = jogo.lancamento || jogo.released || "";
+    const lancamento = dataLancamento
+      ? new Date(dataLancamento + "T12:00:00").toLocaleDateString("pt-BR")
       : "data não informada";
 
-    const imagem = jogo.background_image || "";
+    const imagem = jogo.imagem || jogo.background_image || "";
+    const nome = jogo.nome || jogo.name || "Jogo";
     const imagemHtml = imagem
       ? `<img src="${escaparHtmlRawg(imagem)}" alt="">`
       : '<div style="width:96px;height:64px;border-radius:7px;background:#16162b;display:flex;align-items:center;justify-content:center;color:#777">🎮</div>';
@@ -1190,7 +1196,7 @@ function renderizarResultadosRawg(jogos) {
       <div class="rawg-result" onclick="selecionarJogoRawg(${Number(jogo.id)})">
         ${imagemHtml}
         <div>
-          <div class="rawg-result-title">${escaparHtmlRawg(jogo.name)}</div>
+          <div class="rawg-result-title">${escaparHtmlRawg(nome)}</div>
           <div class="rawg-result-meta">
             ${escaparHtmlRawg(generos || "Gênero não informado")}<br>
             ${escaparHtmlRawg(plataformas.join(" • ") || "Plataforma não mapeada")} • ${escaparHtmlRawg(lancamento)}
@@ -1215,24 +1221,26 @@ window.buscarRawg = async function() {
   resultados.innerHTML = '<div class="rawg-loading">Buscando jogos...</div>';
 
   try {
-    const url =
-      "https://api.rawg.io/api/games" +
-      "?key=" + encodeURIComponent(rawgApiKey) +
-      "&search=" + encodeURIComponent(termo) +
-      "&search_precise=true" +
-      "&page_size=10";
+    const url = RAWG_PROXY_URL + "?search=" + encodeURIComponent(termo);
 
-    const resposta = await fetch(url);
+    const resposta = await fetch(url, {
+      method: "GET",
+      headers: { "Accept": "application/json" }
+    });
     const dados = await resposta.json().catch(() => ({}));
 
     if (!resposta.ok) {
-      if (resposta.status === 401 || resposta.status === 403) {
-        throw new Error("Chave RAWG inválida ou sem permissão.");
-      }
-      throw new Error(dados?.detail || "A RAWG não respondeu à pesquisa.");
+      throw new Error(
+        dados?.error ||
+        dados?.detail ||
+        "A biblioteca de jogos não respondeu à pesquisa."
+      );
     }
 
-    rawgResultados = Array.isArray(dados.results) ? dados.results : [];
+    rawgResultados = Array.isArray(dados.resultados)
+      ? dados.resultados
+      : (Array.isArray(dados.results) ? dados.results : []);
+
     renderizarResultadosRawg(rawgResultados);
 
   } catch (e) {
@@ -1246,16 +1254,18 @@ window.selecionarJogoRawg = function(id) {
   const jogo = rawgResultados.find(j => Number(j.id) === Number(id));
   if (!jogo) return;
 
-  const plataformas = mapearPlataformasRawg(jogo.platforms);
-  const genero = mapearGeneroRawg(jogo.genres);
-  const imagem = jogo.background_image || "";
+  const plataformas = mapearPlataformasRawg(jogo.plataformas || jogo.platforms);
+  const genero = mapearGeneroRawg(jogo.generos || jogo.genres);
+  const imagem = jogo.imagem || jogo.background_image || "";
+  const nome = jogo.nome || jogo.name || "";
+  const lancamento = jogo.lancamento || jogo.released || "";
 
   document.getElementById("f-rawg-id").value = jogo.id || "";
   document.getElementById("f-rawg-slug").value = jogo.slug || "";
-  document.getElementById("f-rawg-released").value = jogo.released || "";
+  document.getElementById("f-rawg-released").value = lancamento;
   document.getElementById("f-rawg-platforms").value = plataformas.join("|");
 
-  document.getElementById("f-nome").value = jogo.name || "";
+  document.getElementById("f-nome").value = nome;
 
   if (genero) {
     document.getElementById("f-genero").value = genero;
@@ -1279,13 +1289,13 @@ window.selecionarJogoRawg = function(id) {
 
   const info = document.getElementById("rawg-selected");
   info.innerHTML =
-    `✅ <b>${escaparHtmlRawg(jogo.name)}</b> selecionado.<br>` +
+    `✅ <b>${escaparHtmlRawg(nome)}</b> selecionado.<br>` +
     `Disponível em: ${escaparHtmlRawg(plataformas.join(" • ") || "não mapeado")}. ` +
     `Escolha abaixo a plataforma em que você jogou.`;
   info.style.display = "block";
 
   document.getElementById("rawg-results").innerHTML = "";
-  document.getElementById("rawg-search").value = jogo.name || "";
+  document.getElementById("rawg-search").value = nome;
 
   modalStatus("Dados do jogo preenchidos. Complete suas informações pessoais.", "ok");
 };
