@@ -2455,6 +2455,31 @@ function v5RenderRoomUsersMini(users,max=3){
   return shown+(ativos.length>max?`<span class="room-count">+${ativos.length-max}</span>`:'');
 }
 
+
+function v5SyncLiveTilesFromPresence(){
+  if(!auth.currentUser)return;
+  const remote=(v5CurrentUsers||[]).filter(u=>u.uid!==auth.currentUser.uid);
+  const liveIds=new Set();
+
+  for(const u of remote){
+    if(u.screenActive){
+      liveIds.add(u.uid);
+      // Se o vídeo já chegou, mantém o tile de vídeo. Caso contrário, mostra o placeholder.
+      const existing=document.getElementById('streamTile-'+v5SafeId(u.uid));
+      if(!existing || !existing.querySelector('video')){
+        v5UpsertStreamPlaceholder(u.uid,u.nome||'Usuário',u.streamQuality||'AO VIVO');
+      }
+    }
+  }
+
+  document.querySelectorAll('#streamList .v5-stream-tile').forEach(tile=>{
+    const owner=tile.dataset.owner;
+    if(owner && owner!==auth.currentUser.uid && !liveIds.has(owner)){
+      tile.remove();
+    }
+  });
+}
+
 function v5RenderRooms(){
   const ordered=[...v5Rooms.values()].sort((a,b)=>{
     if(a.afk&&!b.afk)return 1;if(!a.afk&&b.afk)return -1;
@@ -2790,8 +2815,128 @@ async function v5CloseScreenViewerPeer(owner){const p=v5ScreenViewerPeers.get(ow
 function v5StartViewerWatch(owner){if(v5ViewerWatchUnsubs.has(owner)||!fixedRoomKey)return;const ref=collection(db,'salasFixas',fixedRoomKey,'streams',owner,'viewers');const unsub=onSnapshot(ref,s=>{const viewers=s.docs.map(d=>d.data()).filter(v=>Date.now()-Number(v.lastSeenMs||0)<30000);const names=viewers.map(v=>v.nome||'Usuário');const card=document.getElementById('media-screen-'+v5SafeId(owner));const el=card?.querySelector('.v5-viewers');if(el)el.textContent=names.length?'👀 '+names.join(', '):'👀 Ninguém';const tile=document.getElementById('streamTile-'+v5SafeId(owner));const c=tile?.querySelector('.stream-viewer-count');if(c)c.textContent=names.length?`👀 ${names.length} assistindo`:'👀 ninguém assistindo'},console.warn);v5ViewerWatchUnsubs.set(owner,unsub)}
 function v5StopViewerWatch(owner){try{v5ViewerWatchUnsubs.get(owner)?.()}catch(_){}v5ViewerWatchUnsubs.delete(owner)}
 
+
+function v5UpsertStreamPlaceholder(owner,name,quality){
+  const list=document.getElementById('streamList');
+  if(!list)return;
+  let tile=document.getElementById('streamTile-'+v5SafeId(owner));
+
+  if(!tile){
+    tile=document.createElement('div');
+    tile.className='stream-tile v5-stream-tile';
+    tile.id='streamTile-'+v5SafeId(owner);
+    tile.dataset.owner=owner;
+    tile.draggable=true;
+    tile.innerHTML=`<div class="stream-thumb">
+      <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:#08080d;color:#8d8d9d;font-size:11px;text-align:center;padding:8px">
+        ▶ Clique para assistir
+      </div>
+      <div class="live">AO VIVO</div>
+      <div class="v5-q-badge" style="position:absolute;right:6px;bottom:6px;background:#000a;color:#ddd;border-radius:4px;padding:2px 5px;font-size:8px;font-weight:800"></div>
+    </div>
+    <div class="stream-info">
+      <div class="stream-name"></div>
+      <div class="stream-help">Clique para entrar na live</div>
+      <div class="stream-viewer-count"></div>
+    </div>`;
+    list.appendChild(tile);
+    v5MakeStreamTileDraggable(tile,list);
+  }
+
+  tile.querySelector('.stream-name').textContent=(name||'Usuário')+' está transmitindo';
+  const q=tile.querySelector('.v5-q-badge');
+  if(q)q.textContent=quality||'AO VIVO';
+  tile.onclick=()=>v5AssistirTransmissao(owner);
+  tile.oncontextmenu=e=>abrirMenuAudio(e,owner);
+}
+
+window.v5AssistirTransmissao=async owner=>{
+  try{
+    const user=v5CurrentUsers.find(u=>u.uid===owner);
+    if(!user?.screenActive){
+      mostrarToast('Essa transmissão já foi encerrada');
+      v5RemoveStreamTile(owner);
+      return;
+    }
+
+    status.textContent='Entrando na transmissão...';
+    mostrarToast('Conectando à live...');
+
+    await v5EnsureScreenViewerPeer(user);
+
+    let tentativas=0;
+    const esperar=()=>{
+      const stream=v5MediaStreams.get('screen:'+owner);
+      if(stream && stream.getVideoTracks().length){
+        v5FocusMedia('screen',owner);
+        status.textContent='Assistindo transmissão';
+        return;
+      }
+
+      tentativas++;
+      if(tentativas<20){
+        setTimeout(esperar,300);
+      }else{
+        status.textContent='A transmissão está ao vivo, mas o vídeo ainda não chegou';
+        mostrarToast('Não consegui abrir o vídeo. Clique na live para tentar novamente.');
+      }
+    };
+    esperar();
+  }catch(e){
+    console.error('Erro ao assistir transmissão:',e);
+    status.textContent='Erro ao abrir transmissão';
+    mostrarToast(e?.message||'Não foi possível entrar na live');
+  }
+};
+
 function v5UpsertStreamTile(owner,name,stream,quality,local){
-  const list=document.getElementById('streamList');if(!list)return;let tile=document.getElementById('streamTile-'+v5SafeId(owner));if(!tile){tile=document.createElement('div');tile.className='stream-tile v5-stream-tile';tile.id='streamTile-'+v5SafeId(owner);tile.dataset.owner=owner;tile.draggable=true;tile.innerHTML=`<div class="stream-thumb"><video autoplay muted playsinline></video><div class="live">AO VIVO</div><div class="v5-q-badge" style="position:absolute;right:6px;bottom:6px;background:#000a;color:#ddd;border-radius:4px;padding:2px 5px;font-size:8px;font-weight:800"></div></div><div class="stream-info"><div class="stream-name"></div><div class="stream-help">Clique para assistir • botão direito: áudio</div><div class="stream-viewer-count"></div></div>`;list.appendChild(tile);tile.onclick=()=>v5FocusMedia('screen',owner);tile.oncontextmenu=e=>abrirMenuAudio(e,owner);v5MakeStreamTileDraggable(tile,list)}const v=tile.querySelector('video');v.srcObject=stream;v.play().catch(()=>{});tile.querySelector('.stream-name').textContent=(local?'Sua transmissão':name+' está transmitindo');tile.querySelector('.v5-q-badge').textContent=quality||'';if(local)v5StartViewerWatch(owner)}
+  const list=document.getElementById('streamList');
+  if(!list)return;
+
+  let tile=document.getElementById('streamTile-'+v5SafeId(owner));
+  if(!tile){
+    tile=document.createElement('div');
+    tile.className='stream-tile v5-stream-tile';
+    tile.id='streamTile-'+v5SafeId(owner);
+    tile.dataset.owner=owner;
+    tile.draggable=true;
+    list.appendChild(tile);
+    v5MakeStreamTileDraggable(tile,list);
+  }
+
+  // Se o card era apenas o placeholder "Clique para assistir",
+  // transforma ele em card de vídeo quando a track chegar.
+  if(!tile.querySelector('video')){
+    tile.innerHTML=`<div class="stream-thumb">
+      <video autoplay muted playsinline></video>
+      <div class="live">AO VIVO</div>
+      <div class="v5-q-badge" style="position:absolute;right:6px;bottom:6px;background:#000a;color:#ddd;border-radius:4px;padding:2px 5px;font-size:8px;font-weight:800"></div>
+    </div>
+    <div class="stream-info">
+      <div class="stream-name"></div>
+      <div class="stream-help">Clique para assistir • botão direito: áudio</div>
+      <div class="stream-viewer-count"></div>
+    </div>`;
+  }
+
+  tile.onclick=()=>local?v5FocusMedia('screen',owner):v5AssistirTransmissao(owner);
+  tile.oncontextmenu=e=>abrirMenuAudio(e,owner);
+
+  const v=tile.querySelector('video');
+  if(v && stream){
+    v.srcObject=stream;
+    v.play().catch(()=>{});
+  }
+
+  const nm=tile.querySelector('.stream-name');
+  if(nm)nm.textContent=(local?'Sua transmissão':name+' está transmitindo');
+
+  const q=tile.querySelector('.v5-q-badge');
+  if(q)q.textContent=quality||'';
+
+  tile.style.display='block';
+  if(local)v5StartViewerWatch(owner);
+}
 function v5RemoveStreamTile(owner){document.getElementById('streamTile-'+v5SafeId(owner))?.remove();v5StopViewerWatch(owner)}
 function v5MakeStreamTileDraggable(tile,list){tile.addEventListener('dragstart',()=>tile.classList.add('dragging'));tile.addEventListener('dragend',()=>tile.classList.remove('dragging'));list.addEventListener('dragover',e=>{e.preventDefault();const d=list.querySelector('.v5-stream-tile.dragging');if(!d)return;const others=[...list.querySelectorAll('.v5-stream-tile:not(.dragging)')];const after=others.find(el=>{const r=el.getBoundingClientRect();return e.clientY<r.top+r.height/2});if(after)list.insertBefore(d,after);else list.appendChild(d)})}
 
@@ -2899,11 +3044,29 @@ renderMembrosDaSala=usuarios=>{
 };
 
 async function v5HandleUsers(users){
-  v5CurrentUsers=(users||[]).filter(v5NowActive);renderMembrosDaSala(v5CurrentUsers);
+  v5CurrentUsers=(users||[]).filter(v5NowActive);renderMembrosDaSala(v5CurrentUsers);v5SyncLiveTilesFromPresence();
   const remote=v5CurrentUsers.filter(u=>u.uid!==auth.currentUser.uid),ids=new Set(remote.map(u=>u.uid));
   for(const uid of [...v5VoicePeers.keys()])if(!ids.has(uid))v5CloseVoicePeer(uid);
   for(const owner of [...v5ScreenViewerPeers.keys()])if(!ids.has(owner)||!remote.find(u=>u.uid===owner)?.screenActive)await v5CloseScreenViewerPeer(owner);
-  for(const u of remote){await v5EnsureVoicePeer(u).catch(console.warn);if(u.screenActive)await v5EnsureScreenViewerPeer(u).catch(console.warn);if(screenStream)await v5EnsureScreenOwnerPeer(u).catch(console.warn);const c=document.getElementById('media-camera-'+v5SafeId(u.uid));if(c)c.style.display=u.cameraActive?'block':'none'}
+  for(const u of remote){
+    await v5EnsureVoicePeer(u).catch(console.warn);
+
+    if(u.screenActive){
+      // Primeiro atualiza/recria o peer. Um peer antigo pode ser fechado aqui.
+      await v5EnsureScreenViewerPeer(u).catch(console.warn);
+
+      // Só depois garante o card visível. Assim ele não some se um peer antigo
+      // for fechado durante a troca de screenRev.
+      v5UpsertStreamPlaceholder(u.uid,u.nome||'Usuário',u.streamQuality||'AO VIVO');
+    }else{
+      v5RemoveStreamTile(u.uid);
+    }
+
+    if(screenStream)await v5EnsureScreenOwnerPeer(u).catch(console.warn);
+    const c=document.getElementById('media-camera-'+v5SafeId(u.uid));
+    if(c)c.style.display=u.cameraActive?'block':'none';
+  }
+  v5SyncLiveTilesFromPresence();
   v5RenderRooms();
 }
 
