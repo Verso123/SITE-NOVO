@@ -2657,7 +2657,10 @@ async function v5EnsureVoicePeer(user){
 
   if(cameraTrack)await p.cameraSender.replaceTrack(cameraTrack).catch(()=>{});
   const currentScreenTrack=screenStream?.getVideoTracks?.()[0];
-  if(currentScreenTrack)await p.screenSender.replaceTrack(currentScreenTrack).catch(()=>{});
+  if(currentScreenTrack){
+    await p.screenSender.replaceTrack(currentScreenTrack).catch(()=>{});
+    await p.cameraSender.replaceTrack(currentScreenTrack).catch(()=>{});
+  }
   p.pc.onicecandidate=e=>{
     if(!e.candidate)return;const c=e.candidate.toJSON();
     if(!p.signalReady){p.pending.push(c);return}
@@ -2668,21 +2671,27 @@ async function v5EnsureVoicePeer(user){
       const a=v5AudioEl(user.uid);a.srcObject=new MediaStream([e.track]);v5ApplyUserAudio(user.uid);
       v5MonitorRemoteVoice(user.uid,new MediaStream([e.track]));
     }else if(e.track.kind==='video'){
-      const isPrimaryVideo=e.transceiver===p.cameraTransceiver;
       const stream=new MediaStream([e.track]);
+      const isCameraTr=e.transceiver===p.cameraTransceiver;
+      const isScreenTr=e.transceiver===p.screenTransceiver;
 
       const renderVideo=()=>{
         const liveUser=(v5CurrentUsers||[]).find(x=>x.uid===user.uid);
         const live=!!liveUser?.screenActive;
 
-        // Na V4 a tela usa o transceiver principal de vídeo.
-        if(isPrimaryVideo && live){
+        // V5: durante LIVE, qualquer uma das duas tracks de vídeo que estiver
+        // realmente recebendo frames pode virar a transmissão. Isso evita o
+        // problema de browsers associarem o replaceTrack ao m-line diferente.
+        if(live && (isCameraTr || isScreenTr)){
           v5RemoveMediaCard('camera',user.uid);
           v5MediaStreams.set('screen:'+user.uid,stream);
           v5UpsertMediaCard('screen',user.uid,liveUser?.nome||user.nome||'Usuário',stream,false);
           v5UpsertStreamTile(user.uid,liveUser?.nome||user.nome||'Usuário',stream,liveUser?.streamQuality||'AO VIVO',false);
-          status.textContent='Transmissão disponível';
-        }else if(isPrimaryVideo){
+          status.textContent=e.track.muted?'LIVE conectada — aguardando imagem':'Transmissão disponível';
+          return;
+        }
+
+        if(isCameraTr && !live){
           v5MediaStreams.set('camera:'+user.uid,stream);
           if(liveUser?.cameraActive){
             v5UpsertMediaCard('camera',user.uid,liveUser?.nome||user.nome||'Usuário',stream,false);
@@ -2690,15 +2699,22 @@ async function v5EnsureVoicePeer(user){
         }
       };
 
-      if(!e.track.muted)renderVideo();
+      // Mantém a track registrada mesmo antes do primeiro frame.
+      renderVideo();
       e.track.onunmute=renderVideo;
       e.track.onmute=()=>{
-        v5RemoveMediaCard('screen',user.uid);
-        v5ToggleMediaCard('camera',user.uid,false);
+        const liveUser=(v5CurrentUsers||[]).find(x=>x.uid===user.uid);
+        if(!liveUser?.screenActive){
+          if(isCameraTr)v5ToggleMediaCard('camera',user.uid,false);
+        }
       };
       e.track.onended=()=>{
-        v5RemoveMediaCard('screen',user.uid);
-        v5RemoveMediaCard('camera',user.uid);
+        const current=v5MediaStreams.get('screen:'+user.uid);
+        if(current?.getTracks().some(t=>t.id===e.track.id)){
+          v5RemoveMediaCard('screen',user.uid);
+          v5RemoveStreamTile(user.uid);
+        }
+        if(isCameraTr)v5RemoveMediaCard('camera',user.uid);
       };
     }
   };
@@ -2868,25 +2884,26 @@ window.v5AssistirTransmissao=async owner=>{
 
     const tentarAbrir=()=>{
       const vp=v5VoicePeers.get(owner);
-      const track=vp?.cameraTransceiver?.receiver?.track;
+      const tracks=[
+        vp?.screenTransceiver?.receiver?.track,
+        vp?.cameraTransceiver?.receiver?.track
+      ].filter(t=>t && t.readyState==='live');
+      const track=tracks.find(t=>!t.muted) || tracks[0];
 
-      if(track && track.readyState==='live'){
+      if(track){
         let stream=v5MediaStreams.get('screen:'+owner);
         if(!stream || !stream.getTracks().some(t=>t.id===track.id)){
           stream=new MediaStream([track]);
           v5MediaStreams.set('screen:'+owner,stream);
         }
 
-        // Mesmo se ainda estiver "muted", deixa o player preparado.
         v5UpsertMediaCard('screen',owner,user.nome||'Usuário',stream,false);
         v5UpsertStreamTile(owner,user.nome||'Usuário',stream,user.streamQuality||'AO VIVO',false);
         v5FocusMedia('screen',owner);
 
-        if(track.muted){
-          status.textContent='Conectado à live — aguardando imagem...';
-        }else{
-          status.textContent='Assistindo transmissão';
-        }
+        status.textContent=track.muted
+          ? 'Conectado à live — aguardando imagem...'
+          : 'Assistindo transmissão';
         return true;
       }
       return false;
@@ -2998,16 +3015,21 @@ window.compartilhar=async()=>{
       status.textContent='Transmitindo — aguardando alguém entrar';
     }
     for(const p of peers){
-      if(!p.cameraSender)continue;
-      try{
-        // V4: a LIVE usa o sender de vídeo principal já negociado.
-        await p.cameraSender.replaceTrack(vt);
-        console.log('[TELA V4] enviada para',p.uid,p.cameraSender.track?.id);
-      }catch(e){
-        console.warn('[TELA V4] replaceTrack falhou, tentando novamente',p.uid,e);
-        await new Promise(r=>setTimeout(r,250));
-        await p.cameraSender.replaceTrack(vt);
+      const senders=[p.cameraSender,p.screenSender].filter(Boolean);
+      if(!senders.length)continue;
+
+      let enviados=0;
+      for(const sender of senders){
+        try{
+          await sender.replaceTrack(vt);
+          enviados++;
+        }catch(e){
+          console.warn('[TELA V5] replaceTrack falhou',p.uid,e);
+        }
       }
+
+      console.log('[TELA V5] track enviada para',p.uid,'em',enviados,'sender(s)');
+      if(!enviados)throw new Error('Não foi possível enviar a tela para '+(p.name||p.uid));
     }
 
     v5MediaStreams.set('screen:'+auth.currentUser.uid,screenStream);
@@ -3035,6 +3057,7 @@ window.pararTela=async()=>{
   for(const p of v5VoicePeers.values()){
     try{
       if(p.cameraSender)await p.cameraSender.replaceTrack(cameraAtiva&&cameraTrack?cameraTrack:null);
+      if(p.screenSender)await p.screenSender.replaceTrack(null);
     }catch(e){console.warn(e)}
   }
 
@@ -3101,10 +3124,14 @@ async function v5HandleUsers(users){
 
       // Se a track da tela já existe no receiver principal, monta o stream agora.
       const vp=v5VoicePeers.get(u.uid);
-      // V4: usa o transceiver de vídeo principal, que já está negociado e estável.
-      // Durante a LIVE ele carrega a tela; fora da LIVE ele volta a carregar a câmera.
-      const rt=vp?.cameraTransceiver?.receiver?.track;
-      if(rt && rt.readyState==='live'){
+      const candidates=[
+        vp?.screenTransceiver?.receiver?.track,
+        vp?.cameraTransceiver?.receiver?.track
+      ].filter(t=>t && t.readyState==='live');
+
+      // Prefere a track que já está entregando frames (unmuted).
+      const rt=candidates.find(t=>!t.muted) || candidates[0];
+      if(rt){
         const rs=new MediaStream([rt]);
         v5MediaStreams.set('screen:'+u.uid,rs);
         v5UpsertMediaCard('screen',u.uid,u.nome||'Usuário',rs,false);
