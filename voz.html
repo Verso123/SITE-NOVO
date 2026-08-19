@@ -152,6 +152,24 @@ header{
 .toast{position:fixed;right:16px;bottom:16px;z-index:15000;background:#1a1a28;border:1px solid #37374d;border-radius:10px;padding:10px 13px;font-size:11px;color:#ddd;opacity:0;transform:translateY(10px);pointer-events:none;transition:.18s}
 .toast.show{opacity:1;transform:none}
 
+
+/* CAMERA + STATUS + CHAT ACTIONS */
+.camera-strip{position:absolute;left:12px;bottom:12px;display:flex;gap:8px;z-index:6;pointer-events:none}
+.camera-card{width:180px;aspect-ratio:16/10;background:#11111a;border:1px solid #343449;border-radius:10px;overflow:hidden;position:relative;display:none;box-shadow:0 8px 28px #0009;pointer-events:auto}
+.camera-card.show{display:block}.camera-card video{width:100%;height:100%;object-fit:cover;background:#050508;transform:scaleX(-1)}
+.camera-label{position:absolute;left:7px;bottom:6px;background:#000a;border-radius:5px;padding:3px 6px;font-size:9px;font-weight:800}
+.stream-overlay{position:absolute;right:12px;top:12px;display:none;gap:6px;z-index:5}.stream-overlay.show{display:flex}
+.stream-chip{background:#000b;border:1px solid #ffffff1a;border-radius:999px;padding:5px 8px;font-size:9px;color:#eee}
+.status-select{width:100%;background:#0d0d16;border:1px solid #343449;color:#eee;border-radius:8px;padding:10px}
+.status-dot{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:5px}.status-online{background:#3fc978}.status-away{background:#e9bd5a}.status-busy{background:#ed5d68}.status-offline{background:#777}
+.chat-msg{position:relative}.chat-actions{display:none;position:absolute;right:5px;top:3px;gap:3px;background:#11111b;border:1px solid #303044;border-radius:6px;padding:2px}.chat-msg:hover .chat-actions{display:flex}
+.chat-action{border:0;background:transparent;color:#aaa;font-size:10px;padding:3px 5px;border-radius:4px}.chat-action:hover{background:#29283b;color:#fff}
+.chat-reply{font-size:9px;color:#888;border-left:2px solid #6254d8;padding-left:6px;margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.chat-edited{font-size:8px;color:#666;margin-left:4px}.chat-reactions{display:flex;gap:4px;flex-wrap:wrap;margin-top:5px}
+.reaction{border:1px solid #343449;background:#171724;color:#ddd;border-radius:999px;padding:2px 6px;font-size:10px}.reaction.mine{border-color:#7c6af7;background:#262141}
+.reply-banner{display:none;align-items:center;justify-content:space-between;gap:8px;background:#171724;border:1px solid #303044;border-radius:7px;padding:6px 8px;margin-bottom:6px;font-size:9px;color:#aaa}.reply-banner.show{display:flex}.reply-banner b{color:#ddd}.reply-close{border:0;background:transparent;color:#aaa}
+.emoji-menu{position:fixed;display:none;z-index:16000;background:#171725;border:1px solid #3b3b55;border-radius:10px;padding:7px;box-shadow:0 18px 50px #000c;gap:4px}.emoji-menu.show{display:flex}.emoji-menu button{border:0;background:#242438;border-radius:7px;padding:7px;font-size:16px}
+
 /* RESPONSIVE */
 @media(max-width:900px){
   .call-shell{grid-template-columns:190px minmax(0,1fr)}
@@ -259,11 +277,17 @@ header{
       <audio id="remoteScreenAudio" autoplay playsinline></audio>
       <video id="remote" autoplay playsinline style="display:none"></video>
       <video id="mainStream" autoplay muted playsinline style="display:none"></video>
+      <div class="stream-overlay" id="streamOverlay"><span class="stream-chip" id="streamOwnerChip">🖥️ Transmissão</span><span class="stream-chip" id="streamQualityChip">720p • 30 FPS</span></div>
+      <div class="camera-strip">
+        <div class="camera-card" id="localCameraCard"><video id="localCamera" autoplay muted playsinline></video><div class="camera-label">Você</div></div>
+        <div class="camera-card" id="remoteCameraCard"><video id="remoteCamera" autoplay playsinline></video><div class="camera-label" id="remoteCameraName">Amigo</div></div>
+      </div>
     </div>
 
     <div class="controls">
       <button class="primary" id="mic" onclick="toggleMic()">🎙️ Microfone ligado</button>
-      <button onclick="compartilhar()">🖥️ Compartilhar</button>
+      <button id="cameraBtn" onclick="toggleCamera()">📷 Ligar câmera</button>
+       <button onclick="compartilhar()">🖥️ Compartilhar</button>
       <button onclick="pararTela()">⏹ Parar tela</button>
       <button onclick="telaCheia()">⛶ Tela cheia</button>
       <button id="btnAjusteTela" onclick="alternarAjusteTela()">▣ Preencher</button>
@@ -295,6 +319,7 @@ header{
         <div class="chat-empty">Nenhuma mensagem ainda.</div>
       </div>
       <div class="chat-compose">
+        <div class="reply-banner" id="replyBanner"><span>Respondendo a <b id="replyName"></b>: <span id="replyText"></span></span><button class="reply-close" onclick="cancelarResposta()">✕</button></div>
         <div class="chat-compose-row">
           <input id="chatInput" maxlength="500" placeholder="Mensagem em #chat-geral" autocomplete="off">
           <button class="chat-send" onclick="enviarMensagemChat()">➤</button>
@@ -331,10 +356,21 @@ header{
   </div>
 </div>
 
+<div class="emoji-menu" id="emojiMenu"><button>👍</button><button>❤️</button><button>😂</button><button>😮</button><button>🎮</button></div>
+
 <div class="settings-bg" id="settingsBg" onclick="fecharConfiguracoesFundo(event)">
   <div class="settings-card">
     <h3>Configurações de voz</h3>
     <p>As alterações são aplicadas somente no seu navegador.</p>
+
+    <div class="setting-row">
+      <label>STATUS</label>
+      <select id="userStatus" class="status-select">
+        <option value="Online">🟢 Online</option>
+        <option value="Ausente">🟡 Ausente</option>
+        <option value="Ocupado">🔴 Ocupado</option>
+      </select>
+    </div>
 
     <div class="setting-row">
       <label>MICROFONE</label>
@@ -391,6 +427,9 @@ header{
 import{initializeApp}from'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';import{getAuth,onAuthStateChanged}from'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';import{getFirestore,doc,setDoc,getDoc,updateDoc,collection,addDoc,onSnapshot,getDocs,deleteDoc,runTransaction,serverTimestamp,arrayUnion,query,orderBy,limit}from'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 const cfg={apiKey:'AIzaSyAaIxroCAMOvDxg5aLUr2P8jweygemm1uM',authDomain:'lista-de-jogos-f1874.firebaseapp.com',projectId:'lista-de-jogos-f1874',storageBucket:'lista-de-jogos-f1874.firebasestorage.app',messagingSenderId:'692334284655',appId:'1:692334284655:web:a55db647b5f8b39d00a29a'};const app=initializeApp(cfg),auth=getAuth(app),db=getFirestore(app);let pc,micStream,screenStream,roomId,isHost=false,unsubs=[];const remote=document.getElementById('remote'),status=document.getElementById('status'),streamPreview=document.getElementById('streamPreview'),mainStream=document.getElementById('mainStream');let remoteStreamAtual=null;
 let screenPc=null;
+let cameraStream=null;
+let cameraTrack=null;
+let cameraAtiva=false;
 let screenSignalUnsub=null;
 let screenRev=0;
 let screenOwnerUid=null;
@@ -415,12 +454,14 @@ onAuthStateChanged(auth,async u=>{
     const p=ps.exists()?ps.data():{};
     meuPerfilAtual={
       nome:p.nome||u.displayName||u.email?.split('@')[0]||'Usuário',
-      fotoURL:p.fotoURL||''
+      fotoURL:p.fotoURL||'',
+      status:p.status||localStorage.getItem('voiceUserStatus')||'Online'
     };
   }catch(e){
     meuPerfilAtual={
       nome:u.displayName||u.email?.split('@')[0]||'Usuário',
-      fotoURL:''
+      fotoURL:'',
+      status:localStorage.getItem('voiceUserStatus')||'Online'
     };
   }
 
@@ -812,6 +853,14 @@ async function setup(){
     }
 
     if(e.track.kind==='video'){
+      // O vídeo da conexão principal agora é reservado para webcam.
+      const rc=document.getElementById('remoteCamera');
+      const card=document.getElementById('remoteCameraCard');
+      if(rc){rc.srcObject=new MediaStream([e.track]);rc.play().catch(()=>{});}
+      if(card)card.classList.add('show');
+      e.track.onended=()=>card?.classList.remove('show');
+      return;
+
       remoteVideoTrack=e.track;
       remoteStreamAtual=new MediaStream([e.track]);
 
@@ -861,8 +910,9 @@ function gen(){return Math.random().toString(36).slice(2,8).toUpperCase()}
 function iniciais(nome){
   return String(nome||'?').trim().split(/\s+/).slice(0,2).map(x=>x[0]).join('').toUpperCase();
 }
+function statusUsuario(st){const s=st||'Online';return s==='Ausente'?'🟡 Ausente':s==='Ocupado'?'🔴 Ocupado':s==='Offline'?'⚫ Offline':'🟢 Online';}
 
-let meuPerfilAtual={nome:'Usuário',fotoURL:''};
+let meuPerfilAtual={nome:'Usuário',fotoURL:'',status:localStorage.getItem('voiceUserStatus')||'Online'};
 let membrosSalaAtual=[];
 
 function avatarHTML(u,extraId=''){
@@ -900,7 +950,7 @@ function renderMembrosDaSala(usuarios){
       ${avatarHTML(u,avatarId)}
       <div>
         <div class="member-name">${u.nome||'Usuário'}${eu?' <span style="color:#7c6af7;font-size:10px">(você)</span>':''}</div>
-        <div class="member-state">${eu?'🎙️ Microfone ligado':'🟢 Conectado'}</div>
+        <div class="member-state">${eu?'🎙️ Microfone ligado':statusUsuario(u.status)}</div>
       </div>
     </div>`;
   }).join('');
@@ -976,6 +1026,7 @@ async function registrarPresencaSala(id,perfil){
       uid:user.uid,
       nome,
       foto,
+      status:meuPerfilAtual.status||'Online',
       lastSeen:serverTimestamp()
     },{merge:true});
   }catch(e){
@@ -1018,6 +1069,8 @@ async function cleanupSalaAtual({deixarLobby=false}={}){
     }
     fecharScreenPc();
 
+    cameraStream?.getTracks().forEach(t=>t.stop());
+    cameraStream=null;cameraTrack=null;cameraAtiva=false;
     micStream?.getTracks().forEach(t=>t.stop());
     try{pc?.close()}catch(_){}
     pc=null;
@@ -1375,6 +1428,30 @@ window.toggleMic=()=>{
   if(!t.enabled)document.getElementById('myAvatar')?.classList.remove('speaking');
   mostrarToast(t.enabled?'Microfone ativado':'Microfone silenciado');
 };
+window.toggleCamera=async()=>{
+  try{
+    if(!pc || !videoSender)throw new Error('Entre em uma sala primeiro.');
+    if(cameraAtiva){
+      await videoSender.replaceTrack(null);
+      cameraStream?.getTracks().forEach(t=>t.stop());
+      cameraStream=null;cameraTrack=null;cameraAtiva=false;
+      document.getElementById('localCameraCard')?.classList.remove('show');
+      const b=document.getElementById('cameraBtn');if(b)b.textContent='📷 Ligar câmera';
+      mostrarToast('Câmera desligada');
+      return;
+    }
+    cameraStream=await navigator.mediaDevices.getUserMedia({video:{width:{ideal:1280},height:{ideal:720},frameRate:{ideal:30}},audio:false});
+    cameraTrack=cameraStream.getVideoTracks()[0];
+    await videoSender.replaceTrack(cameraTrack);
+    cameraAtiva=true;
+    const lv=document.getElementById('localCamera');if(lv){lv.srcObject=cameraStream;lv.play().catch(()=>{});}
+    document.getElementById('localCameraCard')?.classList.add('show');
+    const b=document.getElementById('cameraBtn');if(b)b.textContent='📷 Desligar câmera';
+    cameraTrack.onended=()=>{if(cameraAtiva)toggleCamera();};
+    mostrarToast('Câmera ligada');
+  }catch(e){console.error(e);mostrarToast(e?.message||'Não foi possível abrir a câmera');}
+};
+
 window.compartilhar=async()=>{
   try{
     if(!sessionId)throw new Error('Entre em uma sala primeiro.');
@@ -1447,6 +1524,8 @@ window.compartilhar=async()=>{
     const qb=document.getElementById('qualityBadge');
     if(qb)qb.textContent=`${streamResolution}p${streamFps}`;
     document.getElementById('streamTile').style.display='block';
+    document.getElementById('streamOverlay')?.classList.add('show');
+    const sq=document.getElementById('streamQualityChip');if(sq)sq.textContent=`${streamResolution}p • ${streamFps} FPS`;
 
     // Abre a própria transmissão no centro ao clicar na miniatura.
     remoteStreamAtual=screenStream;
@@ -1489,6 +1568,7 @@ window.pararTela=async()=>{
 
     streamPreview.srcObject=null;
     document.getElementById('streamTile').style.display='none';
+    document.getElementById('streamOverlay')?.classList.remove('show');
     fecharTransmissao();
     status.textContent='Tela não compartilhada';
     mostrarToast('Transmissão encerrada');
@@ -1848,31 +1928,38 @@ function avatarChatHTML(msg){
   return iniciais(msg.nome||'Usuário');
 }
 
+let chatDocsAtuais=[];
+let replyState=null;
+let emojiMsgId=null;
+
 function renderChat(docs){
   const box=document.getElementById('chatMessages');
   if(!box)return;
-
-  if(!docs.length){
-    box.innerHTML='<div class="chat-empty">Nenhuma mensagem ainda.</div>';
-    return;
-  }
-
+  chatDocsAtuais=docs;
+  if(!docs.length){box.innerHTML='<div class="chat-empty">Nenhuma mensagem ainda.</div>';return;}
   box.innerHTML=docs.map(d=>{
-    const m=d.data();
-    return `<div class="chat-msg">
+    const m=d.data(), mine=m.uid===auth.currentUser?.uid;
+    const reacts=m.reacoes||{};
+    const reactHtml=Object.entries(reacts).filter(([,uids])=>Array.isArray(uids)&&uids.length).map(([emo,uids])=>`<button class="reaction ${uids.includes(auth.currentUser?.uid)?'mine':''}" onclick="reagirMensagem('${d.id}','${emo}')">${emo} ${uids.length}</button>`).join('');
+    const reply=m.resposta?`<div class="chat-reply">↪ ${escaparHtml(m.resposta.nome||'Usuário')}: ${escaparHtml(m.resposta.texto||'')}</div>`:'';
+    return `<div class="chat-msg" data-msg-id="${d.id}">
       <div class="chat-avatar">${avatarChatHTML(m)}</div>
-      <div>
-        <div class="chat-head">
-          <span class="chat-name">${escaparHtml(m.nome||'Usuário')}</span>
-          <span class="chat-time">${horarioChat(m.criadoEm)}</span>
-        </div>
-        <div class="chat-text">${escaparHtml(m.texto||'')}</div>
-      </div>
+      <div>${reply}<div class="chat-head"><span class="chat-name">${escaparHtml(m.nome||'Usuário')}</span><span class="chat-time">${horarioChat(m.criadoEm)}</span>${m.editadoEm?'<span class="chat-edited">(editado)</span>':''}</div><div class="chat-text">${escaparHtml(m.texto||'')}</div><div class="chat-reactions">${reactHtml}</div></div>
+      <div class="chat-actions"><button class="chat-action" onclick="responderMensagem('${d.id}')" title="Responder">↩</button><button class="chat-action" onclick="abrirEmojis(event,'${d.id}')" title="Reagir">😀</button>${mine?`<button class="chat-action" onclick="editarMensagem('${d.id}')" title="Editar">✎</button><button class="chat-action" onclick="excluirMensagem('${d.id}')" title="Excluir">🗑</button>`:''}</div>
     </div>`;
   }).join('');
-
   box.scrollTop=box.scrollHeight;
 }
+
+function msgPorId(id){return chatDocsAtuais.find(d=>d.id===id);}
+window.responderMensagem=id=>{const d=msgPorId(id);if(!d)return;const m=d.data();replyState={id,nome:m.nome||'Usuário',texto:m.texto||''};document.getElementById('replyName').textContent=replyState.nome;document.getElementById('replyText').textContent=replyState.texto.slice(0,80);document.getElementById('replyBanner').classList.add('show');document.getElementById('chatInput')?.focus();};
+window.cancelarResposta=()=>{replyState=null;document.getElementById('replyBanner')?.classList.remove('show');};
+window.editarMensagem=async id=>{const d=msgPorId(id);if(!d||d.data().uid!==auth.currentUser?.uid)return;const novo=prompt('Editar mensagem:',d.data().texto||'');if(novo===null)return;const texto=novo.trim();if(!texto)return;try{await updateDoc(doc(db,'chats','geral','mensagens',id),{texto:texto.slice(0,500),editadoEm:serverTimestamp()});}catch(e){console.error(e);mostrarToast('Não foi possível editar');}};
+window.excluirMensagem=async id=>{const d=msgPorId(id);if(!d||d.data().uid!==auth.currentUser?.uid)return;if(!confirm('Excluir esta mensagem?'))return;try{await deleteDoc(doc(db,'chats','geral','mensagens',id));}catch(e){console.error(e);mostrarToast('Não foi possível excluir');}};
+window.abrirEmojis=(e,id)=>{e.stopPropagation();emojiMsgId=id;const menu=document.getElementById('emojiMenu');menu.style.left=Math.min(e.clientX,window.innerWidth-240)+'px';menu.style.top=Math.min(e.clientY,window.innerHeight-60)+'px';menu.classList.add('show');};
+document.querySelectorAll('#emojiMenu button').forEach(b=>b.addEventListener('click',()=>{if(emojiMsgId)reagirMensagem(emojiMsgId,b.textContent);document.getElementById('emojiMenu').classList.remove('show');}));
+window.reagirMensagem=async(id,emo)=>{try{const ref=doc(db,'chats','geral','mensagens',id);await runTransaction(db,async tx=>{const snap=await tx.get(ref);if(!snap.exists())return;const data=snap.data(), r={...(data.reacoes||{})}, arr=Array.isArray(r[emo])?[...r[emo]]:[], uid=auth.currentUser.uid, i=arr.indexOf(uid);if(i>=0)arr.splice(i,1);else arr.push(uid);r[emo]=arr;tx.update(ref,{reacoes:r});});}catch(e){console.error(e);mostrarToast('Não foi possível reagir');}};
+document.addEventListener('click',()=>document.getElementById('emojiMenu')?.classList.remove('show'));
 
 function iniciarChat(){
   if(chatCarregado)return;
@@ -1920,10 +2007,13 @@ window.enviarMensagemChat=async()=>{
       nome:meuPerfilAtual.nome||auth.currentUser.displayName||'Usuário',
       fotoURL:meuPerfilAtual.fotoURL||'',
       texto:texto.slice(0,500),
+      resposta:replyState?{id:replyState.id,nome:replyState.nome,texto:replyState.texto.slice(0,120)}:null,
+      reacoes:{},
       criadoEm:serverTimestamp()
     });
 
     input.value='';
+    cancelarResposta();
   }catch(e){
     console.error(e);
     mostrarToast('Não foi possível enviar a mensagem');
@@ -1952,6 +2042,7 @@ function mostrarToast(texto){
 window.abrirConfiguracoes=async()=>{
   document.getElementById('settingsBg')?.classList.add('show');
   aplicarEstadoPtt();
+  const us=document.getElementById('userStatus');if(us)us.value=meuPerfilAtual.status||'Online';
   const jl=document.getElementById('joinLeaveSounds');
   if(jl)jl.checked=joinLeaveSounds;
 
@@ -2012,6 +2103,10 @@ window.aplicarConfiguracoesAudio=async()=>{
     const meuAvatar=document.getElementById('myAvatar');
     if(meuAvatar)detectorVoz(micStream,meuAvatar);
 
+    const novoStatus=document.getElementById('userStatus')?.value||'Online';
+    meuPerfilAtual.status=novoStatus;localStorage.setItem('voiceUserStatus',novoStatus);
+    const ds=document.getElementById('dockStatus');if(ds)ds.textContent='● '+novoStatus;
+    if(fixedRoomKey&&auth.currentUser){await setDoc(doc(db,'salasFixas',fixedRoomKey,'usuarios',auth.currentUser.uid),{status:novoStatus,lastSeen:serverTimestamp()},{merge:true});}
     inputMode=document.getElementById('inputMode')?.value||'voice';
     localStorage.setItem('voiceInputMode',inputMode);
     localStorage.setItem('voicePttKey',pttKey);
