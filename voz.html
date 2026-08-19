@@ -2710,13 +2710,32 @@ window.popoutV5=()=>{
 };
 window.toggleFocusModeV5=()=>{v5FocusMode=!v5FocusMode;document.body.classList.toggle('focus-mode',v5FocusMode);mostrarToast(v5FocusMode?'Modo foco ativado':'Modo foco desativado')};
 
-function v5StreamSignalRef(owner,viewer){return doc(db,'salasFixas',fixedRoomKey,'screenSignals',v5SafeId(owner+'__'+viewer))}
+function v5StreamSignalRef(owner,viewer){
+  // Usa a mesma subcoleção de sinalização já utilizada pela voz.
+  // Isso evita a transmissão depender de permissões separadas para "screenSignals".
+  return doc(
+    db,
+    'salasFixas',
+    fixedRoomKey,
+    'sinais',
+    'screen__'+v5SafeId(owner+'__'+viewer)
+  );
+}
 async function v5EnsureScreenOwnerPeer(user){
   if(!screenStream||!user?.uid||user.uid===auth.currentUser.uid)return;const uid=user.uid,existing=v5ScreenOwnerPeers.get(uid);if(existing&&existing.rev===screenRev)return;if(existing)v5CloseScreenOwnerPeer(uid);
   const sig=v5StreamSignalRef(auth.currentUser.uid,uid),p={uid,rev:screenRev,pc:new RTCPeerConnection(rtc),sig,pending:[],ready:false,candCount:0,unsub:null};v5ScreenOwnerPeers.set(uid,p);
   screenStream.getTracks().forEach(t=>p.pc.addTrack(t,screenStream));
   p.pc.onicecandidate=e=>{if(!e.candidate)return;const c=e.candidate.toJSON();if(!p.ready){p.pending.push(c);return}setDoc(sig,{candOwner:arrayUnion(c)},{merge:true}).catch(console.warn)};
-  p.unsub=onSnapshot(sig,s=>v5ProcessScreenOwnerSignal(p,s.data()).catch(console.warn),console.warn);
+  p.pc.onconnectionstatechange=()=>{
+    const st=p.pc.connectionState;
+    console.log('[TELA owner]',uid,st);
+    if(st==='connected') status.textContent='Transmissão conectada';
+    if(st==='failed') status.textContent='Falha ao conectar a transmissão — tentando novamente...';
+  };
+  p.unsub=onSnapshot(sig,s=>v5ProcessScreenOwnerSignal(p,s.data()).catch(console.warn),e=>{
+    console.error('screen owner signal',e);
+    status.textContent='Erro de sinalização da transmissão';
+  });
   const offer=await p.pc.createOffer();await p.pc.setLocalDescription(offer);
   await setDoc(sig,{ownerUid:auth.currentUser.uid,viewerUid:uid,rev:screenRev,active:true,offer:{type:offer.type,sdp:offer.sdp},answer:null,answerRev:0,candOwner:[],candViewer:[],quality:`${streamResolution}p • ${streamFps} FPS`,updatedAt:Date.now()});p.ready=true;
   for(const c of p.pending.splice(0))await setDoc(sig,{candOwner:arrayUnion(c)},{merge:true});
@@ -2728,6 +2747,21 @@ async function v5EnsureScreenViewerPeer(user){
   const owner=user?.uid,rev=Number(user?.screenRev||0);if(!owner||owner===auth.currentUser.uid||!user.screenActive||!rev)return;const old=v5ScreenViewerPeers.get(owner);if(old&&old.rev===rev)return;if(old)await v5CloseScreenViewerPeer(owner);
   const sig=v5StreamSignalRef(owner,auth.currentUser.uid),p={owner,rev,pc:new RTCPeerConnection(rtc),sig,pending:[],ready:false,candCount:0,unsub:null,stream:new MediaStream(),audio:null,viewerTimer:null};v5ScreenViewerPeers.set(owner,p);v5ScreenStreams.set(owner,p.stream);
   p.pc.onicecandidate=e=>{if(!e.candidate)return;const c=e.candidate.toJSON();if(!p.ready){p.pending.push(c);return}setDoc(sig,{candViewer:arrayUnion(c)},{merge:true}).catch(console.warn)};
+  p.pc.onconnectionstatechange=()=>{
+    const st=p.pc.connectionState;
+    console.log('[TELA viewer]',owner,st);
+    if(st==='connecting') status.textContent='Conectando à transmissão...';
+    if(st==='connected') status.textContent='Transmissão disponível';
+    if(st==='failed'){
+      status.textContent='Falha na transmissão — reconectando...';
+      setTimeout(()=>{
+        const atual=v5CurrentUsers.find(u=>u.uid===owner);
+        if(atual?.screenActive){
+          v5CloseScreenViewerPeer(owner).then(()=>v5EnsureScreenViewerPeer(atual)).catch(console.warn);
+        }
+      },1200);
+    }
+  };
   p.pc.ontrack=e=>{
     if(!p.stream.getTracks().some(t=>t.id===e.track.id))p.stream.addTrack(e.track);
     if(e.track.kind==='video'){
@@ -2737,7 +2771,13 @@ async function v5EnsureScreenViewerPeer(user){
       let a=v5ScreenAudios.get(owner);if(!a){a=document.createElement('audio');a.autoplay=true;a.playsInline=true;a.dataset.owner=owner;document.body.appendChild(a);v5ScreenAudios.set(owner,a)}a.srcObject=new MediaStream([e.track]);v5ApplyScreenAudio(owner);
     }
   };
-  p.unsub=onSnapshot(sig,s=>v5ProcessScreenViewerSignal(p,s.data(),user).catch(console.warn),console.warn);
+  p.unsub=onSnapshot(sig,s=>v5ProcessScreenViewerSignal(p,s.data(),user).catch(e=>{
+    console.error('screen viewer process',e);
+    status.textContent='Erro ao abrir a transmissão';
+  }),e=>{
+    console.error('screen viewer signal',e);
+    status.textContent='Erro de sinalização da transmissão';
+  });
   await v5MarkViewing(owner,true);
   p.viewerTimer=setInterval(()=>v5MarkViewing(owner,true).catch(()=>{}),10000);
 }
